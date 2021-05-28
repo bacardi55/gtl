@@ -130,13 +130,6 @@ func getFeeds(subFile string) map[string] core.TlFeed {
     return nil
   }()
 
-  /*
-  b, err := ioutil.ReadAll(file)
-  if err != nil {
-    log.Fatalln("Couldn't read configuration file; ", subFile)
-  }
-  */
-
   F, err := parseSubscriptions(file)
   if err != nil {
     log.Fatalln(err)
@@ -161,7 +154,7 @@ func parseSubscriptions(content io.Reader) (map[string] core.TlFeed, error) {
       }
       Feeds[Feed.Title] = Feed
     } else {
-      fmt.Println("Ignoring malformated entry: ", line)
+      log.Println("Ignoring malformated entry: ", line)
       continue
     }
   }

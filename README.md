@@ -7,9 +7,10 @@ Status: Work In Progress, unusable at this stage.
 # TODOLIST:
 
 MVP:
-* ~Load or create Configuration file.~
-* ~Load subscription from file set in Configuration~
+* ~~Load or create Configuration file.~~
+* ~~Load subscription from file set in Configuration~~
 * Load and parse all tinylogs feeds.
+* Support author/avatar between title and tinylogs entry
 * Sort feeds items
 * Display feeds items in order
 * Create TUI basic

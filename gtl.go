@@ -28,10 +28,15 @@ func main() {
     os.Exit(0)
   }
 
+  // Init configuration and subscriptions.
   config.Init(configArg, &Data)
+
   //fmt.Println(Data)
-  fmt.Println(Data.Config)
-  fmt.Println(Data.Feeds)
+  //fmt.Println(Data.Config)
+  log.Println(Data.Feeds)
+
+  // Retrieve feeds and create stream.
+  Data.RefreshFeeds()
 
   fmt.Println("All good so far")
 }
