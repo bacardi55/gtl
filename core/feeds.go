@@ -148,8 +148,9 @@ func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 
 	if nbLines > 1 {
 		for i := 1; i < nbLines; i++ {
-			if strings.HasPrefix(lines[i], "## ") {
-				f, e := parseTinyLogItem(lines[i], author)
+			l := strings.TrimSpace(lines[i])
+			if strings.HasPrefix(l, "## ") {
+				f, e := parseTinyLogItem(l, author)
 				if e != nil {
 					// Ignoring the entry but continuing in case other entries of this feed are in a known format.
 					log.Println(e)
@@ -157,7 +158,7 @@ func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 					fi[i-1] = &f
 				}
 			} else {
-				log.Println("Ignoring malformed entry", author, lines[i])
+				log.Println("Ignoring malformed entry (not starting with «## »)", author, l)
 			}
 		}
 	}
