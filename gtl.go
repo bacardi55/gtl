@@ -36,7 +36,10 @@ func main() {
   log.Println(Data.Feeds)
 
   // Retrieve feeds and create stream.
-  Data.RefreshFeeds()
+  e := Data.RefreshFeeds()
+  if e != nil {
+    log.Fatalln("Couldn't refresh feeds")
+  }
 
   fmt.Println("All good so far")
 }

@@ -22,7 +22,6 @@ type TlFeed struct {
 
 type TlFeedItem struct {
   Author string
-  //Avatar string
   Content string
   Published time.Time
 }

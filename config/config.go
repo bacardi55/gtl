@@ -153,6 +153,12 @@ func parseSubscriptions(content io.Reader) (map[string] core.TlFeed, error) {
         Link: v[0],
       }
       Feeds[Feed.Title] = Feed
+    } else if lv == 1 {
+      Feed := core.TlFeed{
+        Title: " ",
+        Link: v[0],
+      }
+      Feeds[Feed.Title] = Feed
     } else {
       log.Println("Ignoring malformated entry: ", line)
       continue

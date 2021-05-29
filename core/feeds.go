@@ -12,12 +12,17 @@ import (
 	"git.sr.ht/~adnano/go-gemini"
 )
 
+type TlRawFeed struct {
+	Name string
+	Content string
+}
+
 // Refresh TlData.Stream.
 func (Data *TlData) RefreshFeeds() error {
 	var wg sync.WaitGroup
 
 	numFeed := len(Data.Feeds)
-	chFeedContent := make(chan string, numFeed)
+	chFeedContent := make(chan TlRawFeed, numFeed)
 	chFeedError := make(chan error, numFeed)
 
 	for _, feed := range Data.Feeds {
@@ -28,38 +33,45 @@ func (Data *TlData) RefreshFeeds() error {
 	wg.Wait()
 
 	for i := 0; i < numFeed; i++ {
-		fmt.Println("i", i)
 		e := <-chFeedError
 		if e != nil {
 			<-chFeedContent
 			log.Println(e)
 		} else {
-			content := <-chFeedContent
-			//fmt.Println("contents", content)
-			feedItems, err := parseTinyLogContent(content)
+			rf := <-chFeedContent
+			feedItems, err := parseTinyLogContent(rf)
 			if err != nil {
 				log.Println(err)
 			} else {
-				fmt.Println(feedItems)
+				//TODO:
+				for _, item := range feedItems {
+					fmt.Println(item.Author, item.Content, item.Published)
+				}
 			}
 		}
 	}
+
+	// TODO: Create Stream.
 
   return nil
 }
 
 // Load tinylog page from Feed URL
-func loadTinyLogContent(feed TlFeed, chFeedContent chan string, chFeedError chan error, wg *sync.WaitGroup) {
+func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError chan error, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	log.Println("Retrieving content from ", feed.Link)
+
+	// Fallback title if not within tinylog response page.
+	rf := TlRawFeed{Name: feed.Title}
+
 	gemclient := &gemini.Client{}
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(2)*time.Second)
 
 	response, err := gemclient.Get(ctx, feed.Link)
 	if err != nil {
 		chFeedError <- fmt.Errorf("Error retrieving content from %v", feed.Link)
-		chFeedContent <- ""
+		chFeedContent <- rf
 		return
 	}
 	defer response.Body.Close()
@@ -68,36 +80,108 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan string, chFeedError chan
 	// TODO: Add possibility to validate certs?
 	if respCert := response.TLS().PeerCertificates;
 	(len(respCert) > 0 && time.Now().After(respCert[0].NotAfter)) {
-		chFeedError <- fmt.Errorf("Invalid certificate for capsule ", feed.Link, " caspule is ignored.")
-		chFeedContent <- ""
+		chFeedError <- fmt.Errorf("Invalid certificate for capsule", feed.Link, " caspule is ignored.")
+		chFeedContent <- rf
 		return
 	}
 
 	content, err := io.ReadAll(response.Body)
 	if err != nil {
-		chFeedError <- fmt.Errorf("Couldn't read response from tinylogs ", feed.Link, ", ignoring feed.")
-		chFeedContent <- ""
+		chFeedError <- fmt.Errorf("Couldn't read response from tinylogs", feed.Link, ", ignoring feed.")
+		chFeedContent <- rf
 		return
 	}
 
-	chFeedContent <- string(content)
+	rf.Content = string(content)
+	chFeedContent <- rf
 	chFeedError <- nil
 
-	log.Println("log retrieved from ", feed.Link)
+	log.Println("Tiny log retrieved from", feed.Link)
 	return
 }
 
 // Parse gemini content of the tinylog file.
-func parseTinyLogContent(content string) ([]*TlFeedItem, error) {
-	//fmt.Println(content)
-	// TODO:
-	var fi []*TlFeedItem
+func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
+	author := rawFeed.Name
 
-  lines := strings.Split(content, "\n")
-	for _, line := range lines {
-		log.Println(line)
-  }
+  lines := strings.Split(rawFeed.Content, "\n\n")
+	nbLines := len(lines)
+
+	fi := make([]*TlFeedItem, nbLines-1)
+
+	if nbLines < 1 {
+		return fi, fmt.Errorf("Invalid tinylog format")
+	}
+	// First item could either be the intro item (first line starting with header 1 #)
+	// Or directly an tinylog entry (starting with a header 2 ##)
+	//fmt.Println(lines[0])
+	if strings.HasPrefix(lines[0], "# ") {
+		a := parseTinyLogHeaderForAuthor(lines[0])
+		if a != "" {
+			author = a
+		}
+	}
+	// Ignore line otherwise
+
+	if nbLines > 1 {
+		for i := 1; i < nbLines; i++ {
+			f, e := parseTinyLogItem(lines[i], author)
+			if e != nil {
+				return fi, e
+			} else {
+				fmt.Println("F =>", f)
+				fi[i-1] = &f
+			}
+		}
+	}
 
 	return fi, nil
+}
+
+// Parse tinylog Header.
+func parseTinyLogHeaderForAuthor(header string) string {
+	var metaAuthor, metaAvatar string
+
+	lines := strings.Split(header, "\n")
+
+	for _, line := range lines {
+		if strings.HasPrefix(line, "author:") {
+			metaAuthor = strings.TrimSpace(line[len("author:"):])
+		} else if strings.HasPrefix(line, "avatar:") {
+			metaAvatar = strings.TrimSpace(line[len("avatar:"):])
+		}
+	}
+
+	if metaAuthor != "" {
+		return strings.TrimSpace(metaAvatar + " " + metaAuthor)
+	}
+
+	return ""
+}
+
+// Parse tinylog Item.
+func parseTinyLogItem(content string, author string) (TlFeedItem, error) {
+	ft := TlFeedItem{Author: author}
+
+	lines := strings.Split(content, "\n")
+
+	if (len(lines) < 2) {
+		return ft, fmt.Errorf("Ignoring malformed entry", author, content)
+	}
+
+	parseTinyLogItemForDate(lines[0])
+
+	// TODO: parse.
+	ft.Content = content
+	// TODO:
+	ft.Published = time.Now()
+
+	return ft, nil
+}
+
+// Get date from entry.
+func parseTinyLogItemForDate(content string) (time.Time, error) {
+	//TODO:
+	return time.Now(), nil
 }
 
