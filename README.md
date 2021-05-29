@@ -13,16 +13,16 @@ MVP:
   * ~~Load .gmi file for all feeds~~
   * ~~Parse header for author and avatar (cf @adele & @szczezuja)~~
   * Parse tinylog entry:
-    * date
-    * content
-* Support author/avatar between title and tinylogs entry
+    * ~~date~~
+    * ~~content~~
 * Sort feeds items
 * Display feeds items in order
 * Create TUI basic
 * Auto Refresh based on configuration.
-* Format code according to go standard via gofmt.
-* Help / Documentation
 * Extract links from tinylog entry and display them the gemini way.
+
+* Help / Documentation
+* Format code according to go standard via gofmt.
 
 Others:
 * Subscription management: Add / Remove tinylogs.

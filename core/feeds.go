@@ -12,6 +12,26 @@ import (
 	"git.sr.ht/~adnano/go-gemini"
 )
 
+var supportedTimeFormat = []string{
+	"ANSIC",
+	"UnixDate",
+	"RubyDate",
+	"RFC822",
+	"RFC822Z",
+	"RFC850",
+	"RFC1123",
+	"RFC1123Z",
+	"RFC3339",
+	"2006-01-02 15:04:05 MST",
+	"2006-01-02 15:04 MST",
+	"Mon 02 Jan 2006 03:04:05 PM MST",
+	"Mon 02 Jan 2006 03:04 PM MST",
+	"Mon 02 Jan 2006 15:04 MST",
+	"Mon Jan  2 15:04:05 MST 2006",
+	"Mon Jan 02 15:04:05 MST 2006",
+	"Mon Jan 02 03:04:05 PM MST 2006",
+}
+
 type TlRawFeed struct {
 	Name string
 	Content string
@@ -39,14 +59,17 @@ func (Data *TlData) RefreshFeeds() error {
 			log.Println(e)
 		} else {
 			rf := <-chFeedContent
-			feedItems, err := parseTinyLogContent(rf)
+			_, err := parseTinyLogContent(rf)
+			//feedItems, err := parseTinyLogContent(rf)
 			if err != nil {
 				log.Println(err)
 			} else {
 				//TODO:
+				/*
 				for _, item := range feedItems {
-					fmt.Println(item.Author, item.Content, item.Published)
+					fmt.Println(item.Author, "\n", item.Content, "\n", item.Published)
 				}
+				*/
 			}
 		}
 	}
@@ -125,12 +148,16 @@ func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 
 	if nbLines > 1 {
 		for i := 1; i < nbLines; i++ {
-			f, e := parseTinyLogItem(lines[i], author)
-			if e != nil {
-				return fi, e
+			if strings.HasPrefix(lines[i], "## ") {
+				f, e := parseTinyLogItem(lines[i], author)
+				if e != nil {
+					// Ignoring the entry but continuing in case other entries of this feed are in a known format.
+					log.Println(e)
+				} else {
+					fi[i-1] = &f
+				}
 			} else {
-				fmt.Println("F =>", f)
-				fi[i-1] = &f
+				log.Println("Ignoring malformed entry", author, lines[i])
 			}
 		}
 	}
@@ -148,6 +175,7 @@ func parseTinyLogHeaderForAuthor(header string) string {
 		if strings.HasPrefix(line, "author:") {
 			metaAuthor = strings.TrimSpace(line[len("author:"):])
 		} else if strings.HasPrefix(line, "avatar:") {
+			// TODO: If avatar is more than 1 emoji, cut.
 			metaAvatar = strings.TrimSpace(line[len("avatar:"):])
 		}
 	}
@@ -169,19 +197,35 @@ func parseTinyLogItem(content string, author string) (TlFeedItem, error) {
 		return ft, fmt.Errorf("Ignoring malformed entry", author, content)
 	}
 
-	parseTinyLogItemForDate(lines[0])
+	pubDate, err := parseTinyLogItemForDate(lines[0])
+	if err != nil {
+		return ft, err
+	}
+	entry := strings.Join(lines[1:], "\n")
 
-	// TODO: parse.
-	ft.Content = content
-	// TODO:
-	ft.Published = time.Now()
+	ft.Content = strings.TrimSpace(entry)
+	ft.Published = pubDate
 
 	return ft, nil
 }
 
 // Get date from entry.
 func parseTinyLogItemForDate(content string) (time.Time, error) {
-	//TODO:
+	stringDate := content[3:]
+
+	valid := false
+	for _, format := range supportedTimeFormat {
+		_, e := time.Parse(format, stringDate)
+		if e == nil {
+			valid = true
+			break
+		}
+	}
+
+	if valid == false {
+		return time.Time{}, fmt.Errorf("No date format found for this entry: %v", stringDate)
+	}
+
 	return time.Now(), nil
 }
 
