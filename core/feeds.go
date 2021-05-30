@@ -8,6 +8,7 @@ import (
 	"io"
 	"sync"
 	"strings"
+	"sort"
 
 	"git.sr.ht/~adnano/go-gemini"
 )
@@ -37,21 +38,22 @@ type TlRawFeed struct {
 	Content string
 }
 
-// Refresh TlData.Stream.
-func (Data *TlData) RefreshFeeds() error {
+// Refresh Stream.
+func refreshStream(data TlData) (*TlStream, error) {
 	var wg sync.WaitGroup
 
-	numFeed := len(Data.Feeds)
+	numFeed := len(data.Feeds)
 	chFeedContent := make(chan TlRawFeed, numFeed)
 	chFeedError := make(chan error, numFeed)
 
-	for _, feed := range Data.Feeds {
+	for _, feed := range data.Feeds {
 		wg.Add(1)
 		go loadTinyLogContent(feed, chFeedContent, chFeedError, &wg)
 	}
 
 	wg.Wait()
 
+	var tlfi []*TlFeedItem
 	for i := 0; i < numFeed; i++ {
 		e := <-chFeedError
 		if e != nil {
@@ -59,24 +61,21 @@ func (Data *TlData) RefreshFeeds() error {
 			log.Println(e)
 		} else {
 			rf := <-chFeedContent
-			_, err := parseTinyLogContent(rf)
-			//feedItems, err := parseTinyLogContent(rf)
+			feedItems, err := parseTinyLogContent(rf)
 			if err != nil {
 				log.Println(err)
 			} else {
-				//TODO:
-				/*
-				for _, item := range feedItems {
-					fmt.Println(item.Author, "\n", item.Content, "\n", item.Published)
-				}
-				*/
+				tlfi = append(tlfi, feedItems...)
 			}
 		}
 	}
 
-	// TODO: Create Stream.
-
-  return nil
+	s := TlStream{
+		Name: "main",
+		Items: tlfi,
+	}
+	sort.Sort(&s)
+	return &s, nil
 }
 
 // Load tinylog page from Feed URL
@@ -127,38 +126,38 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 	author := rawFeed.Name
 
-  lines := strings.Split(rawFeed.Content, "\n\n")
-	nbLines := len(lines)
+  entries := strings.Split(rawFeed.Content, "\n\n")
+	nbEntries := len(entries)
 
-	fi := make([]*TlFeedItem, nbLines-1)
+	var fi []*TlFeedItem
 
-	if nbLines < 1 {
+	if nbEntries < 1 {
 		return fi, fmt.Errorf("Invalid tinylog format")
 	}
 	// First item could either be the intro item (first line starting with header 1 #)
 	// Or directly an tinylog entry (starting with a header 2 ##)
-	//fmt.Println(lines[0])
-	if strings.HasPrefix(lines[0], "# ") {
-		a := parseTinyLogHeaderForAuthor(lines[0])
+	//fmt.Println(entries[0])
+	if strings.HasPrefix(entries[0], "# ") {
+		a := parseTinyLogHeaderForAuthor(entries[0])
 		if a != "" {
 			author = a
 		}
 	}
 	// Ignore line otherwise
 
-	if nbLines > 1 {
-		for i := 1; i < nbLines; i++ {
-			l := strings.TrimSpace(lines[i])
+	if nbEntries > 1 {
+		for i := 1; i < nbEntries; i++ {
+			l := strings.TrimSpace(entries[i])
 			if strings.HasPrefix(l, "## ") {
 				f, e := parseTinyLogItem(l, author)
 				if e != nil {
 					// Ignoring the entry but continuing in case other entries of this feed are in a known format.
 					log.Println(e)
 				} else {
-					fi[i-1] = &f
+					fi = append(fi, &f)
 				}
 			} else {
-				log.Println("Ignoring malformed entry (not starting with «## »)", author, l)
+				log.Println("Ignoring malformed entry", author, l)
 			}
 		}
 	}
@@ -178,6 +177,9 @@ func parseTinyLogHeaderForAuthor(header string) string {
 		} else if strings.HasPrefix(line, "avatar:") {
 			// TODO: If avatar is more than 1 emoji, cut.
 			metaAvatar = strings.TrimSpace(line[len("avatar:"):])
+			if n := strings.Split(metaAvatar, " "); len(n) > 1 {
+				metaAvatar = n[0]
+			}
 		}
 	}
 
@@ -213,12 +215,14 @@ func parseTinyLogItem(content string, author string) (TlFeedItem, error) {
 // Get date from entry.
 func parseTinyLogItemForDate(content string) (time.Time, error) {
 	stringDate := content[3:]
+	var date time.Time
 
 	valid := false
 	for _, format := range supportedTimeFormat {
-		_, e := time.Parse(format, stringDate)
+		d, e := time.Parse(format, stringDate)
 		if e == nil {
 			valid = true
+			date = d
 			break
 		}
 	}
@@ -227,6 +231,6 @@ func parseTinyLogItemForDate(content string) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("No date format found for this entry: %v", stringDate)
 	}
 
-	return time.Now(), nil
+	return date, nil
 }
 

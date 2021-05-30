@@ -21,6 +21,8 @@ var defaultConf = []byte(`# Default config file
 subscribed_data = "~/.config/gtl/subs"
 # Refresh time:
 refresh = 10
+# Date display format
+date_format = "Mon 02 Jan 2006 15:04 MST"
 `)
 
 
@@ -95,15 +97,14 @@ func getConfigFilePath(configArg string) (string, error) {
 
     // Load or create configFile.
     f, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0666)
+    defer f.Close()
     if err == nil {
       log.Println("Default configuration file does not exist yet, creating it…")
       // Todo: Fix when directory doesn't exist. Doesn't work atm.
       _, err := f.Write(defaultConf)
       if err != nil {
-        f.Close()
         return "", fmt.Errorf("Default configuration file couldn't be created in default place")
       }
-      f.Close()
     }
   }
 

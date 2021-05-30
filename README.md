@@ -15,11 +15,13 @@ MVP:
   * Parse tinylog entry:
     * ~~date~~
     * ~~content~~
-* Sort feeds items
-* Display feeds items in order
+* ~~Sort feeds items~~
+* ~~Display as CLI output feeds items in order~~
 * Create TUI basic
 * Auto Refresh based on configuration.
 * Extract links from tinylog entry and display them the gemini way.
+* Non verbose mode for logs.
+* Move logs to logfile instead of stdout
 
 * Help / Documentation
 * Format code according to go standard via gofmt.

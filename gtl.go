@@ -4,6 +4,7 @@ import (
   "fmt"
   "os"
   "log"
+  //"sort"
 
   flag "github.com/spf13/pflag"
 
@@ -18,9 +19,10 @@ func main() {
   log.Println("Received arguments: ", os.Args)
 
   var configArg string
-  var helpArg bool
+  var helpArg, cliArg bool
   flag.StringVar(&configArg, "config", "", "The path to gtl.toml config file.")
   flag.BoolVar(&helpArg, "help", false, "Display help.")
+  flag.BoolVar(&cliArg, "cli", false, "Display tinylog stream and quit.")
   flag.Parse()
 
   if helpArg == true {
@@ -33,7 +35,7 @@ func main() {
 
   //fmt.Println(Data)
   //fmt.Println(Data.Config)
-  log.Println(Data.Feeds)
+  //log.Println(Data.Feeds)
 
   // Retrieve feeds and create stream.
   e := Data.RefreshFeeds()
@@ -41,7 +43,13 @@ func main() {
     log.Fatalln("Couldn't refresh feeds")
   }
 
-  fmt.Println("All good so far")
+  // Display stream and quit.
+  if cliArg == true {
+    displayStreamCli(Data.Stream)
+  }
+
+  fmt.Println("TUI is coming, only CLI for now, default-ing to CLI display.\n")
+  displayStreamCli(Data.Stream)
 }
 
 // Display help message.
@@ -53,3 +61,10 @@ func help() {
   return
 }
 
+func displayStreamCli(stream *core.TlStream) {
+  for _, s := range stream.Items {
+    //fmt.Println(i, s)
+    fmt.Println(s.Author, "-", s.Published.Format(Data.Config.Date_format))
+    fmt.Println(s.Content, "\n")
+  }
+}
