@@ -16,13 +16,13 @@ var configFile string
 var Data = core.TlData{}
 
 func main() {
-  log.Println("Received arguments: ", os.Args)
-
   var configArg string
   var helpArg, cliArg bool
+  var cliLimitArg int
   flag.StringVar(&configArg, "config", "", "The path to gtl.toml config file.")
   flag.BoolVar(&helpArg, "help", false, "Display help.")
   flag.BoolVar(&cliArg, "cli", false, "Display tinylog stream and quit.")
+  flag.IntVar(&cliLimitArg, "limit", 0, "Limit number of items in CLI mode")
   flag.Parse()
 
   if helpArg == true {
@@ -33,10 +33,6 @@ func main() {
   // Init configuration and subscriptions.
   config.Init(configArg, &Data)
 
-  //fmt.Println(Data)
-  //fmt.Println(Data.Config)
-  //log.Println(Data.Feeds)
-
   // Retrieve feeds and create stream.
   e := Data.RefreshFeeds()
   if e != nil {
@@ -45,11 +41,12 @@ func main() {
 
   // Display stream and quit.
   if cliArg == true {
-    displayStreamCli(Data.Stream)
+    displayStreamCli(Data.Stream, cliLimitArg)
+    os.Exit(0)
   }
 
   fmt.Println("TUI is coming, only CLI for now, default-ing to CLI display.\n")
-  displayStreamCli(Data.Stream)
+  displayStreamCli(Data.Stream, cliLimitArg)
 }
 
 // Display help message.
@@ -61,10 +58,13 @@ func help() {
   return
 }
 
-func displayStreamCli(stream *core.TlStream) {
-  for _, s := range stream.Items {
-    //fmt.Println(i, s)
-    fmt.Println(s.Author, "-", s.Published.Format(Data.Config.Date_format))
-    fmt.Println(s.Content, "\n")
+func displayStreamCli(stream *core.TlStream, limit int) {
+  if limit < 1 {
+    limit = len(stream.Items)
+  }
+
+  for i := 0; i < limit; i++ {
+    fmt.Println(stream.Items[i].Author, "-", stream.Items[i].Published.Format(Data.Config.Date_format))
+    fmt.Println(stream.Items[i].Content, "\n")
   }
 }
