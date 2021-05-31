@@ -24,6 +24,7 @@ type TlConfig struct {
   Subscribed_data string
   Refresh int
   Date_format string
+  Log_file string
 }
 
 type TlFeed struct {

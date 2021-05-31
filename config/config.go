@@ -23,12 +23,18 @@ subscribed_data = "~/.config/gtl/subs"
 refresh = 10
 # Date display format
 date_format = "Mon 02 Jan 2006 15:04 MST"
+# Log file:
+log_file = "/dev/null"
 `)
 
 
 func Init(configArg string, Data *core.TlData) {
   Config := getTlConfig(configArg)
   Data.Config = &Config
+
+  if configureLogs(Config) != nil {
+    log.Fatalln("Log file couldn't be created")
+  }
 
   Feeds := getFeeds(Config.Subscribed_data)
   Data.Feeds = Feeds
@@ -161,12 +167,12 @@ func parseSubscriptions(content io.Reader) (map[string] core.TlFeed, error) {
       }
       Feeds[Feed.Title] = Feed
     } else {
-      log.Println("Ignoring malformated entry: ", line)
+      return Feeds, fmt.Errorf("Ignoring malformated entry: ", line)
       continue
     }
   }
   if err := scanner.Err(); err != nil {
-    return nil, fmt.Errorf("reading standard input:", err)
+    return Feeds, fmt.Errorf("reading standard input:", err)
   }
 
   return Feeds, nil
@@ -178,6 +184,25 @@ func fileExist(filename string) error {
   if err != nil {
     return fmt.Errorf("File (%v) not found", filename)
   }
+  return nil
+}
+
+// Configure Log file.
+func configureLogs(config core.TlConfig) error {
+  var logFile string
+  if config.Log_file != "" {
+    fmt.Println("Log file: ", config.Log_file)
+    logFile = config.Log_file
+  } else {
+    logFile = "gtl.log"
+  }
+
+  file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+  if err != nil {
+      return err
+  }
+  log.SetOutput(file)
+
   return nil
 }
 

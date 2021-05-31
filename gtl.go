@@ -4,7 +4,6 @@ import (
   "fmt"
   "os"
   "log"
-  //"sort"
 
   flag "github.com/spf13/pflag"
 
