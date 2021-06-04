@@ -32,9 +32,23 @@ Usage:
 
 If you don't provide a config file path, gtl will look for it in `{homepath}/.config/gtl/gtl.toml`
 
+You need a subscription file though with the list of tinylogs to follow. For easier migration, the format is the same as lace except that the second argument is mandatory (for now):
+```
+<urlOfTinyLog> nameOfTinyLog
+<urlOfTinyLog2> nameOfTinyLog2
+…
+```
+
+This file should be in your configuration file:
+
+```toml
+subscribed_data = "path/to/sub/file"
+```
+
+
 # Default config file
 
-```
+```toml
 # Default config file:
 # Path to subscribed tinylogs:
 subscribed_data = "~/.config/gtl/subs"
@@ -67,6 +81,7 @@ MVP:
 * Auto Refresh based on configuration.
 * Extract links from tinylog entry and display them the gemini way.
 * ~~Move logs to logfile instead of stdout~~
+* Optional name in subscription file.
 
 * Help / Documentation
 * Format code according to go standard via gofmt.
