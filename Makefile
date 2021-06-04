@@ -5,14 +5,6 @@ VERSION := 0.1.0
 
 GOLDFLAGS ?= -s -w -X git.bacardi55.io/gtl/main.Version=$(VERSION)
 
-#PREFIX := /usr/local
-#EXEC_PREFIX := ${PREFIX}
-#BINDIR := ${EXEC_PREFIX}/bin
-#DATAROOTDIR := ${PREFIX}/share
-#MANDIR := ${DATAROOTDIR}/man
-#MAN1DIR := ${MANDIR}/man1
-#test : GOCMD := go1.11.13
-
 BUILD_TIME := ${shell date "+%Y-%m-%dT%H:%M"}
 
 .PHONY: build
