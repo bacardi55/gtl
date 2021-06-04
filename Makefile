@@ -1,9 +1,9 @@
 GOCMD := CGO_ENABLED=0 go1.16.4
 BINARY := gtl
 BINDIR := ./bin
-VERSION := 0.1.0
+VERSION := 0.1.1
 
-GOLDFLAGS ?= -s -w -X git.bacardi55.io/gtl/main.Version=$(VERSION)
+GOLDFLAGS := -s -w -X main.Version=$(VERSION)
 
 BUILD_TIME := ${shell date "+%Y-%m-%dT%H:%M"}
 
