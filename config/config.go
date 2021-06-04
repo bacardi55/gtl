@@ -191,7 +191,6 @@ func fileExist(filename string) error {
 func configureLogs(config core.TlConfig) error {
   var logFile string
   if config.Log_file != "" {
-    fmt.Println("Log file: ", config.Log_file)
     logFile = config.Log_file
   } else {
     logFile = "gtl.log"
