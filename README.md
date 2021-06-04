@@ -81,7 +81,7 @@ The --config option only look for the file, it will not create it if the file gi
 MVP:
 * ~~Load or create Configuration file.~~
 * ~~Load subscription from file set in Configuration~~
-* Load and parse all tinylogs feeds:
+* ~~Load and parse all tinylogs feeds:~~
   * ~~Load .gmi file for all feeds~~
   * ~~Parse header for author and avatar (cf @adele & @szczezuja)~~
   * ~~Parse tinylog entry:~~
