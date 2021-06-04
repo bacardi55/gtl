@@ -1,14 +1,14 @@
 package core
 
 import (
-	"fmt"
-	"log"
 	"context"
-	"time"
+	"fmt"
 	"io"
-	"sync"
-	"strings"
+	"log"
 	"sort"
+	"strings"
+	"sync"
+	"time"
 
 	"git.sr.ht/~adnano/go-gemini"
 )
@@ -34,7 +34,7 @@ var supportedTimeFormat = []string{
 }
 
 type TlRawFeed struct {
-	Name string
+	Name    string
 	Content string
 }
 
@@ -71,7 +71,7 @@ func refreshStream(data TlData) (*TlStream, error) {
 	}
 
 	s := TlStream{
-		Name: "main",
+		Name:  "main",
 		Items: tlfi,
 	}
 	sort.Sort(&s)
@@ -100,8 +100,7 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 
 	// TODO: Add an option to accept gemini feeds with expired certificate.
 	// TODO: Add possibility to validate certs?
-	if respCert := response.TLS().PeerCertificates;
-	(len(respCert) > 0 && time.Now().After(respCert[0].NotAfter)) {
+	if respCert := response.TLS().PeerCertificates; len(respCert) > 0 && time.Now().After(respCert[0].NotAfter) {
 		chFeedError <- fmt.Errorf("Invalid certificate for capsule", feed.Link, " caspule is ignored.")
 		chFeedContent <- rf
 		return
@@ -126,7 +125,7 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 	author := rawFeed.Name
 
-  entries := strings.Split(rawFeed.Content, "\n\n")
+	entries := strings.Split(rawFeed.Content, "\n\n")
 	nbEntries := len(entries)
 
 	var fi []*TlFeedItem
@@ -196,7 +195,7 @@ func parseTinyLogItem(content string, author string) (TlFeedItem, error) {
 
 	lines := strings.Split(content, "\n")
 
-	if (len(lines) < 2) {
+	if len(lines) < 2 {
 		return ft, fmt.Errorf("Ignoring malformed entry", author, content)
 	}
 
@@ -233,4 +232,3 @@ func parseTinyLogItemForDate(content string) (time.Time, error) {
 
 	return date, nil
 }
-

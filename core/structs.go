@@ -1,62 +1,61 @@
 package core
 
 import (
-  "time"
+	"time"
 )
 
 type TlData struct {
-  Feeds map[string] TlFeed
-  Config *TlConfig
-  Stream *TlStream
+	Feeds  map[string]TlFeed
+	Config *TlConfig
+	Stream *TlStream
 }
 
-func (Data *TlData) RefreshFeeds() (error) {
-  var err error
-  Data.Stream, err = refreshStream(*Data)
-  if err != nil {
-    return err
-  }
+func (Data *TlData) RefreshFeeds() error {
+	var err error
+	Data.Stream, err = refreshStream(*Data)
+	if err != nil {
+		return err
+	}
 
-  return nil
+	return nil
 }
 
 type TlConfig struct {
-  Subscribed_data string
-  Refresh int
-  Date_format string
-  Log_file string
+	Subscribed_data string
+	Refresh         int
+	Date_format     string
+	Log_file        string
 }
 
 type TlFeed struct {
-  Title string
-  Link string
+	Title string
+	Link  string
 }
 
 type TlFeedItem struct {
-  Author string
-  Content string
-  Published time.Time
+	Author    string
+	Content   string
+	Published time.Time
 }
 
 type TlStream struct {
-  // Name could be used to manage multiple stream
-  // Ex: All, Notification, …
-  Name string
-  Items []*TlFeedItem
+	// Name could be used to manage multiple stream
+	// Ex: All, Notification, …
+	Name  string
+	Items []*TlFeedItem
 }
 
 // Implement sort.Interface Len.
 func (Stream *TlStream) Len() int {
-  return len(Stream.Items)
+	return len(Stream.Items)
 }
 
 // Implement Interface sort.Interface Less.
 func (Stream *TlStream) Less(i, j int) bool {
-  return Stream.Items[i].Published.After(Stream.Items[j].Published)
+	return Stream.Items[i].Published.After(Stream.Items[j].Published)
 }
 
 // Implement Interface sort.Interface Swap.
 func (Stream *TlStream) Swap(i, j int) {
-  Stream.Items[i], Stream.Items[j] = Stream.Items[j], Stream.Items[i]
+	Stream.Items[i], Stream.Items[j] = Stream.Items[j], Stream.Items[i]
 }
-
