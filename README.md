@@ -18,7 +18,9 @@ go build -o path/to/binary/folder
 Put the binary in a directory available in your $PATH if you don't want to type the full path to the program.
 
 # From Binaries
-TODO.
+
+You can download binaries for linux [here](https://github.com/bacardi55/gtl/releases/tag/v0.1.0).
+Binaries are only available for linux 386, amd64, arm and arm64 for now.
 
 # Usage
 
