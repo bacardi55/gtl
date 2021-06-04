@@ -1,7 +1,7 @@
 GOCMD := CGO_ENABLED=0 go1.16.4
 BINARY := gtl
 BINDIR := ./bin
-VERSION := 0.0.1
+VERSION := 0.1.0
 
 GOLDFLAGS ?= -s -w -X git.bacardi55.io/gtl/main.Version=$(VERSION)
 
