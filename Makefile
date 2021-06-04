@@ -28,9 +28,8 @@ fmt:
 
 .PHONY: release
 release:
-	echo "Tagging version " ${VERSION}
-	git tag v${VERSION}
-	git push origin v${VERSION}
+	echo "Tagging version ${VERSION}"
+	git tag -a v${VERSION} -m "New released tag: v${VERSION}"
 	GOOS=linux GOARCH=amd64 ${GOCMD} build -ldflags "$(GOLDFLAGS)" -o ${BINDIR}/${BINARY}_${VERSION}_linux_amd64
 	GOOS=linux GOARCH=arm ${GOCMD} build -ldflags "$(GOLDFLAGS)" -o ${BINDIR}/${BINARY}_${VERSION}_linux_arm
 	GOOS=linux GOARCH=arm64 ${GOCMD} build -ldflags "$(GOLDFLAGS)" -o ${BINDIR}/${BINARY}_${VERSION}_linux_arm64
