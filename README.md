@@ -32,6 +32,14 @@ Usage:
 	--help			Display this help message.
 ```
 
+Example:
+```bash
+gtl --mode cli --limit 10
+gtl --limit 10 # cli mode is default, so this is the same as above.
+gtl --mode cli --limit 10 --config path/to/config/file # with specific path for config file.
+gtl --help
+```
+
 If you don't provide a config file path, gtl will look for it in `{homepath}/.config/gtl/gtl.toml`
 
 You need a subscription file though with the list of tinylogs to follow. For easier migration, the format is the same as lace except that the second argument is mandatory (for now):
