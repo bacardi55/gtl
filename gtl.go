@@ -15,12 +15,12 @@ var configFile string
 var Data = core.TlData{}
 
 func main() {
-  var configArg string
-  var helpArg, cliArg bool
+  var configArg, modeArg string
+  var helpArg bool
   var cliLimitArg int
   flag.StringVar(&configArg, "config", "", "The path to gtl.toml config file.")
   flag.BoolVar(&helpArg, "help", false, "Display help.")
-  flag.BoolVar(&cliArg, "cli", false, "Display tinylog stream and quit.")
+  flag.StringVar(&modeArg, "mode", "cli", "The mode for gtl, either cli or tui (not ready yet)")
   flag.IntVar(&cliLimitArg, "limit", 0, "Limit number of items in CLI mode")
   flag.Parse()
 
@@ -39,13 +39,11 @@ func main() {
   }
 
   // Display stream and quit.
-  if cliArg == true {
+  if modeArg == "cli" {
     displayStreamCli(Data.Stream, cliLimitArg)
-    os.Exit(0)
+  } else if modeArg == "tui" {
+    fmt.Println("TUI is not available yet, please use the cli mode.")
   }
-
-  fmt.Println("TUI is coming, only CLI for now, default-ing to CLI display.\n")
-  displayStreamCli(Data.Stream, cliLimitArg)
 }
 
 // Display help message.
@@ -53,6 +51,8 @@ func help() {
   fmt.Println("gtl is a TUI tool for gemini tinylogs")
   fmt.Println("Usage:")
   fmt.Println("\t--config configFile\tIndicate a specific config file.")
+  fmt.Println("\t--mode {cli,tui}\tSelect the cli or tui mode.")
+  fmt.Println("\t--limit X\t\tWhen using cli mode, display only X item.")
   fmt.Println("\t--help\t\t\tDisplay this help message.")
   return
 }
