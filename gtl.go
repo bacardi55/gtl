@@ -13,19 +13,26 @@ import (
 
 var configFile string
 var Data = core.TlData{}
+var Version string
 
 func main() {
 	var configArg, modeArg string
-	var helpArg bool
+	var helpArg, versionArg bool
 	var cliLimitArg int
 	flag.StringVar(&configArg, "config", "", "The path to gtl.toml config file.")
-	flag.BoolVar(&helpArg, "help", false, "Display help.")
 	flag.StringVar(&modeArg, "mode", "cli", "The mode for gtl, either cli or tui (not ready yet)")
 	flag.IntVar(&cliLimitArg, "limit", 0, "Limit number of items in CLI mode")
+	flag.BoolVar(&helpArg, "help", false, "Display help.")
+	flag.BoolVar(&versionArg, "version", false, "Display gtl's current version.")
 	flag.Parse()
 
 	if helpArg == true {
 		help()
+		os.Exit(0)
+	}
+
+	if versionArg == true {
+		fmt.Printf("gtl version: %s\n", Version)
 		os.Exit(0)
 	}
 
@@ -53,6 +60,7 @@ func help() {
 	fmt.Println("\t--config configFile\tIndicate a specific config file.")
 	fmt.Println("\t--mode {cli,tui}\tSelect the cli or tui mode.")
 	fmt.Println("\t--limit X\t\tWhen using cli mode, display only X item.")
+	fmt.Println("\t--version\t\tDisplay gtl's current version.")
 	fmt.Println("\t--help\t\t\tDisplay this help message.")
 	return
 }

@@ -98,6 +98,7 @@ func getConfigFilePath(configArg string) (string, error) {
 			return "", fmt.Errorf("Error finding home directory")
 		}
 
+		// TODO: Use filepath.Join() instead:
 		configFile = homepath + "/.config/gtl/gtl.toml"
 
 		// Load or create configFile.
