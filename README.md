@@ -79,6 +79,10 @@ The --config option only look for the file, it will not create it if the file gi
 
 **Known Bug**: If you intend to let gtl create the default configuration file, you need to create the ~/.config/gtl directory first as it won't be created automatically.
 
+# Screenshots
+
+![Gtl screenshot](docs/images/gtl_screenshot.png)
+
 # TODOLIST:
 
 MVP:
