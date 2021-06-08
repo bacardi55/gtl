@@ -133,19 +133,10 @@ func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 	if nbEntries < 1 {
 		return fi, fmt.Errorf("Invalid tinylog format")
 	}
-	// First item could either be the intro item (first line starting with header 1 #)
-	// Or directly an tinylog entry (starting with a header 2 ##)
-	//fmt.Println(entries[0])
-	if strings.HasPrefix(entries[0], "# ") {
-		a := parseTinyLogHeaderForAuthor(entries[0])
-		if a != "" {
-			author = a
-		}
-	}
-	// Ignore line otherwise
 
 	if nbEntries > 1 {
-		for i := 1; i < nbEntries; i++ {
+		foundMeta := false
+		for i := 0; i < nbEntries; i++ {
 			l := strings.TrimSpace(entries[i])
 			if strings.HasPrefix(l, "## ") {
 				f, e := parseTinyLogItem(l, author)
@@ -154,6 +145,14 @@ func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 					log.Println(e)
 				} else {
 					fi = append(fi, &f)
+				}
+			} else if foundMeta == false {
+				a := parseTinyLogHeaderForAuthor(entries[i])
+				if a != "" {
+					author = a
+					foundMeta = true
+				} else {
+					log.Println("Ignoring malformed entry", author, l)
 				}
 			} else {
 				log.Println("Ignoring malformed entry", author, l)
