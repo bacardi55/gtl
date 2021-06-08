@@ -68,6 +68,9 @@ refresh = 10
 date_format = "Mon 02 Jan 2006 15:04 MST"
 # Log file:
 log_file = "/dev/null"
+# Optional: Highlight when text is found in content.
+# Separate values by a coma, eg:
+# highlights = "@bacardi55, @bacardi, anything"
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.
