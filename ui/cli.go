@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+  "strconv"
 
 	"github.com/fatih/color"
 
@@ -27,7 +28,7 @@ func DisplayStreamCli(data *core.TlData, limit int) {
 
 		r.Print(stream.Items[i].Author)
 		fmt.Print(" - ")
-		b.Print(elapsed.Round(time.Second).String(), " ago")
+		b.Print(formatElapsedTime(elapsed))
 		fmt.Print(" - ")
 		fmt.Println(stream.Items[i].Published.Format(data.Config.Date_format))
 
@@ -50,6 +51,31 @@ func DisplayStreamCli(data *core.TlData, limit int) {
 			fmt.Println(stream.Items[i].Content, "\n")
 		}
 	}
+}
+
+func formatElapsedTime(elapsed time.Duration) string {
+  ret := elapsed.Round(time.Second).String()
+
+  if d := int(elapsed.Hours() / 24); d > 0 {
+    ret = strconv.Itoa(d) + " day"
+    if d > 1 {
+      ret = ret + "s"
+    }
+  } else if h:= int(elapsed.Hours()); h > 0 {
+    ret = strconv.Itoa(h) + " hour"
+    if h > 1 {
+      ret = ret + "s"
+    }
+  } else if m := int(elapsed.Minutes()); m > 0 {
+    ret = strconv.Itoa(m) + " minute"
+    if m > 1 {
+      ret = ret + "s"
+    }
+  } else {
+    ret = strconv.Itoa(int(elapsed.Round(time.Second).Seconds())) + " seconds"
+  }
+
+  return ret + " ago"
 }
 
 // Display help message.
