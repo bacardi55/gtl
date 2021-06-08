@@ -25,6 +25,9 @@ refresh = 10
 date_format = "Mon 02 Jan 2006 15:04 MST"
 # Log file:
 log_file = "/dev/null"
+# Optional: Highlight when text is found in content.
+# Separate values by a coma, eg:
+# highlights = "@bacardi55, @bacardi, anything"
 `)
 
 func Init(configArg string, Data *core.TlData) {
@@ -114,7 +117,7 @@ func getConfigFilePath(configArg string) (string, error) {
 		}
 	}
 
-	log.Println("Configuration file found:", configFile)
+	log.Println("Configuration file found:", configFile, "\n")
 	return configFile, nil
 }
 

@@ -25,6 +25,7 @@ type TlConfig struct {
 	Refresh         int
 	Date_format     string
 	Log_file        string
+	Highlights      string
 }
 
 type TlFeed struct {
