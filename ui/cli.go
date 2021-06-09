@@ -80,12 +80,24 @@ func formatElapsedTime(elapsed time.Duration) string {
 
 // Display help message.
 func Help() {
-	fmt.Println("gtl is a TUI tool for gemini tinylogs")
-	fmt.Println("Usage:")
+	fmt.Println("gtl is a CLI and TUI (soon) tool for gemini tinylogs")
+	CliHelp()
+	fmt.Println()
+	SubHelp()
+	return
+}
+
+func CliHelp() {
+	fmt.Println("CLI usage:")
 	fmt.Println("\t--config configFile\tIndicate a specific config file.")
 	fmt.Println("\t--mode {cli,tui}\tSelect the cli or tui mode.")
 	fmt.Println("\t--limit X\t\tWhen using cli mode, display only X item.")
 	fmt.Println("\t--version\t\tDisplay gtl's current version.")
 	fmt.Println("\t--help\t\t\tDisplay this help message.")
-	return
+}
+
+func SubHelp() {
+	fmt.Println("Subscription management usage:")
+	fmt.Println("\tadd --url url [--title title]\tIndicate a new tinylog url (and optional title) to subscribe to.")
+	fmt.Println("\trm --url url\t\t\tIndicate a tinylog url to be removed from the subscription.")
 }

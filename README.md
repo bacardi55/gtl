@@ -1,6 +1,6 @@
 # GTL: Go Tiny Logs
 
-Goal: A TUI for the [tinylogs]() format on the [gemini]() space.
+Goal: A TUI for the [tinylogs](https://codeberg.org/bacardi55/gemini-tinylog-rfc/src/branch/main) format on the [gemini](gemini.circumlunar.space/) space.
 
 Status: Work In Progress, only the CLI mode is available at this stage.
 
@@ -12,7 +12,8 @@ gtl requires go ≥ 1.5
 ```
 git clone http://git.bacardi55.io/bacardi55/gtl.git
 cd gtl
-go build -o path/to/binary/folder
+#make dependencies # TODO.
+make build
 ```
 
 Put the binary in a directory available in your $PATH if you don't want to type the full path to the program.
@@ -24,6 +25,24 @@ Binaries are only available for linux 386, amd64, arm and arm64 for now.
 
 # Usage
 
+## Quick start:
+
+*Assuming you put the binary in ~/bin*:
+```
+mkdir ~/.config/gtl/
+~/bin/gtl # will create the configuration and subscription files in ~/.config/gtl/
+~/bin/gtl add --url gemini://gmi.bacardi55.io/tinylog.gmi # Adding an entry will create the sub file.
+# Repeat add command for all the feeds.
+~/bin/gtl --mode cli --limit 10
+```
+
+## Global commands:
+```
+gtl --help
+gtl --version
+```
+
+## Use gtl
 ```
 Usage:
 	--config configFile	Indicate a specific config file.
@@ -37,17 +56,18 @@ Example:
 gtl --mode cli --limit 10
 gtl --limit 10 # cli mode is default, so this is the same as above.
 gtl --mode cli --limit 10 --config path/to/config/file # with specific path for config file.
-gtl --help
 ```
 
 If you don't provide a config file path, gtl will look for it in `{homepath}/.config/gtl/gtl.toml`
 
-You need a subscription file though with the list of tinylogs to follow. For easier migration, the format is the same as lace except that the second argument is mandatory (for now):
+You need a subscription file though with the list of tinylogs to follow. For easier migration, the format is the same as [lace](https://friendo.monster/log/lace.html):
 ```
 <urlOfTinyLog> nameOfTinyLog
 <urlOfTinyLog2> nameOfTinyLog2
 …
 ```
+
+**Warning**: The `nameOfTinyLog` is optional. But if you don't indicate one and the tinylog doesn't have an `author: @authorName` metadata, gtl will not no what to display for the author and will indicate "unknown"
 
 This file should be in your configuration file:
 
@@ -78,6 +98,17 @@ By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if need
 The --config option only look for the file, it will not create it if the file given as argument of --config doesn't exist.
 
 **Known Bug**: If you intend to let gtl create the default configuration file, you need to create the ~/.config/gtl directory first as it won't be created automatically.
+
+
+## Subscription management
+
+You can add and remove tinylog entry either manually from the file directly, or use gtl to do it for you:
+```
+Subscription management usage:
+	add --url url [--title title]	Indicate a new tinylog url (and optional title) to subscribe to.
+	rm --url url			Indicate a tinylog url to be removed from the subscription.
+```
+
 
 # Screenshots
 

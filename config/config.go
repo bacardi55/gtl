@@ -92,8 +92,8 @@ func getConfigFilePath(configArg string) (string, error) {
 			return "", e
 		}
 
-		log.Println("Configuration file found")
 		configFile = configArg
+		log.Println("Configuration file found:", configFile, "\n")
 
 	} else {
 		homepath, err := homedir.Dir()
@@ -117,7 +117,6 @@ func getConfigFilePath(configArg string) (string, error) {
 		}
 	}
 
-	log.Println("Configuration file found:", configFile, "\n")
 	return configFile, nil
 }
 
@@ -130,7 +129,8 @@ func getFeeds(subFile string) map[string]core.TlFeed {
 	file, err := os.Open(subFilePath)
 	if err != nil {
 		// TODO: Create empty file like configuration?
-		log.Fatalln("Couldn't open subscription file (%v)\n%v: ", subFile, err)
+		//log.Fatalln("Couldn't open subscription file (%v)\n%v: ", subFile, err)
+		os.Create(subFilePath)
 	}
 	defer func() error {
 		if err = file.Close(); err != nil {
