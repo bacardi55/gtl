@@ -178,7 +178,6 @@ func parseTinyLogHeaderForAuthor(header string) string {
 		if strings.HasPrefix(line, "author:") {
 			metaAuthor = strings.TrimSpace(line[len("author:"):])
 		} else if strings.HasPrefix(line, "avatar:") {
-			// TODO: If avatar is more than 1 emoji, cut.
 			metaAvatar = strings.TrimSpace(line[len("avatar:"):])
 			if n := strings.Split(metaAvatar, " "); len(n) > 1 {
 				metaAvatar = n[0]

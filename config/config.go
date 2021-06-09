@@ -128,8 +128,6 @@ func getFeeds(subFile string) map[string]core.TlFeed {
 
 	file, err := os.Open(subFilePath)
 	if err != nil {
-		// TODO: Create empty file like configuration?
-		//log.Fatalln("Couldn't open subscription file (%v)\n%v: ", subFile, err)
 		os.Create(subFilePath)
 	}
 	defer func() error {
