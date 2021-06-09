@@ -132,16 +132,18 @@ MVP:
 * Auto Refresh based on configuration.
 * Extract links from tinylog entry and display them the gemini way.
 * ~~Move logs to logfile instead of stdout~~
-* Optional name in subscription file.
+* ~~Optional name in subscription file.~~
 
-* Help / Documentation
+* ~~Help~~
+* ~~Documentation~~
 * ~~Format code according to go standard via gofmt.~~
 
 Others:
-* Subscription management: Add / Remove tinylogs.
+* ~~Subscription management: Add / Remove tinylogs.~~
 * Notification view
-* Highlight notifications
-* Create subscription file if doesn't exit.
+* ~~Highlight notifications in CLI~~
+* Highlight notifications in TUI
+* ~~Create subscription file if doesn't exit.~~
 * Add option to limit number of entries per tinylog or a maximum number of days of history for TUI
 * Structured logs.
 
