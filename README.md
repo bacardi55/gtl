@@ -35,6 +35,10 @@ mkdir ~/.config/gtl/ # Not created automatically, known issue.
 # Repeat add command for all the feeds.
 ~/bin/gtl --mode cli --limit 10
 ```
+While the TUI is not ready yet, you can still use gtl "continuously":
+```
+while true; do clear && ~/bin/gtl --mode cli --limit 10 && sleep 1800; done;
+```
 
 ## Global commands:
 ```
