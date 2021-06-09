@@ -85,7 +85,12 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 	log.Println("Retrieving content from ", feed.Link)
 
 	// Fallback title if not within tinylog response page.
-	rf := TlRawFeed{Name: feed.Title}
+	var rf TlRawFeed
+	if strings.TrimSpace(feed.Title) != "" {
+		rf = TlRawFeed{Name: feed.Title}
+	} else {
+		rf = TlRawFeed{Name: "Unknown"}
+	}
 
 	gemclient := &gemini.Client{}
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(2)*time.Second)
