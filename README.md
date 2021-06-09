@@ -29,7 +29,7 @@ Binaries are only available for linux 386, amd64, arm and arm64 for now.
 
 *Assuming you put the binary in ~/bin*:
 ```
-mkdir ~/.config/gtl/
+mkdir ~/.config/gtl/ # Not created automatically, known issue.
 ~/bin/gtl # will create the configuration and subscription files in ~/.config/gtl/
 ~/bin/gtl add --url gemini://gmi.bacardi55.io/tinylog.gmi # Adding an entry will create the sub file.
 # Repeat add command for all the feeds.
