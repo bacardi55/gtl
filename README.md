@@ -12,7 +12,7 @@ gtl requires go ≥ 1.5
 ```
 git clone http://git.bacardi55.io/bacardi55/gtl.git
 cd gtl
-#make dependencies # TODO.
+make dependencies
 make build
 ```
 

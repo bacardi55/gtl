@@ -26,3 +26,11 @@ release:
 	GOOS=linux GOARCH=arm ${GOCMD} build -ldflags "$(GOLDFLAGS)" -o ${BINDIR}/${BINARY}_${VERSION}_linux_arm
 	GOOS=linux GOARCH=arm64 ${GOCMD} build -ldflags "$(GOLDFLAGS)" -o ${BINDIR}/${BINARY}_${VERSION}_linux_arm64
 	GOOS=linux GOARCH=386 ${GOCMD} build -ldflags "$(GOLDFLAGS)" -o ${BINDIR}/${BINARY}_${VERSION}_linux_386
+
+.PHONY: dependencies
+dependencies:
+	${GOCMD} get "git.sr.ht/~adnano/go-gemini"
+	${GOCMD} get "github.com/spf13/pflag"
+	${GOCMD} get "github.com/fatih/color"
+	${GOCMD} get "github.com/mitchellh/go-homedir"
+	${GOCMD} get "github.com/pelletier/go-toml"
