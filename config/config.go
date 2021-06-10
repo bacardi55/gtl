@@ -151,18 +151,19 @@ func parseSubscriptions(content io.Reader) (map[string]core.TlFeed, error) {
 	Feeds = make(map[string]core.TlFeed)
 
 	scanner := bufio.NewScanner(content)
-	for scanner.Scan() {
+  for i := 0; scanner.Scan(); i++ {
 		line := scanner.Text()
-		v := strings.Fields(line)
+		v := strings.Fields(strings.TrimSpace(line))
 		if lv := len(v); lv == 2 {
 			Feed := core.TlFeed{
-				Title: v[1],
-				Link:  v[0],
+				Title: strings.TrimSpace(v[1]),
+				Link:  strings.TrimSpace(v[0]),
 			}
 			Feeds[Feed.Title] = Feed
 		} else if lv == 1 {
+      tmpTitle := "Anonymous_" + string(i+1)
 			Feed := core.TlFeed{
-				Title: " ",
+				Title: tmpTitle,
 				Link:  v[0],
 			}
 			Feeds[Feed.Title] = Feed
