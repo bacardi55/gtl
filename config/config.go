@@ -151,7 +151,7 @@ func parseSubscriptions(content io.Reader) (map[string]core.TlFeed, error) {
 	Feeds = make(map[string]core.TlFeed)
 
 	scanner := bufio.NewScanner(content)
-  for i := 0; scanner.Scan(); i++ {
+	for i := 0; scanner.Scan(); i++ {
 		line := scanner.Text()
 		v := strings.Fields(strings.TrimSpace(line))
 		if lv := len(v); lv == 2 {
@@ -161,7 +161,7 @@ func parseSubscriptions(content io.Reader) (map[string]core.TlFeed, error) {
 			}
 			Feeds[Feed.Title] = Feed
 		} else if lv == 1 {
-      tmpTitle := "Anonymous_" + string(i+1)
+			tmpTitle := "Anonymous_" + string(i+1)
 			Feed := core.TlFeed{
 				Title: tmpTitle,
 				Link:  v[0],
