@@ -28,6 +28,8 @@ log_file = "/dev/null"
 # Optional: Highlight when text is found in content.
 # Separate values by a coma, eg:
 # highlights = "@bacardi55, @bacardi, anything"
+# Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
+cli_limit = 10
 `)
 
 func Init(configArg string, Data *core.TlData) {

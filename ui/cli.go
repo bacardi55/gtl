@@ -14,13 +14,18 @@ import (
 // Display Stream for CLI output.
 func DisplayStreamCli(data *core.TlData, limit int) {
 	stream := data.Stream
-	if limit < 1 {
-		limit = len(stream.Items)
+
+	var max int
+	max = len(stream.Items)
+	if limit > 0 {
+		max = limit
+	} else if data.Config.Cli_limit > 0 {
+		max = data.Config.Cli_limit
 	}
 
 	t := time.Now()
 
-	for i := 0; i < limit; i++ {
+	for i := 0; i < max; i++ {
 		elapsed := t.Sub(stream.Items[i].Published)
 
 		r := color.New(color.FgRed)

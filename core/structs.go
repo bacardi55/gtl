@@ -26,6 +26,7 @@ type TlConfig struct {
 	Date_format     string
 	Log_file        string
 	Highlights      string
+	Cli_limit       int
 }
 
 type TlFeed struct {
