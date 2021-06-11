@@ -73,16 +73,16 @@ func main() {
 		}
 	}
 
-	// Retrieve feeds and create stream.
-	e := Data.RefreshFeeds()
-	if e != nil {
-		log.Fatalln("Couldn't refresh feeds")
-	}
-
 	// Display stream and quit.
 	if modeArg == "cli" {
-		ui.DisplayStreamCli(&Data, cliLimitArg)
+    if e := ui.DisplayStreamCli(&Data, cliLimitArg); e != nil {
+      fmt.Println(e)
+      log.Fatalln(e)
+    }
 	} else if modeArg == "tui" {
-		ui.DisplayStreamTui(&Data)
+    if e := ui.DisplayStreamTui(&Data); e != nil {
+      fmt.Println(e)
+      log.Fatalln(e)
+    }
 	}
 }

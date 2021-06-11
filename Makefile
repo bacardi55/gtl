@@ -34,3 +34,4 @@ dependencies:
 	${GOCMD} get "github.com/fatih/color"
 	${GOCMD} get "github.com/mitchellh/go-homedir"
 	${GOCMD} get "github.com/pelletier/go-toml"
+	${GOCMD} get "code.rocketnine.space/tslocum/cview"

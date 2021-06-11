@@ -12,7 +12,12 @@ import (
 )
 
 // Display Stream for CLI output.
-func DisplayStreamCli(data *core.TlData, limit int) {
+func DisplayStreamCli(data *core.TlData, limit int) error {
+	e := data.RefreshFeeds()
+	if e != nil {
+		return fmt.Errorf("Couldn't refresh feeds")
+	}
+
 	stream := data.Stream
 
 	var max int
@@ -56,6 +61,8 @@ func DisplayStreamCli(data *core.TlData, limit int) {
 			fmt.Println(stream.Items[i].Content, "\n")
 		}
 	}
+
+  return nil
 }
 
 func formatElapsedTime(elapsed time.Duration) string {
