@@ -30,6 +30,8 @@ log_file = "/dev/null"
 # highlights = "@bacardi55, @bacardi, anything"
 # Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
 cli_limit = 10
+# Mode: either cli or tui
+mode = "cli"
 `)
 
 func Init(configArg string, Data *core.TlData) {

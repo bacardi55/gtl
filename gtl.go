@@ -22,7 +22,7 @@ func main() {
 	var cliLimitArg int
 
 	flag.StringVar(&configArg, "config", "", "The path to gtl.toml config file.")
-	flag.StringVar(&modeArg, "mode", "cli", "The mode for gtl, either cli or tui (not ready yet).")
+	flag.StringVar(&modeArg, "mode", "", "The mode for gtl, either cli or tui (not ready yet).")
 	flag.StringVar(&urlArg, "url", "", "The tinylog url you want to (un)subscribe to.")
 	flag.StringVar(&titleArg, "title", "", "The optional title of the tinylog you want to subscribe to.")
 	flag.IntVar(&cliLimitArg, "limit", 0, "Limit number of items in CLI mode.")
@@ -74,12 +74,22 @@ func main() {
 	}
 
 	// Display stream and quit.
-	if modeArg == "cli" {
+  var mode string
+  if modeArg == "tui" || modeArg == "cli" {
+    mode = modeArg
+  } else if Data.Config.Mode == "tui" || Data.Config.Mode == "cli" {
+    mode = Data.Config.Mode
+  } else {
+    fmt.Printf("Unknown mode")
+    log.Fatalln("Unknown mode")
+  }
+
+	if mode == "cli" {
     if e := ui.DisplayStreamCli(&Data, cliLimitArg); e != nil {
       fmt.Println(e)
       log.Fatalln(e)
     }
-	} else if modeArg == "tui" {
+	} else if mode == "tui" {
     if e := ui.DisplayStreamTui(&Data); e != nil {
       fmt.Println(e)
       log.Fatalln(e)
