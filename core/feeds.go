@@ -32,6 +32,7 @@ var supportedTimeFormat = []string{
 	"Mon Jan 02 15:04:05 MST 2006",
 	"Mon Jan 02 03:04:05 PM MST 2006",
 	"Mon Jan  2 03:04:05 PM MST 2006",
+	"2006-01-02",
 }
 
 type TlRawFeed struct {
