@@ -74,25 +74,25 @@ func main() {
 	}
 
 	// Display stream and quit.
-  var mode string
-  if modeArg == "tui" || modeArg == "cli" {
-    mode = modeArg
-  } else if Data.Config.Mode == "tui" || Data.Config.Mode == "cli" {
-    mode = Data.Config.Mode
-  } else {
-    fmt.Printf("Unknown mode")
-    log.Fatalln("Unknown mode")
-  }
+	var mode string
+	if modeArg == "tui" || modeArg == "cli" {
+		mode = modeArg
+	} else if Data.Config.Mode == "tui" || Data.Config.Mode == "cli" {
+		mode = Data.Config.Mode
+	} else {
+		fmt.Printf("Unknown mode")
+		log.Fatalln("Unknown mode")
+	}
 
 	if mode == "cli" {
-    if e := ui.DisplayStreamCli(&Data, cliLimitArg); e != nil {
-      fmt.Println(e)
-      log.Fatalln(e)
-    }
+		if e := ui.DisplayStreamCli(&Data, cliLimitArg); e != nil {
+			fmt.Println(e)
+			log.Fatalln(e)
+		}
 	} else if mode == "tui" {
-    if e := ui.DisplayStreamTui(&Data); e != nil {
-      fmt.Println(e)
-      log.Fatalln(e)
-    }
+		if e := ui.DisplayStreamTui(&Data); e != nil {
+			fmt.Println(e)
+			log.Fatalln(e)
+		}
 	}
 }

@@ -165,7 +165,7 @@ func parseSubscriptions(content io.Reader) (map[string]core.TlFeed, error) {
 			}
 			Feeds[Feed.Title] = Feed
 		} else if lv == 1 {
-			tmpTitle := "Anonymous_" + string(i+1)
+			tmpTitle := fmt.Sprintf("Anonymous_%v", (i + 1))
 			Feed := core.TlFeed{
 				Title: tmpTitle,
 				Link:  v[0],

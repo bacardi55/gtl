@@ -27,7 +27,7 @@ type TlConfig struct {
 	Log_file        string
 	Highlights      string
 	Cli_limit       int
-  Mode string
+	Mode            string
 }
 
 type TlFeed struct {
