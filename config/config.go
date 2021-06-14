@@ -27,6 +27,7 @@ log_file = "/dev/null"
 # Separate values by a coma, eg:
 # highlights = "@bacardi55, @bacardi, anything"
 # Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
+# Will be ignored in tui mode.
 cli_limit = 10
 # Mode: either cli or tui
 mode = "cli"

@@ -34,11 +34,16 @@ mkdir ~/.config/gtl/ # Not created automatically, known issue.
 ~/bin/gtl add --url gemini://gmi.bacardi55.io/tinylog.gmi # Adding an entry will create the sub file.
 # Repeat add command for all the feeds.
 ~/bin/gtl --mode cli --limit 10
+# Or use the TUI mode:
+~/bin/gtl --mode tui
 ```
-While the TUI is not ready yet, you can still use gtl "continuously":
+
+You can still use gtl "continuously":
 ```
 while true; do clear && ~/bin/gtl --mode cli --limit 10 && sleep 1800; done;
 ```
+
+Or use the TUI and refresh the timeline when you want.
 
 ## Global commands:
 ```
@@ -46,7 +51,33 @@ gtl --help
 gtl --version
 ```
 
-## Use gtl
+## Use gtl TUI
+
+```
+gtl --mode tui
+```
+or configure the `gtl.toml` to set `mode = tui` (see config below).
+
+Screenshot of the TUI below.
+
+**TUI Shortcuts:**
+```
+Ctrl-R: Refresh timeline (refresh all tinylogs)
+Ctrl-T: Display timeline
+Ctrl-H: Display entries containing highlights (See configuration for highlights)
+Tab: Switch between timeline and subscription list.
+Ctrl-C or Ctrl-Q: Quit
+```
+You can navigate on the subscription list and click on a specific tinylog to only display entries from this author.
+
+**TUI Emoji Status:**
+
+* ❌: Indicates that the feed is unreachable.
+* ❌🔓: Indicates an error with the SSL certificate.
+
+**Known issue**: Emoji status isn't actualized when feeds are refreshed.
+
+## Use gtl CLI
 ```
 Usage:
 	--config configFile	Indicate a specific config file.
@@ -79,6 +110,7 @@ This file should be in your configuration file:
 subscribed_data = "path/to/sub/file"
 ```
 
+Screenshot of the CLI below.
 
 # Default config file
 
@@ -96,7 +128,10 @@ log_file = "/dev/null"
 # Separate values by a coma, eg:
 # highlights = "@bacardi55, @bacardi, anything"
 # Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
+# Will be ignored in tui mode.
 cli_limit = 10
+# Mode: either cli or tui
+mode = "tui"
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.
@@ -118,38 +153,10 @@ Subscription management usage:
 
 # Screenshots
 
-![Gtl screenshot](docs/images/gtl_screenshot.png)
+## CLI mode
 
-# TODOLIST:
+![Gtl CLI screenshot](docs/images/gtl_screenshot.png)
 
-* ~~Load or create Configuration file.~~
-* ~~Load subscription from file set in Configuration~~
-* ~~Load and parse all tinylogs feeds:~~
-  * ~~Load .gmi file for all feeds~~
-  * ~~Parse header for author and avatar (cf @adele & @szczezuja)~~
-  * ~~Parse tinylog entry:~~
-    * ~~date~~
-    * ~~content~~
-* ~~Sort feeds items~~
-* ~~Display as CLI output feeds items in order~~
-* ~~Limit option for CLI output~~
-* ~~Create TUI basic~~
-* Extract links from tinylog entry and display them the gemini way.
-* ~~Move logs to logfile instead of stdout~~
-* ~~Optional name in subscription file.~~
+## TUI mode
 
-* ~~Help~~
-* ~~Documentation~~
-* ~~Format code according to go standard via gofmt.~~
-
-Others:
-* ~~Subscription management: Add / Remove tinylogs.~~
-* ~~Notification view~~
-* ~~Highlight notifications in CLI~~
-* ~~Highlight notifications in TUI~~
-* ~~Create subscription file if doesn't exit.~~
-* Add option to limit number of entries per tinylog or a maximum number of days of history for TUI
-* Structured logs.
-* Search?
-
-+ All todos in the code…
+![Gtl TUI screenshot](docs/images/gtl_tui_screenshot.png)

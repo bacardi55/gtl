@@ -36,16 +36,16 @@ var supportedTimeFormat = []string{
 }
 
 const (
-	FeedValid = 1
+	FeedValid       = 1
 	FeedUnreachable = 2
 	FeedWrongFormat = 3
-	FeedSSLError = 4
+	FeedSSLError    = 4
 )
 
 type TlRawFeed struct {
 	Name    string
 	Content string
-	Status int
+	Status  int
 }
 
 // Refresh Stream.
@@ -75,7 +75,7 @@ func refreshStream(data TlData) (*TlStream, error) {
 			if rf.Status == FeedUnreachable {
 				displayName = displayName + " - ❌"
 			} else if rf.Status == FeedWrongFormat {
-				displayName = displayName + " - ❌"
+				displayName = displayName + " - ⁉️"
 			} else if rf.Status == FeedSSLError {
 				displayName = displayName + " - ❌🔓"
 			}
