@@ -12,53 +12,78 @@ import (
 	"git.bacardi55.io/bacardi55/gtl/core"
 )
 
-func DisplayStreamTui(data *core.TlData) error {
+var TlTui TlTUI
+
+func displayStreamTui(data *core.TlData) error {
 	e := data.RefreshFeeds()
 	if e != nil {
 		return fmt.Errorf("Couldn't refresh feeds")
 	}
 
-	app := cview.NewApplication()
-	app.EnableMouse(true)
+	TlTui.App = cview.NewApplication()
+	TlTui.App.EnableMouse(true)
 
-	layoutFlex := cview.NewFlex()
-	layoutFlex.SetTitle("Gemini Tiny Logs")
-	layoutFlex.SetDirection(cview.FlexRow)
+	TlTui.Layout = cview.NewFlex()
+	TlTui.Layout.SetTitle("Gemini Tiny Logs")
+	TlTui.Layout.SetDirection(cview.FlexRow)
 
-	mainFlex := cview.NewFlex()
-	mainFlex.AddItem(sideBarBox(data.Feeds), 0, 1, false)
-	cb := contentBox(data)
-	mainFlex.AddItem(cb, 0, 3, true)
+	TlTui.MainFlex = cview.NewFlex()
+	TlTui.SideBarBox = sideBarBox(data.Feeds)
+	TlTui.MainFlex.AddItem(TlTui.SideBarBox, 0, 1, false)
+	TlTui.ContentBox = contentBox(data)
+	TlTui.MainFlex.AddItem(TlTui.ContentBox, 0, 3, true)
 
-	layoutFlex.AddItem(createHeader(), 2, 0, false)
-	layoutFlex.AddItem(mainFlex, 0, 1, true)
+	TlTui.Layout.AddItem(createHeader(), 2, 0, false)
+	TlTui.Layout.AddItem(TlTui.MainFlex, 0, 1, true)
 
-	// Shortcuts:
-	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyCtrlR {
-			log.Println("Ctrl-R - Shortcut used, refreshing content.")
+	focusManager := cview.NewFocusManager(TlTui.App.SetFocus)
+	focusManager.SetWrapAround(true)
+	focusManager.Add(TlTui.ListTl)
+	focusManager.Add(TlTui.ContentBox)
+	TlTui.FocusManager = focusManager
+	// TODO: Investigate
+	// This fix an issue where the first time user hits TAB, it doesn't change focus.
+	TlTui.FocusManager.FocusNext()
 
+	TlTui.Filter = ""
+	TlTui.FilterHighlights = false
+
+	TlTui.RefreshStream = func(refresh bool) {
+		if TlTui.Filter == "All Subscriptions" {
+			TlTui.Filter = ""
+		}
+
+		if refresh == true {
 			e := data.RefreshFeeds()
 			if e != nil {
-				log.Println("Couldn't refresh feeds")
-				// TODO: Display a message?
+				log.Fatalln("Couldn't refresh feeds")
 			}
-			tv := getContentTextView(data, false)
-			cb.AddPanel("timeline", tv, true, true)
+		}
+		tv := getContentTextView(data)
+		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
+	}
+
+	// Shortcuts:
+	TlTui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyCtrlR {
+			TlTui.RefreshStream(true)
 			return nil
 		} else if event.Key() == tcell.KeyCtrlH || event.Key() == tcell.KeyCtrlT {
-			log.Println("Ctrl-H - Shortcut used, refreshing content.")
-
-			// No refresh, only filtering.
-			tv := getContentTextView(data, (event.Key() == tcell.KeyCtrlH))
-			cb.AddPanel("timeline", tv, true, true)
+			TlTui.FilterHighlights = (event.Key() == tcell.KeyCtrlH)
+			TlTui.RefreshStream(false)
+			return nil
+		} else if event.Key() == tcell.KeyCtrlC || event.Key() == tcell.KeyCtrlQ {
+			TlTui.App.Stop()
+			return nil
+		} else if event.Key() == tcell.KeyTAB {
+			TlTui.FocusManager.FocusNext()
 			return nil
 		}
 		return event
 	})
 
-	app.SetRoot(layoutFlex, true)
-	if err := app.Run(); err != nil {
+	TlTui.App.SetRoot(TlTui.Layout, true)
+	if err := TlTui.App.Run(); err != nil {
 		panic(err)
 	}
 
@@ -67,8 +92,8 @@ func DisplayStreamTui(data *core.TlData) error {
 
 func sideBarBox(tl map[string]core.TlFeed) *cview.Flex {
 	mflex := cview.NewFlex()
-	mflex.SetDirection(cview.FlexRow)
-	mflex.AddItem(createListTl(tl), 0, 3, false)
+	TlTui.ListTl = createListTl(tl)
+	mflex.AddItem(TlTui.ListTl, 0, 3, false)
 
 	return mflex
 }
@@ -78,16 +103,19 @@ func contentBox(data *core.TlData) *cview.Panels {
 	p.SetBorder(true)
 	p.SetTitle("Timeline:")
 
-	tv := getContentTextView(data, false)
+	tv := getContentTextView(data)
 
 	p.AddPanel("timeline", tv, true, true)
 	return p
 }
 
-func getContentTextView(data *core.TlData, highlightsOnly bool) *cview.TextView {
+func getContentTextView(data *core.TlData) *cview.TextView {
 	var content string
 	t := time.Now()
 	for _, i := range data.Stream.Items {
+		if TlTui.Filter != "" && TlTui.Filter != i.Author {
+			continue
+		}
 		f := false
 		if len(data.Config.Highlights) > 0 {
 			if highlights := strings.Split(data.Config.Highlights, ","); len(highlights) > 0 {
@@ -104,10 +132,10 @@ func getContentTextView(data *core.TlData, highlightsOnly bool) *cview.TextView 
 
 		var c string
 		ignoreEntry := false
-		if highlightsOnly == true && f == true {
+		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
 			c = i.Content
-		} else if highlightsOnly == false {
+		} else if TlTui.FilterHighlights == false {
 			c = i.Content
 			if f == true {
 				c = "[::b]" + c + "[-:-:-]"
@@ -134,9 +162,19 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 	list := createList("Subscriptions:")
 	list.ShowSecondaryText(true)
 
+	i := createListItem("All Subscriptions", "")
+	i.SetSelectedFunc(func() {
+		TlTui.Filter = TlTui.ListTl.GetCurrentItem().GetMainText()
+		TlTui.RefreshStream(false)
+	})
+	list.AddItem(i)
 	for _, f := range tl {
-		i := createListItem(f.Title, "=> "+f.Link)
-		list.AddItem(i)
+		it := createListItem(f.DisplayName, "=> "+f.Link)
+		list.AddItem(it)
+		it.SetSelectedFunc(func() {
+			TlTui.Filter = TlTui.ListTl.GetCurrentItem().GetMainText()
+			TlTui.RefreshStream(false)
+		})
 	}
 
 	return list
@@ -166,7 +204,7 @@ func createHeader() *cview.TextView {
 	tv.SetDynamicColors(true)
 	tv.SetMaxLines(2)
 	tv.SetTextAlign(cview.AlignCenter)
-	content := "Usage:\t[green]Refresh[-]: [::b]Ctrl-R[-:-:-]\t[green]Timeline[-]: [::b]Ctrl-T[-:-:-]\t[green]Highlights[-]: [::b]Ctrl-H[-:-:-]\t[green]Quit[-]: [::b]Ctrl-C[-:-:-]"
+	content := "[::u]Usage[-:-:-]:\t[green]Refresh[-]: [::b]Ctrl-R[-:-:-]\t[green]Timeline[-]: [::b]Ctrl-T[-:-:-]\t[green]Highlights[-]: [::b]Ctrl-H[-:-:-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-:-:-]"
 	tv.SetText(content)
 	return tv
 }

@@ -63,7 +63,10 @@ func refreshStream(data TlData) (*TlStream, error) {
 			log.Println(e)
 		} else {
 			rf := <-chFeedContent
-			feedItems, err := parseTinyLogContent(rf)
+			dn, feedItems, err := parseTinyLogContent(rf)
+			f := data.Feeds[rf.Name]
+			f.DisplayName = dn
+			data.Feeds[rf.Name] = f
 			if err != nil {
 				log.Println(err)
 			} else {
@@ -129,7 +132,7 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 }
 
 // Parse gemini content of the tinylog file.
-func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
+func parseTinyLogContent(rawFeed TlRawFeed) (string, []*TlFeedItem, error) {
 	author := rawFeed.Name
 
 	entries := strings.Split(rawFeed.Content, "\n\n")
@@ -138,7 +141,7 @@ func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 	var fi []*TlFeedItem
 
 	if nbEntries < 1 {
-		return fi, fmt.Errorf("Invalid tinylog format")
+		return author, fi, fmt.Errorf("Invalid tinylog format")
 	}
 
 	if nbEntries > 0 {
@@ -167,7 +170,7 @@ func parseTinyLogContent(rawFeed TlRawFeed) ([]*TlFeedItem, error) {
 		}
 	}
 
-	return fi, nil
+	return author, fi, nil
 }
 
 // Parse tinylog Header.

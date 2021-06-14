@@ -122,7 +122,6 @@ Subscription management usage:
 
 # TODOLIST:
 
-MVP:
 * ~~Load or create Configuration file.~~
 * ~~Load subscription from file set in Configuration~~
 * ~~Load and parse all tinylogs feeds:~~
@@ -134,8 +133,7 @@ MVP:
 * ~~Sort feeds items~~
 * ~~Display as CLI output feeds items in order~~
 * ~~Limit option for CLI output~~
-* Create TUI basic
-* Auto Refresh based on configuration.
+* ~~Create TUI basic~~
 * Extract links from tinylog entry and display them the gemini way.
 * ~~Move logs to logfile instead of stdout~~
 * ~~Optional name in subscription file.~~
@@ -146,11 +144,12 @@ MVP:
 
 Others:
 * ~~Subscription management: Add / Remove tinylogs.~~
-* Notification view
+* ~~Notification view~~
 * ~~Highlight notifications in CLI~~
-* Highlight notifications in TUI
+* ~~Highlight notifications in TUI~~
 * ~~Create subscription file if doesn't exit.~~
 * Add option to limit number of entries per tinylog or a maximum number of days of history for TUI
 * Structured logs.
+* Search?
 
 + All todos in the code…

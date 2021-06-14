@@ -11,7 +11,7 @@ import (
 )
 
 // Display Stream for CLI output.
-func DisplayStreamCli(data *core.TlData, limit int) error {
+func displayStreamCli(data *core.TlData, limit int) error {
 	e := data.RefreshFeeds()
 	if e != nil {
 		return fmt.Errorf("Couldn't refresh feeds")

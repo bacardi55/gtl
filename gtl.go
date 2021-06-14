@@ -84,15 +84,10 @@ func main() {
 		log.Fatalln("Unknown mode")
 	}
 
-	if mode == "cli" {
-		if e := ui.DisplayStreamCli(&Data, cliLimitArg); e != nil {
-			fmt.Println(e)
-			log.Fatalln(e)
-		}
-	} else if mode == "tui" {
-		if e := ui.DisplayStreamTui(&Data); e != nil {
-			fmt.Println(e)
-			log.Fatalln(e)
-		}
+	var gtlUI ui.TlUI
+	gtlUI.Mode = mode
+	if e := gtlUI.Run(&Data, cliLimitArg); e != nil {
+		fmt.Println(e)
+		log.Fatalln(e)
 	}
 }

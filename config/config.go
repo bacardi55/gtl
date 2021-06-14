@@ -19,8 +19,6 @@ import (
 var defaultConf = []byte(`# Default config file
 # Path to subscribed tinylogs:
 subscribed_data = "~/.config/gtl/subs"
-# Refresh time:
-refresh = 10
 # Date display format
 date_format = "Mon 02 Jan 2006 15:04 MST"
 # Log file:

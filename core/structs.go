@@ -22,7 +22,6 @@ func (Data *TlData) RefreshFeeds() error {
 
 type TlConfig struct {
 	Subscribed_data string
-	Refresh         int
 	Date_format     string
 	Log_file        string
 	Highlights      string
@@ -31,8 +30,9 @@ type TlConfig struct {
 }
 
 type TlFeed struct {
-	Title string
-	Link  string
+	Title       string
+	Link        string
+	DisplayName string
 }
 
 type TlFeedItem struct {

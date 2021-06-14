@@ -1,9 +1,41 @@
 package ui
 
 import (
+	"fmt"
 	"strconv"
 	"time"
+
+	"code.rocketnine.space/tslocum/cview"
+
+	"git.bacardi55.io/bacardi55/gtl/core"
 )
+
+type TlUI struct {
+	Mode string
+}
+
+func (Ui *TlUI) Run(data *core.TlData, limit int) error {
+	if Ui.Mode == "cli" {
+		return displayStreamCli(data, limit)
+	} else if Ui.Mode == "tui" {
+		return displayStreamTui(data)
+	} else {
+		return fmt.Errorf("Unknown mode.")
+	}
+}
+
+type TlTUI struct {
+	App              *cview.Application
+	Layout           *cview.Flex
+	MainFlex         *cview.Flex
+	SideBarBox       *cview.Flex
+	ContentBox       *cview.Panels
+	ListTl           *cview.List
+	FocusManager     *cview.FocusManager
+	Filter           string
+	FilterHighlights bool
+	RefreshStream    func(bool)
+}
 
 func formatElapsedTime(elapsed time.Duration) string {
 	ret := elapsed.Round(time.Second).String()
