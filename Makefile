@@ -1,7 +1,7 @@
 GOCMD := CGO_ENABLED=0 go
 BINARY := gtl
 BINDIR := ./bin
-VERSION := 0.3.1
+VERSION := 0.4.0
 
 GOLDFLAGS := -s -w -X main.Version=$(VERSION)
 
@@ -35,3 +35,4 @@ dependencies:
 	${GOCMD} get "github.com/mitchellh/go-homedir"
 	${GOCMD} get "github.com/pelletier/go-toml"
 	${GOCMD} get "code.rocketnine.space/tslocum/cview"
+	${GOCMD} get "github.com/gdamore/tcell/v2 v2.3.11"
