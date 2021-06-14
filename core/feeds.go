@@ -35,9 +35,17 @@ var supportedTimeFormat = []string{
 	"2006-01-02",
 }
 
+const (
+	FeedValid = 1
+	FeedUnreachable = 2
+	FeedWrongFormat = 3
+	FeedSSLError = 4
+)
+
 type TlRawFeed struct {
 	Name    string
 	Content string
+	Status int
 }
 
 // Refresh Stream.
@@ -57,22 +65,38 @@ func refreshStream(data TlData) (*TlStream, error) {
 
 	var tlfi []*TlFeedItem
 	for i := 0; i < numFeed; i++ {
+		var rf TlRawFeed
+		var displayName string
+
 		e := <-chFeedError
 		if e != nil {
-			<-chFeedContent
+			rf = <-chFeedContent
+			displayName = rf.Name
+			if rf.Status == FeedUnreachable {
+				displayName = displayName + " - ❌"
+			} else if rf.Status == FeedWrongFormat {
+				displayName = displayName + " - ❌"
+			} else if rf.Status == FeedSSLError {
+				displayName = displayName + " - ❌🔓"
+			}
 			log.Println(e)
 		} else {
-			rf := <-chFeedContent
+			rf = <-chFeedContent
 			dn, feedItems, err := parseTinyLogContent(rf)
-			f := data.Feeds[rf.Name]
-			f.DisplayName = dn
-			data.Feeds[rf.Name] = f
+			displayName = dn + " - ✔"
 			if err != nil {
 				log.Println(err)
 			} else {
 				tlfi = append(tlfi, feedItems...)
 			}
 		}
+		f := data.Feeds[rf.Name]
+		if displayName != "" {
+			f.DisplayName = displayName
+		} else {
+			f.DisplayName = rf.Name
+		}
+		data.Feeds[rf.Name] = f
 	}
 
 	s := TlStream{
@@ -102,6 +126,7 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 
 	response, err := gemclient.Get(ctx, feed.Link)
 	if err != nil {
+		rf.Status = FeedUnreachable
 		chFeedError <- fmt.Errorf("Error retrieving content from %v", feed.Link)
 		chFeedContent <- rf
 		return
@@ -111,6 +136,7 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 	// TODO: Add an option to accept gemini feeds with expired certificate.
 	// TODO: Add possibility to validate certs?
 	if respCert := response.TLS().PeerCertificates; len(respCert) > 0 && time.Now().After(respCert[0].NotAfter) {
+		rf.Status = FeedSSLError
 		chFeedError <- fmt.Errorf("Invalid certificate for capsule", feed.Link, " caspule is ignored.")
 		chFeedContent <- rf
 		return
@@ -118,12 +144,14 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 
 	content, err := io.ReadAll(response.Body)
 	if err != nil {
+		rf.Status = FeedWrongFormat
 		chFeedError <- fmt.Errorf("Couldn't read response from tinylogs", feed.Link, ", ignoring feed.")
 		chFeedContent <- rf
 		return
 	}
 
 	rf.Content = string(content)
+	rf.Status = FeedValid
 	chFeedContent <- rf
 	chFeedError <- nil
 
