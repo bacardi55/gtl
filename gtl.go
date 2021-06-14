@@ -74,18 +74,18 @@ func main() {
 	}
 
 	// Display stream and quit.
-	var mode string
+	var gtlUI ui.TlUI
 	if modeArg == "tui" || modeArg == "cli" {
-		mode = modeArg
+		gtlUI.Mode = modeArg
 	} else if Data.Config.Mode == "tui" || Data.Config.Mode == "cli" {
-		mode = Data.Config.Mode
+		gtlUI.Mode = Data.Config.Mode
 	} else {
 		fmt.Printf("Unknown mode")
 		log.Fatalln("Unknown mode")
 	}
 
-	var gtlUI ui.TlUI
-	gtlUI.Mode = mode
+	//var gtlUI ui.TlUI
+	//gtlUI.Mode = mode
 	if e := gtlUI.Run(&Data, cliLimitArg); e != nil {
 		fmt.Println(e)
 		log.Fatalln(e)
