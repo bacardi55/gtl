@@ -2,7 +2,7 @@
 
 Goal: A TUI for the [tinylogs](https://codeberg.org/bacardi55/gemini-tinylog-rfc/src/branch/main) format on the [gemini](gemini.circumlunar.space/) space.
 
-Status: Work In Progress, only the CLI mode is available at this stage.
+This is a early version that still miss a lot of things, from features to tests, so use at your own risk :)
 
 # Installation
 
