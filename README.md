@@ -75,8 +75,6 @@ You can navigate on the subscription list and click on a specific tinylog to onl
 * ❌: Indicates that the feed is unreachable.
 * ❌🔓: Indicates an error with the SSL certificate.
 
-**Known issue**: Emoji status isn't actualized when feeds are refreshed.
-
 ## Use gtl CLI
 ```
 Usage:
