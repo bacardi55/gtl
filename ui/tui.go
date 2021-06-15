@@ -64,13 +64,17 @@ func displayStreamTui(data *core.TlData) error {
 			}
 			TlTui.ListTl = createListTl(data.Feeds)
 			TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
+		}
+		tv := getContentTextView(data)
+		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
 
+		// Must happen after the content box because of LastRefresh being used for
+		// the visual separator between new and old entries.
+		if refresh == true {
 			TlTui.LastRefresh = time.Now()
 			tv := createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
 			TlTui.Footer.AddPanel("footer", tv, true, true)
 		}
-		tv := getContentTextView(data)
-		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
 	}
 
 	// Shortcuts:
