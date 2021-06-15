@@ -233,7 +233,7 @@ func createHeader() *cview.TextView {
 	tv.SetDynamicColors(true)
 	tv.SetMaxLines(2)
 	tv.SetTextAlign(cview.AlignCenter)
-	content := "[::u]Usage[-::-]:\t[green]Refresh[-]: [::b]Ctrl-R[-::-]\t[green]Timeline[-]: [::b]Ctrl-T[-::-]\t[green]Highlights[-:]: [::b]Ctrl-H[-::-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-::-]"
+  content := "[::u]Usage[-::-]:\t[green]Refresh[-]: [::b]Ctrl-R[-::-]\t[green]Timeline[-]: [::b]Ctrl-T[-::-]\t[green]Highlights[-:]: [::b]Ctrl-H[-::-]\t[green]Switch focus[-]: [::b]TAB[-::-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-::-]"
 	tv.SetText(content)
 	return tv
 }
