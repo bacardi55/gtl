@@ -122,7 +122,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 				for _, h := range highlights {
 					h = strings.TrimSpace(h)
 					if strings.Contains(i.Content, h) {
-						i.Content = strings.Replace(i.Content, h, "[:red]"+h+"[:-]", -1)
+						i.Content = strings.Replace(i.Content, h, "[:red]"+h+"[:black]", -1)
 						f = true
 						break
 					}
@@ -145,8 +145,8 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		}
 
 		if ignoreEntry != true {
-			a := fmt.Sprintf("[red]" + i.Author + "[-]")
-			d := "[skyblue]" + formatElapsedTime(t.Sub(i.Published)) + "[white]"
+			a := fmt.Sprintf("[red]" + i.Author + "[-:black]")
+			d := "[skyblue:black]" + formatElapsedTime(t.Sub(i.Published)) + "[white:black]"
 			content = content + fmt.Sprintf("%v - %v\n%v\n%v\n\n", d, i.Published.Format(data.Config.Date_format), a, c)
 		}
 	}
