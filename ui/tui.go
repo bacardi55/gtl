@@ -122,7 +122,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 				for _, h := range highlights {
 					h = strings.TrimSpace(h)
 					if strings.Contains(i.Content, h) {
-						i.Content = strings.Replace(i.Content, h, "[:red]"+h+"[:black]", -1)
+						i.Content = strings.Replace(i.Content, h, "[:red:]"+h+"[:black:]", -1)
 						f = true
 						break
 					}
@@ -138,15 +138,15 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		} else if TlTui.FilterHighlights == false {
 			c = i.Content
 			if f == true {
-				c = "[::b]" + c + "[-:-:-]"
+				c = "[::b]" + c + "[::-]"
 			}
 		} else {
 			ignoreEntry = true
 		}
 
 		if ignoreEntry != true {
-			a := fmt.Sprintf("[red]" + i.Author + "[-:black]")
-			d := "[skyblue:black]" + formatElapsedTime(t.Sub(i.Published)) + "[white:black]"
+			a := fmt.Sprintf("[red]" + i.Author + "[-::]")
+			d := "[skyblue::]" + formatElapsedTime(t.Sub(i.Published)) + "[white::]"
 			content = content + fmt.Sprintf("%v - %v\n%v\n%v\n\n", d, i.Published.Format(data.Config.Date_format), a, c)
 		}
 	}
@@ -204,7 +204,7 @@ func createHeader() *cview.TextView {
 	tv.SetDynamicColors(true)
 	tv.SetMaxLines(2)
 	tv.SetTextAlign(cview.AlignCenter)
-	content := "[::u]Usage[-:-:-]:\t[green]Refresh[-]: [::b]Ctrl-R[-:-:-]\t[green]Timeline[-]: [::b]Ctrl-T[-:-:-]\t[green]Highlights[-]: [::b]Ctrl-H[-:-:-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-:-:-]"
+	content := "[::u]Usage[-::-]:\t[green]Refresh[-]: [::b]Ctrl-R[-::-]\t[green]Timeline[-]: [::b]Ctrl-T[-::-]\t[green]Highlights[-:]: [::b]Ctrl-H[-::-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-::-]"
 	tv.SetText(content)
 	return tv
 }
