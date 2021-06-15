@@ -126,6 +126,8 @@ func contentBox(data *core.TlData) *cview.Panels {
 func getContentTextView(data *core.TlData) *cview.TextView {
 	var content string
 	t := time.Now()
+	separator := false
+	nbEntries := 0
 	for _, i := range data.Stream.Items {
 		if TlTui.Filter != "" && TlTui.Filter != i.Author {
 			continue
@@ -161,7 +163,14 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		if ignoreEntry != true {
 			a := fmt.Sprintf("[red]" + i.Author + "[-::]")
 			d := "[skyblue::]" + formatElapsedTime(t.Sub(i.Published)) + "[white::]"
-			content = content + fmt.Sprintf("%v - %v\n%v\n%v\n\n", d, i.Published.Format(data.Config.Date_format), a, c)
+			if isTlEntryNew(i, TlTui.LastRefresh) != true && separator != true {
+				if nbEntries > 0 {
+					content = content + "            --------------------------- \n"
+				}
+				separator = true
+			}
+			content = content + fmt.Sprintf("\n%v - %v\n%v\n%v\n", d, i.Published.Format(data.Config.Date_format), a, c)
+			nbEntries++
 		}
 	}
 
@@ -170,6 +179,10 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	tv.SetText(content)
 
 	return tv
+}
+
+func isTlEntryNew(tlfi *core.TlFeedItem, lastRefresh time.Time) bool {
+	return tlfi.Published.After(lastRefresh)
 }
 
 func createListTl(tl map[string]core.TlFeed) *cview.List {
