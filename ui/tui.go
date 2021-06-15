@@ -42,7 +42,7 @@ func displayStreamTui(data *core.TlData) error {
 
 	focusManager := cview.NewFocusManager(TlTui.App.SetFocus)
 	focusManager.SetWrapAround(true)
-	focusManager.Add(TlTui.ListTl)
+	focusManager.Add(TlTui.SideBarBox)
 	focusManager.Add(TlTui.ContentBox)
 	TlTui.FocusManager = focusManager
 	// TODO: Investigate
