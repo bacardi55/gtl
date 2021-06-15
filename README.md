@@ -6,7 +6,7 @@ Status: Work In Progress, only the CLI mode is available at this stage.
 
 # Installation
 
-gtl requires go ≥ 1.5
+gtl requires go ≥ 1.15
 
 # From Source
 ```
