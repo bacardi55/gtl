@@ -32,9 +32,11 @@ type TlTUI struct {
 	ContentBox       *cview.Panels
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager
+	Footer           *cview.Panels
 	Filter           string
 	FilterHighlights bool
 	RefreshStream    func(bool)
+	LastRefresh      time.Time
 }
 
 func formatElapsedTime(elapsed time.Duration) string {

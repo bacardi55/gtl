@@ -32,9 +32,13 @@ func displayStreamTui(data *core.TlData) error {
 	TlTui.MainFlex.AddItem(TlTui.SideBarBox, 0, 1, false)
 	TlTui.ContentBox = contentBox(data)
 	TlTui.MainFlex.AddItem(TlTui.ContentBox, 0, 3, true)
+	TlTui.LastRefresh = time.Now()
 
+	TlTui.Footer = createFooter(time.Now(), data.Config.Date_format)
+	TlTui.Layout.SetDirection(cview.FlexRow)
 	TlTui.Layout.AddItem(createHeader(), 2, 0, false)
 	TlTui.Layout.AddItem(TlTui.MainFlex, 0, 1, true)
+	TlTui.Layout.AddItem(TlTui.Footer, 1, 0, false)
 
 	focusManager := cview.NewFocusManager(TlTui.App.SetFocus)
 	focusManager.SetWrapAround(true)
@@ -64,6 +68,11 @@ func displayStreamTui(data *core.TlData) error {
 
 		TlTui.ListTl = createListTl(data.Feeds)
 		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
+
+		TlTui.LastRefresh = time.Now()
+		tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
+		TlTui.Footer.AddPanel("footer", tv, true, true)
+
 	}
 
 	// Shortcuts:
@@ -212,6 +221,24 @@ func createHeader() *cview.TextView {
 	tv.SetMaxLines(2)
 	tv.SetTextAlign(cview.AlignCenter)
 	content := "[::u]Usage[-::-]:\t[green]Refresh[-]: [::b]Ctrl-R[-::-]\t[green]Timeline[-]: [::b]Ctrl-T[-::-]\t[green]Highlights[-:]: [::b]Ctrl-H[-::-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-::-]"
+	tv.SetText(content)
+	return tv
+}
+
+func createFooter(latestRefresh time.Time, format string) *cview.Panels {
+	p := cview.NewPanels()
+
+	tv := createFooterTextView(latestRefresh, format)
+
+	p.AddPanel("footer", tv, true, true)
+	return p
+}
+
+func createFooterTextView(latestRefresh time.Time, format string) *cview.TextView {
+	tv := cview.NewTextView()
+	tv.SetMaxLines(1)
+	tv.SetTextAlign(cview.AlignCenter)
+	content := "Last Refresh:\t" + latestRefresh.Format(format)
 	tv.SetText(content)
 	return tv
 }
