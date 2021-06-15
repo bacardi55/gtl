@@ -28,7 +28,7 @@ type TlTUI struct {
 	App              *cview.Application
 	Layout           *cview.Flex
 	MainFlex         *cview.Flex
-	SideBarBox       *cview.Flex
+	SideBarBox       *cview.Panels
 	ContentBox       *cview.Panels
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager

@@ -61,6 +61,9 @@ func displayStreamTui(data *core.TlData) error {
 		}
 		tv := getContentTextView(data)
 		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
+
+		TlTui.ListTl = createListTl(data.Feeds)
+		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 	}
 
 	// Shortcuts:
@@ -90,12 +93,14 @@ func displayStreamTui(data *core.TlData) error {
 	return nil
 }
 
-func sideBarBox(tl map[string]core.TlFeed) *cview.Flex {
-	mflex := cview.NewFlex()
-	TlTui.ListTl = createListTl(tl)
-	mflex.AddItem(TlTui.ListTl, 0, 3, false)
+func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
+	p := cview.NewPanels()
+	p.SetTitle("Subscriptions:")
+	p.SetBorder(true)
 
-	return mflex
+	TlTui.ListTl = createListTl(tl)
+	p.AddPanel("subscriptions", TlTui.ListTl, true, true)
+	return p
 }
 
 func contentBox(data *core.TlData) *cview.Panels {
@@ -159,7 +164,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 }
 
 func createListTl(tl map[string]core.TlFeed) *cview.List {
-	list := createList("Subscriptions:")
+	list := createList("", false)
 	list.ShowSecondaryText(true)
 
 	i := createListItem("All Subscriptions", "")
@@ -190,10 +195,12 @@ func createListItem(title string, subtitle string) *cview.ListItem {
 	return item
 }
 
-func createList(title string) *cview.List {
+func createList(title string, border bool) *cview.List {
 	list := cview.NewList()
-	list.SetTitle(title)
-	list.SetBorder(true)
+	if title != "" {
+		list.SetTitle(title)
+	}
+	list.SetBorder(border)
 	list.SetWrapAround(true)
 
 	return list
