@@ -62,17 +62,15 @@ func displayStreamTui(data *core.TlData) error {
 			if e != nil {
 				log.Fatalln("Couldn't refresh feeds")
 			}
+      TlTui.ListTl = createListTl(data.Feeds)
+      TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
+
+      TlTui.LastRefresh = time.Now()
+      tv := createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
+      TlTui.Footer.AddPanel("footer", tv, true, true)
 		}
 		tv := getContentTextView(data)
 		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
-
-		TlTui.ListTl = createListTl(data.Feeds)
-		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
-
-		TlTui.LastRefresh = time.Now()
-		tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
-		TlTui.Footer.AddPanel("footer", tv, true, true)
-
 	}
 
 	// Shortcuts:
@@ -199,7 +197,7 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 		it := createListItem(f.DisplayName, "=> "+f.Link)
 		list.AddItem(it)
 		it.SetSelectedFunc(func() {
-			TlTui.Filter = TlTui.ListTl.GetCurrentItem().GetMainText()
+      TlTui.Filter = strings.TrimSpace(strings.Split(TlTui.ListTl.GetCurrentItem().GetMainText(), "-")[0])
 			TlTui.RefreshStream(false)
 		})
 	}
