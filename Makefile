@@ -35,4 +35,4 @@ dependencies:
 	${GOCMD} get "github.com/mitchellh/go-homedir"
 	${GOCMD} get "github.com/pelletier/go-toml"
 	${GOCMD} get "code.rocketnine.space/tslocum/cview"
-	${GOCMD} get "github.com/gdamore/tcell/v2 v2.3.11"
+	${GOCMD} get "github.com/gdamore/tcell"
