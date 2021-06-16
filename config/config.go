@@ -1,12 +1,10 @@
 package config
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
-	"strings"
+	"path/filepath"
 
 	"io/ioutil"
 
@@ -104,15 +102,19 @@ func getConfigFilePath(configArg string) (string, error) {
 			return "", fmt.Errorf("Error finding home directory")
 		}
 
-		// TODO: Use filepath.Join() instead:
-		configFile = homepath + "/.config/gtl/gtl.toml"
+		configDir := filepath.Join(homepath, ".config", "gtl")
+		if err = fileExist(configDir); err != nil {
+			log.Println("GTL directory doesn't exist\n", err)
+			os.Mkdir(configDir, 0744)
+		}
+
+		configFile = filepath.Join(configDir, "gtl.toml")
 
 		// Load or create configFile.
 		f, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0666)
 		defer f.Close()
 		if err == nil {
 			log.Println("Default configuration file does not exist yet, creating it…")
-			// Todo: Fix when directory doesn't exist. Doesn't work atm.
 			_, err := f.Write(defaultConf)
 			if err != nil {
 				return "", fmt.Errorf("Default configuration file couldn't be created in default place")
@@ -121,65 +123,6 @@ func getConfigFilePath(configArg string) (string, error) {
 	}
 
 	return configFile, nil
-}
-
-func getFeeds(subFile string) map[string]core.TlFeed {
-	subFilePath, e := homedir.Expand(subFile)
-	if e != nil {
-		log.Fatalln(e)
-	}
-
-	file, err := os.Open(subFilePath)
-	if err != nil {
-		os.Create(subFilePath)
-	}
-	defer func() error {
-		if err = file.Close(); err != nil {
-			log.Fatalln("Couldn't close subsciption file (%v)\n%v: ", subFile, err)
-		}
-		return nil
-	}()
-
-	F, err := parseSubscriptions(file)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return F
-}
-
-// Parse the subscription file.
-func parseSubscriptions(content io.Reader) (map[string]core.TlFeed, error) {
-	var Feeds map[string]core.TlFeed
-	Feeds = make(map[string]core.TlFeed)
-
-	scanner := bufio.NewScanner(content)
-	for i := 0; scanner.Scan(); i++ {
-		line := scanner.Text()
-		v := strings.Fields(strings.TrimSpace(line))
-		if lv := len(v); lv == 2 {
-			Feed := core.TlFeed{
-				Title: strings.TrimSpace(v[1]),
-				Link:  strings.TrimSpace(v[0]),
-			}
-			Feeds[Feed.Title] = Feed
-		} else if lv == 1 {
-			tmpTitle := fmt.Sprintf("Anonymous_%v", (i + 1))
-			Feed := core.TlFeed{
-				Title: tmpTitle,
-				Link:  v[0],
-			}
-			Feeds[Feed.Title] = Feed
-		} else {
-			return Feeds, fmt.Errorf("Ignoring malformated entry: ", line)
-			continue
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return Feeds, fmt.Errorf("reading standard input:", err)
-	}
-
-	return Feeds, nil
 }
 
 // Check if a file exist and if not return a custom error.

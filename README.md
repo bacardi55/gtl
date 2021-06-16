@@ -29,10 +29,9 @@ Binaries are only available for linux 386, amd64, arm and arm64 for now.
 
 *Assuming you put the binary in ~/bin*:
 ```
-mkdir ~/.config/gtl/ # Not created automatically, known issue.
-~/bin/gtl # will create the configuration and subscription files in ~/.config/gtl/
-~/bin/gtl add --url gemini://gmi.bacardi55.io/tinylog.gmi # Adding an entry will create the sub file.
-# Repeat add command for all the feeds.
+~/bin/gtl # will create the configuration and subscription files in ~/.config/gtl/ and a subscription path.
+[~/bin/gtl add --url gemini://capsule.tld/tinylog.gmi # Adding other entries than just my default one.
+[# Repeat add command for all the feeds.]
 ~/bin/gtl --mode cli --limit 10
 # Or use the TUI mode:
 ~/bin/gtl --mode tui
