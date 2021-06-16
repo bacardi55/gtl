@@ -22,6 +22,7 @@ func displayStreamTui(data *core.TlData) error {
 
 	TlTui.App = cview.NewApplication()
 	TlTui.App.EnableMouse(true)
+	TlTui.LastRefresh = time.Now()
 
 	TlTui.Layout = cview.NewFlex()
 	TlTui.Layout.SetTitle("Gemini Tiny Logs")
@@ -38,7 +39,7 @@ func displayStreamTui(data *core.TlData) error {
 	TlTui.Layout.SetDirection(cview.FlexRow)
 	TlTui.Layout.AddItem(createHeader(), 2, 0, false)
 	TlTui.Layout.AddItem(TlTui.MainFlex, 0, 1, true)
-	TlTui.Layout.AddItem(TlTui.Footer, 1, 0, false)
+	//TlTui.Layout.AddItem(TlTui.Footer, 1, 0, false)
 
 	focusManager := cview.NewFocusManager(TlTui.App.SetFocus)
 	focusManager.SetWrapAround(true)
@@ -62,19 +63,16 @@ func displayStreamTui(data *core.TlData) error {
 			if e != nil {
 				log.Fatalln("Couldn't refresh feeds")
 			}
+			TlTui.LastRefresh = time.Now()
 			TlTui.ListTl = createListTl(data.Feeds)
 			TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 		}
 		tv := getContentTextView(data)
+		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh))
 		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
 
-		// Must happen after the content box because of LastRefresh being used for
-		// the visual separator between new and old entries.
-		if refresh == true {
-			TlTui.LastRefresh = time.Now()
-			tv := createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
-			TlTui.Footer.AddPanel("footer", tv, true, true)
-		}
+		//tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
+		//TlTui.Footer.AddPanel("footer", tv, true, true)
 	}
 
 	// Shortcuts:
@@ -117,7 +115,7 @@ func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
 func contentBox(data *core.TlData) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
-	p.SetTitle("Timeline:")
+	p.SetTitle(createTimelineTitle(TlTui.LastRefresh))
 
 	tv := getContentTextView(data)
 
@@ -256,4 +254,8 @@ func createFooterTextView(latestRefresh time.Time, format string) *cview.TextVie
 	content := "Last Refresh:\t" + latestRefresh.Format(format)
 	tv.SetText(content)
 	return tv
+}
+
+func createTimelineTitle(t time.Time) string {
+	return fmt.Sprintf("  Timeline - Refreshed at %v  ", t.Format("15:04 MST"))
 }
