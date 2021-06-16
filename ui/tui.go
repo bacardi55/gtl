@@ -20,10 +20,51 @@ func displayStreamTui(data *core.TlData) error {
 		return fmt.Errorf("Couldn't refresh feeds")
 	}
 
+	initApp()
+	setAppUI(data)
+	setShortcuts()
+
+	TlTui.RefreshStream = func(refresh bool) {
+		if TlTui.Filter == "All Subscriptions" {
+			TlTui.Filter = ""
+		}
+
+		if refresh == true {
+			e := data.RefreshFeeds()
+			if e != nil {
+				log.Fatalln("Couldn't refresh feeds")
+			}
+			TlTui.LastRefresh = time.Now()
+			TlTui.ListTl = createListTl(data.Feeds)
+			TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
+		}
+		tv := getContentTextView(data)
+		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh))
+		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
+
+		//tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
+		//TlTui.Footer.AddPanel("footer", tv, true, true)
+	}
+
+	TlTui.App.SetRoot(TlTui.Layout, true)
+	if err := TlTui.App.Run(); err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
+func initApp() {
 	TlTui.App = cview.NewApplication()
 	TlTui.App.EnableMouse(true)
-	TlTui.LastRefresh = time.Now()
 
+	TlTui.Help = false
+	TlTui.LastRefresh = time.Now()
+	TlTui.Filter = ""
+	TlTui.FilterHighlights = false
+}
+
+func setAppUI(data *core.TlData) {
 	TlTui.Layout = cview.NewFlex()
 	TlTui.Layout.SetTitle("Gemini Tiny Logs")
 	TlTui.Layout.SetDirection(cview.FlexRow)
@@ -49,33 +90,9 @@ func displayStreamTui(data *core.TlData) error {
 	// TODO: Investigate
 	// This fix an issue where the first time user hits TAB, it doesn't change focus.
 	TlTui.FocusManager.FocusNext()
+}
 
-	TlTui.Filter = ""
-	TlTui.FilterHighlights = false
-
-	TlTui.RefreshStream = func(refresh bool) {
-		if TlTui.Filter == "All Subscriptions" {
-			TlTui.Filter = ""
-		}
-
-		if refresh == true {
-			e := data.RefreshFeeds()
-			if e != nil {
-				log.Fatalln("Couldn't refresh feeds")
-			}
-			TlTui.LastRefresh = time.Now()
-			TlTui.ListTl = createListTl(data.Feeds)
-			TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
-		}
-		tv := getContentTextView(data)
-		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh))
-		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
-
-		//tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
-		//TlTui.Footer.AddPanel("footer", tv, true, true)
-	}
-
-	// Shortcuts:
+func setShortcuts() {
 	TlTui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlR {
 			TlTui.RefreshStream(true)
@@ -93,13 +110,6 @@ func displayStreamTui(data *core.TlData) error {
 		}
 		return event
 	})
-
-	TlTui.App.SetRoot(TlTui.Layout, true)
-	if err := TlTui.App.Run(); err != nil {
-		panic(err)
-	}
-
-	return nil
 }
 
 func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {

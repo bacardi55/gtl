@@ -37,6 +37,7 @@ type TlTUI struct {
 	FilterHighlights bool
 	RefreshStream    func(bool)
 	LastRefresh      time.Time
+	Help             bool
 }
 
 func formatElapsedTime(elapsed time.Duration) string {
