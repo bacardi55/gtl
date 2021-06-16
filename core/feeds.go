@@ -73,9 +73,9 @@ func refreshStream(data TlData) (*TlStream, error) {
 			rf = <-chFeedContent
 			displayName = rf.Name
 			if rf.Status == FeedUnreachable {
-				displayName = displayName + " - ❌"
+				displayName = displayName + " - ☠️"
 			} else if rf.Status == FeedWrongFormat {
-				displayName = displayName + " - ⁉️"
+				displayName = displayName + " - ❌"
 			} else if rf.Status == FeedSSLError {
 				displayName = displayName + " - ❌🔓"
 			}
@@ -83,7 +83,12 @@ func refreshStream(data TlData) (*TlStream, error) {
 		} else {
 			rf = <-chFeedContent
 			dn, feedItems, err := parseTinyLogContent(rf)
-			displayName = dn + " - ✔"
+			displayName = dn + " - "
+			if len(feedItems) > 0 {
+				displayName = displayName + "✔"
+			} else {
+				displayName = displayName + "❌"
+			}
 			if err != nil {
 				log.Println(err)
 			} else {

@@ -72,7 +72,9 @@ You can navigate on the subscription list and click on a specific tinylog to onl
 
 **TUI Emoji Status:**
 
-* ❌: Indicates that the feed is unreachable.
+* ✔: All good :)
+* ❌: Indicates that the feed format is wrong or that no entries has been found.
+* ☠️ : Indicates that the capsule/page is unreachable.
 * ❌🔓: Indicates an error with the SSL certificate.
 
 ## Use gtl CLI
