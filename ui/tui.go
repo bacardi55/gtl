@@ -37,7 +37,7 @@ func displayStreamTui(data *core.TlData) error {
 
 	TlTui.Footer = createFooter(time.Now(), data.Config.Date_format)
 	TlTui.Layout.SetDirection(cview.FlexRow)
-	TlTui.Layout.AddItem(createHeader(), 2, 0, false)
+	TlTui.Layout.AddItem(createHeader(), 1, 0, false)
 	TlTui.Layout.AddItem(TlTui.MainFlex, 0, 1, true)
 	//TlTui.Layout.AddItem(TlTui.Footer, 1, 0, false)
 
@@ -233,7 +233,7 @@ func createList(title string, border bool) *cview.List {
 func createHeader() *cview.TextView {
 	tv := cview.NewTextView()
 	tv.SetDynamicColors(true)
-	tv.SetMaxLines(2)
+	tv.SetMaxLines(1)
 	tv.SetTextAlign(cview.AlignCenter)
 	content := "[::u]Usage[-::-]:\t[green]Refresh[-]: [::b]Ctrl-R[-::-]\t[green]Timeline[-]: [::b]Ctrl-T[-::-]\t[green]Highlights[-:]: [::b]Ctrl-H[-::-]\t[green]Switch focus[-]: [::b]TAB[-::-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-::-]"
 	tv.SetText(content)
