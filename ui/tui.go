@@ -106,6 +106,7 @@ func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetTitle("Subscriptions:")
 	p.SetBorder(true)
+	p.SetBorderColorFocused(tcell.ColorGreen)
 
 	TlTui.ListTl = createListTl(tl)
 	p.AddPanel("subscriptions", TlTui.ListTl, true, true)
@@ -115,6 +116,7 @@ func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
 func contentBox(data *core.TlData) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
+	p.SetBorderColorFocused(tcell.ColorGreen)
 	p.SetTitle(createTimelineTitle(TlTui.LastRefresh))
 
 	tv := getContentTextView(data)
