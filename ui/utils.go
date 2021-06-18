@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"code.rocketnine.space/tslocum/cview"
-
 	"git.bacardi55.io/bacardi55/gtl/core"
 )
 
@@ -22,22 +20,6 @@ func (Ui *TlUI) Run(data *core.TlData, limit int) error {
 	} else {
 		return fmt.Errorf("Unknown mode.")
 	}
-}
-
-type TlTUI struct {
-	App              *cview.Application
-	Layout           *cview.Flex
-	MainFlex         *cview.Flex
-	SideBarBox       *cview.Panels
-	ContentBox       *cview.Panels
-	ListTl           *cview.List
-	FocusManager     *cview.FocusManager
-	Footer           *cview.Panels
-	Filter           string
-	FilterHighlights bool
-	RefreshStream    func(bool)
-	LastRefresh      time.Time
-	Help             bool
 }
 
 func formatElapsedTime(elapsed time.Duration) string {
