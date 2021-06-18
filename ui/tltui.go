@@ -76,8 +76,12 @@ func (TlTui *TlTUI) SetShortcuts() {
 		return nil
 	}
 	handleTimeline := func(ev *tcell.EventKey) *tcell.EventKey {
+		// Remove Highlights filter:
 		TlTui.FilterHighlights = false
+		// Remove tinylog filter:
 		TlTui.Filter = ""
+		// Select "All" in subscription sidebar:
+		TlTui.ListTl.SetCurrentItem(0)
 		TlTui.RefreshStream(false)
 		return nil
 	}
