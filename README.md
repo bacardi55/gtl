@@ -61,11 +61,12 @@ Screenshot of the TUI below.
 
 **TUI Shortcuts:**
 ```
-Ctrl-R: Refresh timeline (refresh all tinylogs)
-Ctrl-T: Display timeline
-Ctrl-H: Display entries containing highlights (See configuration for highlights)
+r: Refresh timeline (refresh all tinylogs)
+t: Display timeline (remove all filters like highlights of specific tinylog)
+h: Toggle Highligts only / all entries (keep tinylog filter).
 Tab: Switch between timeline and subscription list.
-Ctrl-C or Ctrl-Q: Quit
+Arrow keys / hjkl: navigate
+q or Ctrl-C: Quit
 ```
 You can navigate on the subscription list and click on a specific tinylog to only display entries from this author.
 
