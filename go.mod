@@ -3,6 +3,7 @@ module git.bacardi55.io/bacardi55/gtl
 go 1.13
 
 require (
+	code.rocketnine.space/tslocum/cbind v0.1.5
 	code.rocketnine.space/tslocum/cview v1.5.5
 	git.sr.ht/~adnano/go-gemini v0.2.1
 	github.com/fatih/color v1.12.0

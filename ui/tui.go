@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"code.rocketnine.space/tslocum/cbind"
 	"code.rocketnine.space/tslocum/cview"
 	"github.com/gdamore/tcell/v2"
 
@@ -39,7 +40,7 @@ func displayStreamTui(data *core.TlData) error {
 			TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 		}
 		tv := getContentTextView(data)
-		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh))
+		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights))
 		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
 
 		//tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
@@ -93,23 +94,41 @@ func setAppUI(data *core.TlData) {
 }
 
 func setShortcuts() {
-	TlTui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyCtrlR {
-			TlTui.RefreshStream(true)
-			return nil
-		} else if event.Key() == tcell.KeyCtrlH || event.Key() == tcell.KeyCtrlT {
-			TlTui.FilterHighlights = (event.Key() == tcell.KeyCtrlH)
-			TlTui.RefreshStream(false)
-			return nil
-		} else if event.Key() == tcell.KeyCtrlC || event.Key() == tcell.KeyCtrlQ {
-			TlTui.App.Stop()
-			return nil
-		} else if event.Key() == tcell.KeyTAB {
-			TlTui.FocusManager.FocusNext()
-			return nil
-		}
-		return event
-	})
+	c := cbind.NewConfiguration()
+	handleRefresh := func(ev *tcell.EventKey) *tcell.EventKey {
+		TlTui.RefreshStream(true)
+		return nil
+	}
+	handleHighlights := func(ev *tcell.EventKey) *tcell.EventKey {
+		TlTui.FilterHighlights = !TlTui.FilterHighlights
+		TlTui.RefreshStream(false)
+		return nil
+	}
+	handleTimeline := func(ev *tcell.EventKey) *tcell.EventKey {
+		TlTui.FilterHighlights = false
+		TlTui.Filter = ""
+		TlTui.RefreshStream(false)
+		return nil
+	}
+	handleTab := func(ev *tcell.EventKey) *tcell.EventKey {
+		TlTui.FocusManager.FocusNext()
+		return nil
+	}
+	handleHelp := func(ev *tcell.EventKey) *tcell.EventKey {
+		return nil
+	}
+	handleQuit := func(ev *tcell.EventKey) *tcell.EventKey {
+		TlTui.App.Stop()
+		return nil
+	}
+
+	c.SetRune(tcell.ModNone, 'r', handleRefresh)
+	c.SetRune(tcell.ModNone, 'h', handleHighlights)
+	c.SetRune(tcell.ModNone, 't', handleTimeline)
+	c.SetKey(tcell.ModNone, tcell.KeyTAB, handleTab)
+	c.SetRune(tcell.ModNone, '?', handleHelp)
+	c.SetRune(tcell.ModNone, 'q', handleQuit)
+	TlTui.App.SetInputCapture(c.Capture)
 }
 
 func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
@@ -127,7 +146,7 @@ func contentBox(data *core.TlData) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
 	p.SetBorderColorFocused(tcell.ColorGreen)
-	p.SetTitle(createTimelineTitle(TlTui.LastRefresh))
+	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false))
 
 	tv := getContentTextView(data)
 
@@ -268,6 +287,10 @@ func createFooterTextView(latestRefresh time.Time, format string) *cview.TextVie
 	return tv
 }
 
-func createTimelineTitle(t time.Time) string {
-	return fmt.Sprintf("  Timeline - Refreshed at %v  ", t.Format("15:04 MST"))
+func createTimelineTitle(t time.Time, highlights bool) string {
+	if highlights == true {
+		return fmt.Sprintf("  Highlights - Refreshed at %v  ", t.Format("15:04 MST"))
+	} else {
+		return fmt.Sprintf("  Timeline - Refreshed at %v  ", t.Format("15:04 MST"))
+	}
 }

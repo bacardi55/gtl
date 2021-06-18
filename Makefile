@@ -36,3 +36,4 @@ dependencies:
 	${GOCMD} get "github.com/pelletier/go-toml"
 	${GOCMD} get "code.rocketnine.space/tslocum/cview"
 	${GOCMD} get "github.com/gdamore/tcell"
+	${GOCMD} get "code.rocketnine.space/tslocum/cbind"
