@@ -120,9 +120,9 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		ignoreEntry := false
 		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
-			c = gemtextFormat(i.Content)
+			c = gemtextFormat(i.Content, false)
 		} else if TlTui.FilterHighlights == false {
-			c = gemtextFormat(i.Content)
+			c = gemtextFormat(i.Content, f)
 			if f == true {
 				c = "[::b]" + c + "[::-]"
 			}
@@ -312,14 +312,23 @@ func getStatusIcon(status int) string {
 	return ""
 }
 
-func gemtextFormat(s string) string {
+func gemtextFormat(s string, isHighlighted bool) string {
+	closeFormat := "[white::-]"
+	if isHighlighted == true {
+		closeFormat = "[white::b]"
+	}
+
 	// Format quotes:
 	re := regexp.MustCompile("(\n(> .*\n))")
-	s = re.ReplaceAllString(s, "\n[grey::i] $2[white::-]")
+	s = re.ReplaceAllString(s, "\n[grey::i] $2"+closeFormat)
 
 	// Format links:
 	re = regexp.MustCompile("([\n]*=> [^\n]*[\n]*)")
-	s = re.ReplaceAllString(s, "[skyblue::b]$1[white::-]")
+	s = re.ReplaceAllString(s, "[skyblue::b]$1"+closeFormat)
+
+	// Format lists:
+	re = regexp.MustCompile("([\n]{0,1})([*]{1} [^\n]*)")
+	s = re.ReplaceAllString(s, "$1 $2")
 
 	return s
 }
