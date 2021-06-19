@@ -8,6 +8,9 @@
 *.log
 bin/
 
+# Dockerfile is used for build tests
+Dockerfile
+
 # Test binary, built with `go test -c`
 *.test
 
