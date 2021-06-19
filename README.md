@@ -6,7 +6,7 @@ This is a early version that still miss a lot of things, from features to tests,
 
 # Installation
 
-gtl requires go ≥ 1.15
+gtl requires go ≥ 1.16
 
 # From Source
 ```
