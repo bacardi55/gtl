@@ -120,7 +120,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		ignoreEntry := false
 		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
-			c = i.Content
+			c = gemtextFormat(i.Content)
 		} else if TlTui.FilterHighlights == false {
 			c = gemtextFormat(i.Content)
 			if f == true {
