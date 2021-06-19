@@ -65,6 +65,7 @@ Screenshot of the TUI below.
 r: Refresh timeline (refresh all tinylogs)
 t: Display timeline (remove all filters like highlights of specific tinylog)
 h: Toggle Highligts only / all entries (keep tinylog filter).
+s: Toggle hide/show subscription sidebar (left).
 Tab: Switch between timeline and subscription list.
 Arrow keys / hjkl: navigate
 q or Ctrl-C: Quit
