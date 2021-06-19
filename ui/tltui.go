@@ -113,7 +113,13 @@ func (TlTui *TlTUI) SetShortcuts() {
 		return nil
 	}
 	handleQuit := func(ev *tcell.EventKey) *tcell.EventKey {
-		TlTui.App.Stop()
+		// Don't quit if within help.
+		if TlTui.Help == true {
+			TlTui.Help = false
+			TlTui.App.SetRoot(TlTui.Layout, true)
+		} else {
+			TlTui.App.Stop()
+		}
 		return nil
 	}
 
