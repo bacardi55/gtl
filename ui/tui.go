@@ -43,13 +43,18 @@ func displayStreamTui(data *core.TlData) error {
 			if e != nil {
 				log.Fatalln("Couldn't refresh feeds")
 			}
-			TlTui.LastRefresh = time.Now()
 			TlTui.ListTl = createListTl(data.Feeds)
 			TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 		}
 		tv := getContentTextView(data)
 		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights))
 		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
+
+		// Needs to happen after the getContentTextView function for displaying
+		// a seperator between new and old entries.
+		if refresh == true {
+			TlTui.LastRefresh = time.Now()
+		}
 
 		//tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
 		//TlTui.Footer.AddPanel("footer", tv, true, true)
