@@ -35,13 +35,6 @@ var supportedTimeFormat = []string{
 	"2006-01-02",
 }
 
-const (
-	FeedValid       = 1
-	FeedUnreachable = 2
-	FeedWrongFormat = 3
-	FeedSSLError    = 4
-)
-
 type TlRawFeed struct {
 	Name    string
 	Content string
@@ -72,23 +65,12 @@ func refreshStream(data TlData) (*TlStream, error) {
 		if e != nil {
 			rf = <-chFeedContent
 			displayName = rf.Name
-			if rf.Status == FeedUnreachable {
-				displayName = displayName + " - ☠️"
-			} else if rf.Status == FeedWrongFormat {
-				displayName = displayName + " - ❌"
-			} else if rf.Status == FeedSSLError {
-				displayName = displayName + " - ❌🔓"
-			}
 			log.Println(e)
 		} else {
 			rf = <-chFeedContent
 			dn, feedItems, err := parseTinyLogContent(rf)
-			displayName = dn + " - "
-			if len(feedItems) > 0 {
-				displayName = displayName + "✔"
-			} else {
-				displayName = displayName + "❌"
-			}
+			displayName = dn
+
 			if err != nil {
 				log.Println(err)
 			} else {
@@ -101,6 +83,7 @@ func refreshStream(data TlData) (*TlStream, error) {
 		} else {
 			f.DisplayName = rf.Name
 		}
+		f.Status = rf.Status
 		data.Feeds[rf.Name] = f
 	}
 

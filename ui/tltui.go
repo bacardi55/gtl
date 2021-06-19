@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"strings"
 	"time"
 
 	"code.rocketnine.space/tslocum/cbind"
@@ -14,6 +15,10 @@ type TlShortcut struct {
 	Name        string
 	Command     string
 	Description string
+}
+
+type TlTuiSubs struct {
+	Items []core.TlFeed
 }
 
 type TlTUI struct {
@@ -119,4 +124,23 @@ func (TlTui *TlTUI) SetShortcuts() {
 	c.SetRune(tcell.ModNone, '?', handleHelp)
 	c.SetRune(tcell.ModNone, 'q', handleQuit)
 	TlTui.App.SetInputCapture(c.Capture)
+}
+
+// Implement sort.Interface Len.
+func (Subs *TlTuiSubs) Len() int {
+	return len(Subs.Items)
+}
+
+// Implement Interface sort.Interface Less.
+func (Subs *TlTuiSubs) Less(i, j int) bool {
+	if Subs.Items[i].Status == Subs.Items[j].Status {
+		return (strings.Compare(Subs.Items[i].Title, Subs.Items[j].Title) < 0)
+	} else {
+		return Subs.Items[i].Status < Subs.Items[j].Status
+	}
+}
+
+// Implement Interface sort.Interface Swap.
+func (Subs *TlTuiSubs) Swap(i, j int) {
+	Subs.Items[i], Subs.Items[j] = Subs.Items[j], Subs.Items[i]
 }

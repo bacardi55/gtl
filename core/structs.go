@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+const (
+	FeedValid       = 1
+	FeedUnreachable = 2
+	FeedWrongFormat = 3
+	FeedSSLError    = 4
+)
+
 type TlData struct {
 	Feeds  map[string]TlFeed
 	Config *TlConfig
@@ -33,6 +40,7 @@ type TlFeed struct {
 	Title       string
 	Link        string
 	DisplayName string
+	Status      int
 }
 
 type TlFeedItem struct {

@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -163,16 +164,29 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 		TlTui.RefreshStream(false)
 	})
 	list.AddItem(i)
-	for _, f := range tl {
-		it := createListItem(f.DisplayName, "=> "+f.Link)
+	orderedTl := getOrderedSubscriptions(tl)
+	sort.Sort(&orderedTl)
+
+	for _, f := range orderedTl.Items {
+		t := getStatusIcon(f.Status) + " - " + f.DisplayName
+		it := createListItem(t, "=> "+f.Link)
 		list.AddItem(it)
 		it.SetSelectedFunc(func() {
-			TlTui.Filter = strings.TrimSpace(strings.Split(TlTui.ListTl.GetCurrentItem().GetMainText(), "-")[0])
+			TlTui.Filter = strings.TrimSpace(strings.Split(TlTui.ListTl.GetCurrentItem().GetMainText(), "-")[1])
 			TlTui.RefreshStream(false)
 		})
 	}
 
 	return list
+}
+
+func getOrderedSubscriptions(tl map[string]core.TlFeed) TlTuiSubs {
+	var sub TlTuiSubs
+	for _, t := range tl {
+		sub.Items = append(sub.Items, t)
+	}
+
+	return sub
 }
 
 func createListItem(title string, subtitle string) *cview.ListItem {
@@ -280,4 +294,17 @@ func getHelpContent(field string) string {
 	}
 
 	return text
+}
+
+func getStatusIcon(status int) string {
+	if status == core.FeedValid {
+		return "✔"
+	} else if status == core.FeedUnreachable {
+		return "☠️"
+	} else if status == core.FeedWrongFormat {
+		return "❌"
+	} else if status == core.FeedSSLError {
+		return "🔓"
+	}
+	return ""
 }
