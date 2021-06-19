@@ -28,7 +28,7 @@ log_file = "/dev/null"
 # Will be ignored in tui mode.
 cli_limit = 10
 # Mode: either cli or tui
-mode = "cli"
+mode = "tui"
 `)
 
 func Init(configArg string, Data *core.TlData) {

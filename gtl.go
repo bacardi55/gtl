@@ -80,12 +80,10 @@ func main() {
 	} else if Data.Config.Mode == "tui" || Data.Config.Mode == "cli" {
 		gtlUI.Mode = Data.Config.Mode
 	} else {
-		fmt.Printf("Unknown mode")
-		log.Fatalln("Unknown mode")
+		fmt.Printf("Unknown mode, fallback on TUI.")
+		gtlUI.Mode = "tui"
 	}
 
-	//var gtlUI ui.TlUI
-	//gtlUI.Mode = mode
 	if e := gtlUI.Run(&Data, cliLimitArg); e != nil {
 		fmt.Println(e)
 		log.Fatalln(e)
