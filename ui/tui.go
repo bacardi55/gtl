@@ -161,7 +161,7 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 	list.SetMainTextColor(tcell.Color196)
 	list.SetSecondaryTextColor(tcell.ColorSkyblue)
 
-	i := createListItem("All Subscriptions", "")
+	i := createListItem("All Subscriptions", "> Press '?' for help")
 	i.SetSelectedFunc(func() {
 		TlTui.Filter = TlTui.ListTl.GetCurrentItem().GetMainText()
 		TlTui.RefreshStream(false)
