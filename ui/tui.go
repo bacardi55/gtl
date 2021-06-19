@@ -300,7 +300,7 @@ func getStatusIcon(status int) string {
 	if status == core.FeedValid {
 		return "✔"
 	} else if status == core.FeedUnreachable {
-		return "☠️"
+		return "💀"
 	} else if status == core.FeedWrongFormat {
 		return "❌"
 	} else if status == core.FeedSSLError {
