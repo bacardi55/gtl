@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -121,7 +122,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 			// No bold because all would be bold.
 			c = i.Content
 		} else if TlTui.FilterHighlights == false {
-			c = i.Content
+			c = gemtextFormat(i.Content)
 			if f == true {
 				c = "[::b]" + c + "[::-]"
 			}
@@ -130,7 +131,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		}
 
 		if ignoreEntry != true {
-			a := fmt.Sprintf("[red]" + i.Author + "[-::]")
+			a := fmt.Sprintf("[red]" + i.Author + "[white::]")
 			d := "[skyblue::]" + formatElapsedTime(t.Sub(i.Published)) + "[white::]"
 			if isTlEntryNew(i, TlTui.LastRefresh) != true && separator != true {
 				if nbEntries > 0 {
@@ -307,4 +308,16 @@ func getStatusIcon(status int) string {
 		return "🔓"
 	}
 	return ""
+}
+
+func gemtextFormat(s string) string {
+	// Format quotes:
+	re := regexp.MustCompile("(\n(> .*\n))")
+	s = re.ReplaceAllString(s, "\n[grey::i] $2[white::-]")
+
+	// Format links:
+	re = regexp.MustCompile("([\n]*=> [^\n]*[\n]*)")
+	s = re.ReplaceAllString(s, "[skyblue::b]$1[white::-]")
+
+	return s
 }
