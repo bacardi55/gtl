@@ -36,6 +36,7 @@ type TlTUI struct {
 	RefreshStream    func(bool)
 	LastRefresh      time.Time
 	Help             bool
+	DisplaySidebar   bool
 }
 
 func (TlTui *TlTUI) InitApp() {
@@ -46,6 +47,8 @@ func (TlTui *TlTUI) InitApp() {
 	TlTui.LastRefresh = time.Now()
 	TlTui.Filter = ""
 	TlTui.FilterHighlights = false
+	// Todo: make it configurable.
+	TlTui.DisplaySidebar = true
 }
 
 func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
@@ -83,11 +86,13 @@ func (TlTui *TlTUI) SetShortcuts() {
 		TlTui.RefreshStream(true)
 		return nil
 	}
+
 	handleHighlights := func(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.FilterHighlights = !TlTui.FilterHighlights
 		TlTui.RefreshStream(false)
 		return nil
 	}
+
 	handleTimeline := func(ev *tcell.EventKey) *tcell.EventKey {
 		// Remove Highlights filter:
 		TlTui.FilterHighlights = false
@@ -98,10 +103,25 @@ func (TlTui *TlTUI) SetShortcuts() {
 		TlTui.RefreshStream(false)
 		return nil
 	}
+
 	handleTab := func(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.FocusManager.FocusNext()
 		return nil
 	}
+
+	handleToggleSidebar := func(ev *tcell.EventKey) *tcell.EventKey {
+		if TlTui.DisplaySidebar == true {
+			TlTui.MainFlex.RemoveItem(TlTui.SideBarBox)
+			TlTui.DisplaySidebar = false
+			TlTui.FocusManager.Focus(TlTui.ContentBox)
+		} else {
+			TlTui.MainFlex.AddItemAtIndex(0, TlTui.SideBarBox, 0, 1, true)
+			TlTui.DisplaySidebar = true
+			TlTui.FocusManager.Focus(TlTui.SideBarBox)
+		}
+		return nil
+	}
+
 	handleHelp := func(ev *tcell.EventKey) *tcell.EventKey {
 		if TlTui.Help == false {
 			TlTui.Help = true
@@ -126,6 +146,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 	c.SetRune(tcell.ModNone, 'r', handleRefresh)
 	c.SetRune(tcell.ModNone, 'h', handleHighlights)
 	c.SetRune(tcell.ModNone, 't', handleTimeline)
+	c.SetRune(tcell.ModNone, 's', handleToggleSidebar)
 	c.SetKey(tcell.ModNone, tcell.KeyTAB, handleTab)
 	c.SetRune(tcell.ModNone, '?', handleHelp)
 	c.SetRune(tcell.ModNone, 'q', handleQuit)
