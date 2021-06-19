@@ -61,6 +61,7 @@ Screenshot of the TUI below.
 
 **TUI Shortcuts:**
 ```
+?: Display help
 r: Refresh timeline (refresh all tinylogs)
 t: Display timeline (remove all filters like highlights of specific tinylog)
 h: Toggle Highligts only / all entries (keep tinylog filter).

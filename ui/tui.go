@@ -12,6 +12,15 @@ import (
 	"git.bacardi55.io/bacardi55/gtl/core"
 )
 
+var shortcuts = []TlShortcut{
+	{"Refresh", "r", "Refresh timeline but keep active filters."},
+	{"Timeline", "t", "Display timeline, remove active filters."},
+	{"Highlights", "h", "Display only entries containing highlights, keep tinylog filters active."},
+	{"Focus", "TAB", "Switch focus between the timeline and the subsciption list"},
+	{"Help", "?", "Toggle displaying this help."},
+	{"Quit", "q / Ctrl-c", "Quit GTL."},
+}
+
 var TlTui TlTUI
 
 func displayStreamTui(data *core.TlData) error {
@@ -182,16 +191,6 @@ func createList(title string, border bool) *cview.List {
 	return list
 }
 
-func createHeader() *cview.TextView {
-	tv := cview.NewTextView()
-	tv.SetDynamicColors(true)
-	tv.SetMaxLines(1)
-	tv.SetTextAlign(cview.AlignCenter)
-	content := "[::u]Usage[-::-]:\t[green]Refresh[-]: [::b]Ctrl-R[-::-]\t[green]Timeline[-]: [::b]Ctrl-T[-::-]\t[green]Highlights[-:]: [::b]Ctrl-H[-::-]\t[green]Switch focus[-]: [::b]TAB[-::-]\t[green]Quit[-]: [::b]Ctrl-Q/Ctrl-C[-::-]"
-	tv.SetText(content)
-	return tv
-}
-
 func createFooter(latestRefresh time.Time, format string) *cview.Panels {
 	p := cview.NewPanels()
 
@@ -216,4 +215,64 @@ func createTimelineTitle(t time.Time, highlights bool) string {
 	} else {
 		return fmt.Sprintf("  Timeline - Refreshed at %v  ", t.Format("15:04 MST"))
 	}
+}
+
+func createHelpBox() *cview.Panels {
+	p := cview.NewPanels()
+	p.SetBorder(true)
+	p.SetTitle("Help:")
+	p.SetPadding(2, 0, 5, 0)
+
+	helpTable := cview.NewTable()
+	helpTable.SetBorders(false)
+	helpTable.SetFixed(1, 0)
+	helpTable.SetSelectable(false, false)
+	helpTable.SetSortClicked(false)
+
+	// 3 rows: Name, Command, Description.
+	c := cview.NewTableCell("Name")
+	c.SetAttributes(tcell.AttrBold | tcell.AttrUnderline)
+	helpTable.SetCell(0, 0, c)
+
+	c = cview.NewTableCell("Command")
+	c.SetAttributes(tcell.AttrBold | tcell.AttrUnderline)
+	helpTable.SetCell(0, 1, c)
+
+	c = cview.NewTableCell("Description")
+	c.SetAttributes(tcell.AttrBold | tcell.AttrUnderline)
+	helpTable.SetCell(0, 2, c)
+
+	for i, shortcut := range shortcuts {
+		tc := cview.NewTableCell(shortcut.Name)
+		helpTable.SetCell(i+1, 0, tc)
+
+		tc = cview.NewTableCell(shortcut.Command)
+		tc.SetAttributes(tcell.AttrBold)
+		helpTable.SetCell(i+1, 1, tc)
+
+		tc = cview.NewTableCell(shortcut.Description)
+		helpTable.SetCell(i+1, 2, tc)
+	}
+
+	helpTable.InsertRow(1)
+
+	p.AddPanel("help", helpTable, true, true)
+	return p
+}
+
+func getHelpContent(field string) string {
+	text := field + ":\n\n"
+
+	for _, s := range shortcuts {
+		switch field {
+		case "Names":
+			text = text + s.Name + "\n"
+		case "Descriptions":
+			text = text + s.Description + "\n"
+		case "Commands":
+			text = text + s.Command + "\n"
+		}
+	}
+
+	return text
 }

@@ -10,12 +10,19 @@ import (
 	"git.bacardi55.io/bacardi55/gtl/core"
 )
 
+type TlShortcut struct {
+	Name        string
+	Command     string
+	Description string
+}
+
 type TlTUI struct {
 	App              *cview.Application
 	Layout           *cview.Flex
 	MainFlex         *cview.Flex
 	SideBarBox       *cview.Panels
 	ContentBox       *cview.Panels
+	HelpBox          *cview.Panels
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager
 	Footer           *cview.Panels
@@ -50,7 +57,6 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 
 	TlTui.Footer = createFooter(time.Now(), data.Config.Date_format)
 	TlTui.Layout.SetDirection(cview.FlexRow)
-	TlTui.Layout.AddItem(createHeader(), 1, 0, false)
 	TlTui.Layout.AddItem(TlTui.MainFlex, 0, 1, true)
 	//TlTui.Layout.AddItem(TlTui.Footer, 1, 0, false)
 
@@ -62,6 +68,8 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	// TODO: Investigate
 	// This fix an issue where the first time user hits TAB, it doesn't change focus.
 	TlTui.FocusManager.FocusNext()
+
+	TlTui.HelpBox = createHelpBox()
 }
 
 func (TlTui *TlTUI) SetShortcuts() {
@@ -90,6 +98,13 @@ func (TlTui *TlTUI) SetShortcuts() {
 		return nil
 	}
 	handleHelp := func(ev *tcell.EventKey) *tcell.EventKey {
+		if TlTui.Help == false {
+			TlTui.Help = true
+			TlTui.App.SetRoot(TlTui.HelpBox, true)
+		} else {
+			TlTui.Help = false
+			TlTui.App.SetRoot(TlTui.Layout, true)
+		}
 		return nil
 	}
 	handleQuit := func(ev *tcell.EventKey) *tcell.EventKey {
