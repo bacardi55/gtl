@@ -158,6 +158,8 @@ func isTlEntryNew(tlfi *core.TlFeedItem, lastRefresh time.Time) bool {
 func createListTl(tl map[string]core.TlFeed) *cview.List {
 	list := createList("", false)
 	list.ShowSecondaryText(true)
+	list.SetMainTextColor(tcell.Color196)
+	list.SetSecondaryTextColor(tcell.ColorSkyblue)
 
 	i := createListItem("All Subscriptions", "")
 	i.SetSelectedFunc(func() {
