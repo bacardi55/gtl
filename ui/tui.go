@@ -73,7 +73,7 @@ func displayStreamTui(data *core.TlData) error {
 
 func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
 	p := cview.NewPanels()
-	p.SetTitle("Subscriptions:")
+	p.SetTitle(" Subscriptions: ")
 	p.SetBorder(true)
 	p.SetBorderColorFocused(tcell.ColorGreen)
 
@@ -243,7 +243,7 @@ func createTimelineTitle(t time.Time, highlights bool) string {
 func createHelpBox() *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
-	p.SetTitle("Help:")
+	p.SetTitle(" Help: ")
 	p.SetPadding(2, 0, 5, 0)
 
 	helpTable := cview.NewTable()
