@@ -333,7 +333,11 @@ func gemtextFormat(s string, isHighlighted bool) string {
 
 	// Format quotes:
 	re := regexp.MustCompile("(?im)^(> .*[^\n])([\n]*)")
-	s = re.ReplaceAllString(s, "[grey::i] $1"+closeFormat+"$2")
+	if isHighlighted == true {
+		s = re.ReplaceAllString(s, "[grey::bi] $1"+closeFormat+"$2")
+	} else {
+		s = re.ReplaceAllString(s, "[grey::i] $1"+closeFormat+"$2")
+	}
 
 	// Format links:
 	re = regexp.MustCompile("(?im)^(=>)( [^\n]*[\n]*)")
@@ -341,7 +345,11 @@ func gemtextFormat(s string, isHighlighted bool) string {
 
 	// Format lists:
 	re = regexp.MustCompile("(?im)^([*] [^\n]*)")
-	s = re.ReplaceAllString(s, " [::i]$1"+closeFormat)
+	if isHighlighted == true {
+		s = re.ReplaceAllString(s, " [::bi]$1"+closeFormat)
+	} else {
+		s = re.ReplaceAllString(s, " [::i]$1"+closeFormat)
+	}
 
 	return s
 }
