@@ -28,12 +28,13 @@ func (Data *TlData) RefreshFeeds() error {
 }
 
 type TlConfig struct {
-	Subscribed_data string
-	Date_format     string
-	Log_file        string
-	Highlights      string
-	Cli_limit       int
-	Mode            string
+	Subscribed_data  string
+	Date_format      string
+	Log_file         string
+	Highlights       string
+	Cli_limit        int
+	Mode             string
+	Tui_status_emoji bool
 }
 
 type TlFeed struct {

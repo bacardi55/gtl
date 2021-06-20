@@ -29,6 +29,8 @@ log_file = "/dev/null"
 cli_limit = 10
 # Mode: either cli or tui
 mode = "tui"
+# If false, standard ascii characters will be used.
+tui_status_emoji = false
 `)
 
 func Init(configArg string, Data *core.TlData) {

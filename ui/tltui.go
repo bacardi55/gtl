@@ -37,9 +37,10 @@ type TlTUI struct {
 	LastRefresh      time.Time
 	Help             bool
 	DisplaySidebar   bool
+	Emoji            bool
 }
 
-func (TlTui *TlTUI) InitApp() {
+func (TlTui *TlTUI) InitApp(useEmoji bool) {
 	TlTui.App = cview.NewApplication()
 	TlTui.App.EnableMouse(true)
 
@@ -49,6 +50,11 @@ func (TlTui *TlTUI) InitApp() {
 	TlTui.FilterHighlights = false
 	// Todo: make it configurable.
 	TlTui.DisplaySidebar = true
+
+	TlTui.Emoji = false
+	if useEmoji == true {
+		TlTui.Emoji = true
+	}
 }
 
 func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
@@ -105,7 +111,10 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
 	handleTab := func(ev *tcell.EventKey) *tcell.EventKey {
-		TlTui.FocusManager.FocusNext()
+		// If help of if sidebar is hidden, nothing to switch focus to.
+		if TlTui.Help == false && TlTui.DisplaySidebar == true {
+			TlTui.FocusManager.FocusNext()
+		}
 		return nil
 	}
 

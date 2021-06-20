@@ -74,10 +74,12 @@ You can navigate on the subscription list and click on a specific tinylog to onl
 
 **TUI Emoji Status:**
 
-* ✔: All good :)
-* ❌: Indicates that the feed format is wrong or that no entries has been found.
-* ☠️ : Indicates that the capsule/page is unreachable.
-* ❌🔓: Indicates an error with the SSL certificate.
+If `tui_status_emoji` is set to true in the configuration file (see below), emoji will be used for the status. Otherwise, simple ASCII characters will be used.
+
+* `V` or `✔`: All good :)
+* `X` or `❌`: Indicates that the feed format is wrong or that no entries has been found.
+* `D` or `☠️ `: Indicates that the capsule/page is unreachable.
+* `S` or `🔓`: Indicates an error with the SSL certificate.
 
 ## Use gtl CLI
 ```
@@ -134,6 +136,8 @@ log_file = "/dev/null"
 cli_limit = 10
 # Mode: either cli or tui
 mode = "tui"
+# If false, standard ascii characters will be used.
+tui_status_emoji = false
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.

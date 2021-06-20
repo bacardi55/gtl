@@ -32,7 +32,7 @@ func displayStreamTui(data *core.TlData) error {
 		return fmt.Errorf("Couldn't refresh feeds")
 	}
 
-	TlTui.InitApp()
+	TlTui.InitApp(data.Config.Tui_status_emoji)
 	TlTui.SetAppUI(data)
 	TlTui.SetShortcuts()
 
@@ -301,14 +301,26 @@ func getHelpContent(field string) string {
 }
 
 func getStatusIcon(status int) string {
-	if status == core.FeedValid {
-		return "✔"
-	} else if status == core.FeedUnreachable {
-		return "💀"
-	} else if status == core.FeedWrongFormat {
-		return "❌"
-	} else if status == core.FeedSSLError {
-		return "🔓"
+	if TlTui.Emoji == true {
+		if status == core.FeedValid {
+			return "✔"
+		} else if status == core.FeedUnreachable {
+			return "💀"
+		} else if status == core.FeedWrongFormat {
+			return "❌"
+		} else if status == core.FeedSSLError {
+			return "🔓"
+		}
+	} else {
+		if status == core.FeedValid {
+			return "V"
+		} else if status == core.FeedUnreachable {
+			return "D"
+		} else if status == core.FeedWrongFormat {
+			return "X"
+		} else if status == core.FeedSSLError {
+			return "S"
+		}
 	}
 	return ""
 }
@@ -320,16 +332,16 @@ func gemtextFormat(s string, isHighlighted bool) string {
 	}
 
 	// Format quotes:
-	re := regexp.MustCompile("(\n(> .*\n))")
-	s = re.ReplaceAllString(s, "\n[grey::i] $2"+closeFormat)
+	re := regexp.MustCompile("(?im)^(> .*[^\n])([\n]*)")
+	s = re.ReplaceAllString(s, "[grey::i] $1"+closeFormat+"$2")
 
 	// Format links:
-	re = regexp.MustCompile("([\n]*=> [^\n]*[\n]*)")
-	s = re.ReplaceAllString(s, "[skyblue::b]$1"+closeFormat)
+	re = regexp.MustCompile("(?im)^(=>)( [^\n]*[\n]*)")
+	s = re.ReplaceAllString(s, "[skyblue::b]→$2"+closeFormat)
 
 	// Format lists:
-	re = regexp.MustCompile("([\n]{0,1})([*]{1} [^\n]*)")
-	s = re.ReplaceAllString(s, "$1 $2")
+	re = regexp.MustCompile("(?im)^([*] [^\n]*)")
+	s = re.ReplaceAllString(s, " [::i]$1"+closeFormat)
 
 	return s
 }
