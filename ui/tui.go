@@ -18,7 +18,8 @@ var shortcuts = []TlShortcut{
 	{"Refresh", "r", "Refresh timeline but keep active filters."},
 	{"Timeline", "t", "Display timeline, remove active filters."},
 	{"Highlights", "h", "Display only entries containing highlights, keep tinylog filters active."},
-	{"Focus", "TAB", "Switch focus between the timeline and the subsciption list"},
+	{"Focus", "TAB", "Switch focus between the timeline and the subsciption list."},
+	{"Sidebar toggle", "s", "Hide/Show Subscription sidebar."},
 	{"Help", "?", "Toggle displaying this help."},
 	{"Quit", "q / Ctrl-c", "Quit GTL."},
 }
