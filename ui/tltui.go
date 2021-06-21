@@ -28,6 +28,7 @@ type TlTUI struct {
 	SideBarBox       *cview.Panels
 	ContentBox       *cview.Panels
 	HelpBox          *cview.Panels
+	RefreshBox       *cview.Panels
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager
 	Footer           *cview.Panels
@@ -84,12 +85,28 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.FocusManager.FocusNext()
 
 	TlTui.HelpBox = createHelpBox()
+	TlTui.RefreshBox = createRefreshBox()
 }
 
 func (TlTui *TlTUI) SetShortcuts() {
 	c := cbind.NewConfiguration()
+
 	handleRefresh := func(ev *tcell.EventKey) *tcell.EventKey {
-		TlTui.RefreshStream(true)
+		var refreshStart = func() {
+			TlTui.App.SetRoot(TlTui.RefreshBox, true)
+		}
+
+		var refreshEnd = func() {
+			TlTui.App.SetRoot(TlTui.Layout, true)
+		}
+
+		var refresh = func() {
+			TlTui.RefreshStream(true)
+		}
+
+		TlTui.App.QueueUpdateDraw(refreshStart)
+		TlTui.App.QueueUpdate(refresh)
+		TlTui.App.QueueUpdateDraw(refreshEnd)
 		return nil
 	}
 

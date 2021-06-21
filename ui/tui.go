@@ -76,7 +76,7 @@ func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
 	p.SetTitle(" Subscriptions: ")
 	p.SetBorder(true)
 	p.SetBorderColorFocused(tcell.ColorGreen)
-  p.SetPadding(1, 1, 0, 0)
+	p.SetPadding(1, 1, 0, 0)
 
 	TlTui.ListTl = createListTl(tl)
 	p.AddPanel("subscriptions", TlTui.ListTl, true, true)
@@ -88,7 +88,7 @@ func contentBox(data *core.TlData) *cview.Panels {
 	p.SetBorder(true)
 	p.SetBorderColorFocused(tcell.ColorGreen)
 	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false))
-  p.SetPadding(0, 0, 1, 0)
+	p.SetPadding(0, 0, 1, 0)
 
 	tv := getContentTextView(data)
 
@@ -282,6 +282,22 @@ func createHelpBox() *cview.Panels {
 	helpTable.InsertRow(1)
 
 	p.AddPanel("help", helpTable, true, true)
+	return p
+}
+
+func createRefreshBox() *cview.Panels {
+	p := cview.NewPanels()
+	p.SetBorder(true)
+	p.SetTitle(" Refreshing stream: ")
+	p.SetPadding(2, 0, 5, 0)
+
+	tv := cview.NewTextView()
+	tv.SetTextAlign(cview.AlignCenter)
+	tv.SetText("Feeds are being refreshed, please wait…")
+
+	p.AddPanel("refreshing", tv, true, true)
+	TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
+
 	return p
 }
 
