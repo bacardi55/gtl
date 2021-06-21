@@ -70,7 +70,9 @@ Tab: Switch between timeline and subscription list.
 Arrow keys / hjkl: navigate
 q or Ctrl-C: Quit
 ```
-You can navigate on the subscription list and click on a specific tinylog to only display entries from this author.
+You can navigate on the subscription list and:
+* left click or press enter: Will filter only entries from this tinylog and hide all entries from other tinylogs. A Status `F` or `🔎` is indicated.
+* right click or press alt+enter: Will open a menu to mute / unmute a tinylog. A tinylog muted means no entry from this tinylog are displayed. A Status `M` or `🔕` is displayed.
 
 **TUI Emoji Status:**
 
@@ -80,6 +82,8 @@ If `tui_status_emoji` is set to true in the configuration file (see below), emoj
 * `X` or `❌`: Indicates that the feed format is wrong or that no entries has been found.
 * `D` or `☠️ `: Indicates that the capsule/page is unreachable.
 * `S` or `🔓`: Indicates an error with the SSL certificate.
+* `F` or `🔎`: Indicates that the feed is selected. It means only entries from this tinylog are displayed.
+* `M` or `🔕`: Indicates that the feed is muted. It means no entry of this tinylog will be displayed.
 
 ## Use gtl CLI
 ```

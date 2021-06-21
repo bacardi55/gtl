@@ -39,6 +39,7 @@ type TlTUI struct {
 	Help             bool
 	DisplaySidebar   bool
 	Emoji            bool
+	Muted            []string
 }
 
 func (TlTui *TlTUI) InitApp(useEmoji bool) {

@@ -20,6 +20,8 @@ var shortcuts = []TlShortcut{
 	{"Highlights", "h", "Display only entries containing highlights, keep tinylog filters active."},
 	{"Focus", "TAB", "Switch focus between the timeline and the subsciption list."},
 	{"Sidebar toggle", "s", "Hide/Show Subscription sidebar."},
+	{"Fitler tinylog", "Enter/Left click", "Only display entries from this tinylog"},
+	{"(Un)Mute tinylog", "Alt-Enter/Right click", "Hide entries from this tinylog"},
 	{"Help", "?", "Toggle displaying this help."},
 	{"Quit", "q / Ctrl-c", "Quit GTL."},
 }
@@ -39,6 +41,7 @@ func displayStreamTui(data *core.TlData) error {
 	TlTui.RefreshStream = func(refresh bool) {
 		if TlTui.Filter == "All Subscriptions" {
 			TlTui.Filter = ""
+			TlTui.Muted = []string{}
 		}
 
 		if refresh == true {
@@ -46,9 +49,10 @@ func displayStreamTui(data *core.TlData) error {
 			if e != nil {
 				log.Fatalln("Couldn't refresh feeds")
 			}
-			TlTui.ListTl = createListTl(data.Feeds)
-			TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 		}
+		TlTui.ListTl = createListTl(data.Feeds)
+		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
+
 		tv := getContentTextView(data)
 		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights))
 		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
@@ -102,9 +106,18 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	separator := false
 	nbEntries := 0
 	for _, i := range data.Stream.Items {
+		// If not the wrong author to filter on.
 		if TlTui.Filter != "" && TlTui.Filter != i.Author {
 			continue
 		}
+
+		// If this author is muted
+		if len(TlTui.Muted) > 0 {
+			if found, _ := isMuted(i.Author); found == true {
+				continue
+			}
+		}
+
 		f := false
 		if len(data.Config.Highlights) > 0 {
 			if highlights := strings.Split(data.Config.Highlights, ","); len(highlights) > 0 {
@@ -163,6 +176,26 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 	list.ShowSecondaryText(true)
 	list.SetMainTextColor(tcell.Color196)
 	list.SetSecondaryTextColor(tcell.ColorSkyblue)
+	list.SetSelectedAlwaysCentered(false)
+
+	orderedTl := getOrderedSubscriptions(tl)
+	sort.Sort(&orderedTl)
+
+	list.AddContextItem("(Un)Mute tinylog", 'm', func(index int) {
+		// index == 0 means All Subscriptions.
+		if index > 0 {
+			author := orderedTl.Items[index-1].DisplayName
+			found, foundIndex := isMuted(author)
+
+			if found == false {
+				TlTui.Muted = append(TlTui.Muted, author)
+			} else if found == true && foundIndex >= 0 {
+				TlTui.Muted[foundIndex] = TlTui.Muted[len(TlTui.Muted)-1]
+				TlTui.Muted = TlTui.Muted[:len(TlTui.Muted)-1]
+			}
+			TlTui.RefreshStream(false)
+		}
+	})
 
 	i := createListItem("All Subscriptions", "> Press '?' for help")
 	i.SetSelectedFunc(func() {
@@ -170,11 +203,9 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 		TlTui.RefreshStream(false)
 	})
 	list.AddItem(i)
-	orderedTl := getOrderedSubscriptions(tl)
-	sort.Sort(&orderedTl)
 
 	for _, f := range orderedTl.Items {
-		t := getStatusIcon(f.Status) + " - " + f.DisplayName
+		t := getStatusIcon(f) + " - " + f.DisplayName
 		it := createListItem(t, "=> "+f.Link)
 		list.AddItem(it)
 		it.SetSelectedFunc(func() {
@@ -318,29 +349,44 @@ func getHelpContent(field string) string {
 	return text
 }
 
-func getStatusIcon(status int) string {
+func getStatusIcon(f core.TlFeed) string {
+	status := f.Status
+	r := ""
 	if TlTui.Emoji == true {
 		if status == core.FeedValid {
-			return "✔"
+			r = "✔"
 		} else if status == core.FeedUnreachable {
-			return "💀"
+			r = "💀"
 		} else if status == core.FeedWrongFormat {
-			return "❌"
+			r = "❌"
 		} else if status == core.FeedSSLError {
-			return "🔓"
+			r = "🔓"
+		}
+		if f.DisplayName == TlTui.Filter {
+			r = "🔎" + r
+		}
+		if f, _ := isMuted(f.DisplayName); f == true {
+			r = "🔕" + r
 		}
 	} else {
 		if status == core.FeedValid {
-			return "V"
+			r = "V"
 		} else if status == core.FeedUnreachable {
-			return "D"
+			r = "D"
 		} else if status == core.FeedWrongFormat {
-			return "X"
+			r = "X"
 		} else if status == core.FeedSSLError {
-			return "S"
+			r = "S"
+		}
+		if f.DisplayName == TlTui.Filter {
+			r = "F" + r
+		}
+		if f, _ := isMuted(f.DisplayName); f == true {
+			r = "M" + r
 		}
 	}
-	return ""
+
+	return r
 }
 
 func gemtextFormat(s string, isHighlighted bool) string {
@@ -370,4 +416,19 @@ func gemtextFormat(s string, isHighlighted bool) string {
 	}
 
 	return s
+}
+
+func isMuted(author string) (bool, int) {
+	found := false
+	foundIndex := -1
+
+	for i, m := range TlTui.Muted {
+		if author == m {
+			found = true
+			foundIndex = i
+			break
+		}
+	}
+
+	return found, foundIndex
 }
