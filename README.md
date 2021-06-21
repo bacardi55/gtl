@@ -54,12 +54,15 @@ gtl --version
 
 ## Use gtl TUI
 
+[Screenshot of the TUI below](#tui-mode).
+
 ```
 gtl --mode tui
 ```
 or configure the `gtl.toml` to set `mode = tui` (see config below).
 
-Screenshot of the TUI below.
+PS: TUI is the default mode since v0.4.8
+
 
 **TUI Shortcuts:**
 ```
@@ -88,6 +91,9 @@ If `tui_status_emoji` is set to true in the configuration file (see below), emoj
 * `M` or `🔕`: Indicates that the feed is muted. It means no entry of this tinylog will be displayed.
 
 ## Use gtl CLI
+
+[Screenshot of the CLI below](#cli-mode).
+
 ```
 Usage:
 	--config configFile	Indicate a specific config file.
@@ -165,10 +171,11 @@ Subscription management usage:
 
 # Screenshots
 
+## TUI mode
+
+![Gtl TUI screenshot](docs/images/gtl_tui_screenshot.png)
+
 ## CLI mode
 
 ![Gtl CLI screenshot](docs/images/gtl_screenshot.png)
 
-## TUI mode
-
-![Gtl TUI screenshot](docs/images/gtl_tui_screenshot.png)
