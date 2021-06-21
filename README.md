@@ -23,6 +23,8 @@ Put the binary in a directory available in your $PATH if you don't want to type 
 You can download binaries for linux [here](https://github.com/bacardi55/gtl/releases).
 Binaries are only available for linux 386, amd64, arm and arm64 for now.
 
+*PS*: I don't have a Mac or Windows box easily accessible, so any help/patch on this is appreciated :).
+
 # Usage
 
 ## Quick start:
