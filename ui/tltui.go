@@ -128,12 +128,18 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
 	handleHighlights := func(ev *tcell.EventKey) *tcell.EventKey {
+    if TlTui.DisplayFormModal == true {
+      return ev
+    }
 		TlTui.FilterHighlights = !TlTui.FilterHighlights
 		TlTui.RefreshStream(false)
 		return nil
 	}
 
 	handleTimeline := func(ev *tcell.EventKey) *tcell.EventKey {
+    if TlTui.DisplayFormModal == true {
+      return ev
+    }
 		// Remove Highlights filter:
 		TlTui.FilterHighlights = false
 		// Remove tinylog filter:
@@ -180,19 +186,32 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
   handleNewEntry := func(ev *tcell.EventKey) *tcell.EventKey {
-    TlTui.App.Suspend(editTl)
+    var message, buttonName string
+    var execFunc func()
 
-    log.Println(Tle.PostEditionScript)
-    if Tle.PostEditionScript != "" {
-      if e := Tle.Push(); e != nil {
-        // TODO: handle error in UI.
-        log.Println("Couldn't execute post script:\n", e)
-      } else {
-        log.Println("Post script executed successfully.")
+    if TlTui.App.Suspend(editTl) == true {
+      message = "Tinylog edited successfully"
+      buttonName = "Run script"
+      execFunc = func() {
+        var m string
+        if e := Tle.Push(); e != nil {
+          m = "Couldn't run script, please check the logs."
+        } else {
+          m = "Post script ran successfully :)"
+        }
+        buttonName = "ok"
+        updateFormModalContent(m, "ok", "", func(){})
+        TlTui.FocusManager.Focus(TlTui.ContentBox)
       }
+    } else {
+      buttonName = ""
+      execFunc = nil
+      message = "Tinylog couldn't be edited"
     }
+    log.Println(message)
+    updateFormModalContent(message, "cancel", buttonName, execFunc)
+    toggleFormModal()
 
-    //toggleFormModal()
     return nil
   }
 
@@ -207,6 +226,18 @@ func (TlTui *TlTUI) SetShortcuts() {
 		return nil
 	}
 
+  handleEsc := func(ev *tcell.EventKey) *tcell.EventKey {
+		if TlTui.Help == true {
+			TlTui.Help = false
+			TlTui.App.SetRoot(TlTui.Layout, true)
+      return nil
+    } else if TlTui.DisplayFormModal == true {
+      toggleFormModal()
+      return nil
+    }
+    return ev
+  }
+
 	c.SetRune(tcell.ModCtrl, 'n', handleNewEntry)
 	c.SetRune(tcell.ModNone, 'r', handleRefresh)
 	c.SetRune(tcell.ModNone, 'h', handleHighlights)
@@ -215,6 +246,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 	c.SetKey(tcell.ModNone, tcell.KeyTAB, handleTab)
 	c.SetRune(tcell.ModNone, '?', handleHelp)
 	c.SetRune(tcell.ModNone, 'q', handleQuit)
+  c.SetKey(tcell.ModNone, tcell.KeyESC, handleEsc)
 	TlTui.App.SetInputCapture(c.Capture)
 }
 
@@ -235,18 +267,4 @@ func (Subs *TlTuiSubs) Less(i, j int) bool {
 // Implement Interface sort.Interface Swap.
 func (Subs *TlTuiSubs) Swap(i, j int) {
 	Subs.Items[i], Subs.Items[j] = Subs.Items[j], Subs.Items[i]
-}
-
-func toggleFormModal() {
-  if TlTui.DisplayFormModal == false {
-    TlTui.DisplayFormModal = true
-    TlTui.ContentBox.SendToBack("timeline")
-    TlTui.ContentBox.SendToFront("newEntryModal")
-    TlTui.ContentBox.ShowPanel("newEntryModal")
-  } else {
-    TlTui.DisplayFormModal = false
-    TlTui.ContentBox.SendToFront("timeline")
-    TlTui.ContentBox.SendToBack("newEntryModal")
-    TlTui.ContentBox.HidePanel("newEntryModal")
-  }
 }

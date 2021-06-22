@@ -445,23 +445,35 @@ func isMuted(author string) (bool, int) {
 
 func createFormModal() *cview.Modal {
   m := cview.NewModal()
+  return m
+}
 
-  // TODO: create accept function to validate entry format.
+func updateFormModalContent(message string, mainButtonName string, buttonName string, execFunc func()) {
+  m := TlTui.FormModal
   f := m.GetForm()
-  f.AddInputField("newEntryDate", time.Now().Format("2006-01-02 15:04 -0700"), 0, nil, nil)
-  f.AddInputField("newEntryContent", "", 0, nil, nil)
-  //input := f.GetFormItemByLabel("newEntryDate")
-  //input.SetFieldNote("The content of the tinylog entry.")
+  f.ClearButtons()
 
-  f.AddButton("Add", func() {
-    log.Println("In ADD")
-  })
+  m.SetText(message)
 
-  f.AddButton("Cancel", func() {
-    log.Println("In Cancel")
-    // TODO: clean form.
+  if buttonName != "" {
+    f.AddButton(buttonName, execFunc)
+  }
+
+  f.AddButton(mainButtonName, func() {
     toggleFormModal()
   })
+}
 
-  return m
+func toggleFormModal() {
+  if TlTui.DisplayFormModal == false {
+    TlTui.DisplayFormModal = true
+    TlTui.ContentBox.SendToBack("timeline")
+    TlTui.ContentBox.SendToFront("newEntryModal")
+    TlTui.ContentBox.ShowPanel("newEntryModal")
+  } else {
+    TlTui.DisplayFormModal = false
+    TlTui.ContentBox.SendToFront("timeline")
+    TlTui.ContentBox.SendToBack("newEntryModal")
+    TlTui.ContentBox.HidePanel("newEntryModal")
+  }
 }

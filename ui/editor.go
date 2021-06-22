@@ -4,7 +4,6 @@ import(
   "os"
   "os/exec"
   "fmt"
-  "log"
 
 	"github.com/mitchellh/go-homedir"
 )
@@ -47,12 +46,9 @@ func (tle *TlEditor) Init(tinylogPath string, postScriptPath string) error {
     if e != nil {
       return fmt.Errorf("Couldn't find post script file\n", e)
     }
-    // TODO: Check if script is executable.
     if f.Mode()&0111 == 0111 {
-      log.Println("IN")
       tle.PostEditionScript = psp
     } else {
-      log.Println("OUT")
       return fmt.Errorf("Post script is not executable.")
     }
 
@@ -63,11 +59,6 @@ func (tle *TlEditor) Init(tinylogPath string, postScriptPath string) error {
 
 func (tle *TlEditor) Push() error {
   cmd_editor := exec.Command(tle.PostEditionScript)
-  cmd_editor.Stdin = os.Stdin
-  cmd_editor.Stdout = os.Stdout
-  cmd_editor.Stderr = os.Stderr
-
-  log.Println(">", tle.PostEditionScript, cmd_editor)
 
   if err := cmd_editor.Run(); err != nil {
     return fmt.Errorf("Unable to run post script")
