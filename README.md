@@ -72,7 +72,8 @@ t: Display timeline (remove all filters like highlights of specific tinylog)
 h: Toggle Highligts only / all entries (keep tinylog filter).
 s: Toggle hide/show subscription sidebar (left).
 Tab: Switch between timeline and subscription list.
-Arrow keys / hjkl: navigate
+Arrow keys up/down or j/k: navigate
+ctrl+n: Open tinylog in $EDITOR. (See configuration below.)
 q or Ctrl-C: Quit
 ```
 You can navigate on the subscription list and:
@@ -150,6 +151,23 @@ cli_limit = 10
 mode = "tui"
 # If false, standard ascii characters will be used.
 tui_status_emoji = false
+
+# Enable tinylog edition from gtl:
+# This will use an external editor,
+# configured in your EDITOR environment variable.
+# You can check with 'echo $EDITOR' to see if it
+# is configured correctly.
+# ctrl+n is disabled when set to false.
+allow_edit = false
+# Path to tinylog file. This option is ignored if
+# allow_edit = false.
+# If not a valid file, editing will not be possible
+# and ctrl+n will be disabled.
+tinylog_path = "path/to/tinylog/file.gmi"
+# Path to script to be executed after the edition is done.
+# This script needs to be executable.
+# If not a valid executable script, it will be ignored.
+post_edit_script = "path/to/script"
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.
