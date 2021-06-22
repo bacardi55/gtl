@@ -186,22 +186,30 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
 	handleNewEntry := func(ev *tcell.EventKey) *tcell.EventKey {
-		var message, buttonName string
-		var execFunc func()
+		//var message, buttonName string
+		//var execFunc func()
+		mainButtonName, buttonName, message, execFunc := "Cancel", "", "", func() {}
 
 		if TlTui.App.Suspend(editTl) == true {
 			message = "Tinylog edited successfully"
-			buttonName = "Run script"
-			execFunc = func() {
-				var m string
-				if e := Tle.Push(); e != nil {
-					m = "Couldn't run script, please check the logs."
-				} else {
-					m = "Post script ran successfully :)"
+
+			if Tle.PostEditionScript != "" {
+				message = message + "\nDo you want to run the post edition script?"
+				buttonName = "Run script"
+				execFunc = func() {
+					var m string
+					if e := Tle.Push(); e != nil {
+						m = "Couldn't run script, please check the logs."
+					} else {
+						m = "Post script ran successfully :)"
+					}
+					buttonName = "ok"
+					updateFormModalContent(m, "ok", "", func() {})
+					TlTui.FocusManager.Focus(TlTui.ContentBox)
 				}
-				buttonName = "ok"
-				updateFormModalContent(m, "ok", "", func() {})
-				TlTui.FocusManager.Focus(TlTui.ContentBox)
+			} else {
+				message = message + "\t\n No post edition script configured."
+				mainButtonName = "ok"
 			}
 		} else {
 			buttonName = ""
@@ -209,7 +217,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 			message = "Tinylog couldn't be edited"
 		}
 		log.Println(message)
-		updateFormModalContent(message, "cancel", buttonName, execFunc)
+		updateFormModalContent(message, mainButtonName, buttonName, execFunc)
 		toggleFormModal()
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
 
