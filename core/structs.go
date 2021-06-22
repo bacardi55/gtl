@@ -35,9 +35,9 @@ type TlConfig struct {
 	Cli_limit        int
 	Mode             string
 	Tui_status_emoji bool
-  Allow_edit bool
-  Tinylog_path string
-  Post_edit_script string
+	Allow_edit       bool
+	Tinylog_path     string
+	Post_edit_script string
 }
 
 type TlFeed struct {

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-  // Remove ioutil dependencies since go ≥ 1.16.
+	// Remove ioutil dependencies since go ≥ 1.16.
 	"io/ioutil"
 
 	"github.com/mitchellh/go-homedir"
