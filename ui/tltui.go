@@ -3,6 +3,7 @@ package ui
 import (
 	"strings"
 	"time"
+  "log"
 
 	"code.rocketnine.space/tslocum/cbind"
 	"code.rocketnine.space/tslocum/cview"
@@ -31,6 +32,8 @@ type TlTUI struct {
 	RefreshBox       *cview.Panels
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager
+  FormModal *cview.Modal
+  DisplayFormModal bool
 	Footer           *cview.Panels
 	Filter           string
 	FilterHighlights bool
@@ -52,6 +55,8 @@ func (TlTui *TlTUI) InitApp(useEmoji bool) {
 	TlTui.FilterHighlights = false
 	// Todo: make it configurable.
 	TlTui.DisplaySidebar = true
+
+  TlTui.DisplayFormModal = false
 
 	TlTui.Emoji = false
 	if useEmoji == true {
@@ -87,6 +92,17 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 
 	TlTui.HelpBox = createHelpBox()
 	TlTui.RefreshBox = createRefreshBox()
+}
+
+func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string) error {
+	TlTui.FormModal = createFormModal()
+  TlTui.ContentBox.AddPanel("newEntryModal", TlTui.FormModal, true, false)
+
+  if err := Tle.Init(tinylogPath, postScriptPath); err != nil {
+    return err
+  }
+
+  return nil
 }
 
 func (TlTui *TlTUI) SetShortcuts() {
@@ -129,6 +145,9 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
 	handleTab := func(ev *tcell.EventKey) *tcell.EventKey {
+    if TlTui.DisplayFormModal == true {
+      return ev
+    }
 		// If help of if sidebar is hidden, nothing to switch focus to.
 		if TlTui.Help == false && TlTui.DisplaySidebar == true {
 			TlTui.FocusManager.FocusNext()
@@ -159,6 +178,24 @@ func (TlTui *TlTUI) SetShortcuts() {
 		}
 		return nil
 	}
+
+  handleNewEntry := func(ev *tcell.EventKey) *tcell.EventKey {
+    TlTui.App.Suspend(editTl)
+
+    log.Println(Tle.PostEditionScript)
+    if Tle.PostEditionScript != "" {
+      if e := Tle.Push(); e != nil {
+        // TODO: handle error in UI.
+        log.Println("Couldn't execute post script:\n", e)
+      } else {
+        log.Println("Post script executed successfully.")
+      }
+    }
+
+    //toggleFormModal()
+    return nil
+  }
+
 	handleQuit := func(ev *tcell.EventKey) *tcell.EventKey {
 		// Don't quit if within help.
 		if TlTui.Help == true {
@@ -170,6 +207,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 		return nil
 	}
 
+	c.SetRune(tcell.ModCtrl, 'n', handleNewEntry)
 	c.SetRune(tcell.ModNone, 'r', handleRefresh)
 	c.SetRune(tcell.ModNone, 'h', handleHighlights)
 	c.SetRune(tcell.ModNone, 't', handleTimeline)
@@ -197,4 +235,18 @@ func (Subs *TlTuiSubs) Less(i, j int) bool {
 // Implement Interface sort.Interface Swap.
 func (Subs *TlTuiSubs) Swap(i, j int) {
 	Subs.Items[i], Subs.Items[j] = Subs.Items[j], Subs.Items[i]
+}
+
+func toggleFormModal() {
+  if TlTui.DisplayFormModal == false {
+    TlTui.DisplayFormModal = true
+    TlTui.ContentBox.SendToBack("timeline")
+    TlTui.ContentBox.SendToFront("newEntryModal")
+    TlTui.ContentBox.ShowPanel("newEntryModal")
+  } else {
+    TlTui.DisplayFormModal = false
+    TlTui.ContentBox.SendToFront("timeline")
+    TlTui.ContentBox.SendToBack("newEntryModal")
+    TlTui.ContentBox.HidePanel("newEntryModal")
+  }
 }

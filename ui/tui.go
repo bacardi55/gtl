@@ -38,6 +38,16 @@ func displayStreamTui(data *core.TlData) error {
 	TlTui.SetAppUI(data)
 	TlTui.SetShortcuts()
 
+  if data.Config.Allow_edit == true && data.Config.Tinylog_path != "" {
+    if err := TlTui.InitTlEditor(data.Config.Tinylog_path, data.Config.Post_edit_script); err != nil {
+      log.Println("Error while enabling tinylog edition:\n", err)
+    } else {
+      log.Println("Tinylog edition enabled.")
+    }
+  } else {
+    log.Println("Tinylog edition not enabled.")
+  }
+
 	TlTui.RefreshStream = func(refresh bool) {
 		if TlTui.Filter == "All Subscriptions" {
 			TlTui.Filter = ""
@@ -431,4 +441,27 @@ func isMuted(author string) (bool, int) {
 	}
 
 	return found, foundIndex
+}
+
+func createFormModal() *cview.Modal {
+  m := cview.NewModal()
+
+  // TODO: create accept function to validate entry format.
+  f := m.GetForm()
+  f.AddInputField("newEntryDate", time.Now().Format("2006-01-02 15:04 -0700"), 0, nil, nil)
+  f.AddInputField("newEntryContent", "", 0, nil, nil)
+  //input := f.GetFormItemByLabel("newEntryDate")
+  //input.SetFieldNote("The content of the tinylog entry.")
+
+  f.AddButton("Add", func() {
+    log.Println("In ADD")
+  })
+
+  f.AddButton("Cancel", func() {
+    log.Println("In Cancel")
+    // TODO: clean form.
+    toggleFormModal()
+  })
+
+  return m
 }
