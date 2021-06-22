@@ -211,6 +211,7 @@ func (TlTui *TlTUI) SetShortcuts() {
     log.Println(message)
     updateFormModalContent(message, "cancel", buttonName, execFunc)
     toggleFormModal()
+    TlTui.FocusManager.Focus(TlTui.ContentBox)
 
     return nil
   }
