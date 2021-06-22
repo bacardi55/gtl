@@ -190,7 +190,7 @@ func parseTinyLogContent(rawFeed TlRawFeed) (string, []*TlFeedItem, error) {
 		foundMeta := false
 		for i := 0; i < nbEntries; i++ {
 			l := strings.TrimSpace(entries[i])
-			if strings.HasPrefix(l, "## ") {
+			if strings.HasPrefix(l, "##") {
 				f, e := parseTinyLogItem(l, author)
 				if e != nil {
 					// Ignoring the entry but continuing in case other entries of this feed are in a known format.

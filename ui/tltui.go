@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"log"
 	"strings"
 	"time"
 
@@ -31,6 +32,8 @@ type TlTUI struct {
 	RefreshBox       *cview.Panels
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager
+	FormModal        *cview.Modal
+	DisplayFormModal bool
 	Footer           *cview.Panels
 	Filter           string
 	FilterHighlights bool
@@ -52,6 +55,8 @@ func (TlTui *TlTUI) InitApp(useEmoji bool) {
 	TlTui.FilterHighlights = false
 	// Todo: make it configurable.
 	TlTui.DisplaySidebar = true
+
+	TlTui.DisplayFormModal = false
 
 	TlTui.Emoji = false
 	if useEmoji == true {
@@ -89,6 +94,17 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.RefreshBox = createRefreshBox()
 }
 
+func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string) error {
+	TlTui.FormModal = createFormModal()
+	TlTui.ContentBox.AddPanel("newEntryModal", TlTui.FormModal, true, false)
+
+	if err := Tle.Init(tinylogPath, postScriptPath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (TlTui *TlTUI) SetShortcuts() {
 	c := cbind.NewConfiguration()
 
@@ -112,12 +128,18 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
 	handleHighlights := func(ev *tcell.EventKey) *tcell.EventKey {
+		if TlTui.DisplayFormModal == true {
+			return ev
+		}
 		TlTui.FilterHighlights = !TlTui.FilterHighlights
 		TlTui.RefreshStream(false)
 		return nil
 	}
 
 	handleTimeline := func(ev *tcell.EventKey) *tcell.EventKey {
+		if TlTui.DisplayFormModal == true {
+			return ev
+		}
 		// Remove Highlights filter:
 		TlTui.FilterHighlights = false
 		// Remove tinylog filter:
@@ -129,6 +151,9 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
 	handleTab := func(ev *tcell.EventKey) *tcell.EventKey {
+		if TlTui.DisplayFormModal == true {
+			return ev
+		}
 		// If help of if sidebar is hidden, nothing to switch focus to.
 		if TlTui.Help == false && TlTui.DisplaySidebar == true {
 			TlTui.FocusManager.FocusNext()
@@ -159,6 +184,38 @@ func (TlTui *TlTUI) SetShortcuts() {
 		}
 		return nil
 	}
+
+	handleNewEntry := func(ev *tcell.EventKey) *tcell.EventKey {
+		var message, buttonName string
+		var execFunc func()
+
+		if TlTui.App.Suspend(editTl) == true {
+			message = "Tinylog edited successfully"
+			buttonName = "Run script"
+			execFunc = func() {
+				var m string
+				if e := Tle.Push(); e != nil {
+					m = "Couldn't run script, please check the logs."
+				} else {
+					m = "Post script ran successfully :)"
+				}
+				buttonName = "ok"
+				updateFormModalContent(m, "ok", "", func() {})
+				TlTui.FocusManager.Focus(TlTui.ContentBox)
+			}
+		} else {
+			buttonName = ""
+			execFunc = nil
+			message = "Tinylog couldn't be edited"
+		}
+		log.Println(message)
+		updateFormModalContent(message, "cancel", buttonName, execFunc)
+		toggleFormModal()
+		TlTui.FocusManager.Focus(TlTui.ContentBox)
+
+		return nil
+	}
+
 	handleQuit := func(ev *tcell.EventKey) *tcell.EventKey {
 		// Don't quit if within help.
 		if TlTui.Help == true {
@@ -170,6 +227,19 @@ func (TlTui *TlTUI) SetShortcuts() {
 		return nil
 	}
 
+	handleEsc := func(ev *tcell.EventKey) *tcell.EventKey {
+		if TlTui.Help == true {
+			TlTui.Help = false
+			TlTui.App.SetRoot(TlTui.Layout, true)
+			return nil
+		} else if TlTui.DisplayFormModal == true {
+			toggleFormModal()
+			return nil
+		}
+		return ev
+	}
+
+	c.SetRune(tcell.ModCtrl, 'n', handleNewEntry)
 	c.SetRune(tcell.ModNone, 'r', handleRefresh)
 	c.SetRune(tcell.ModNone, 'h', handleHighlights)
 	c.SetRune(tcell.ModNone, 't', handleTimeline)
@@ -177,6 +247,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 	c.SetKey(tcell.ModNone, tcell.KeyTAB, handleTab)
 	c.SetRune(tcell.ModNone, '?', handleHelp)
 	c.SetRune(tcell.ModNone, 'q', handleQuit)
+	c.SetKey(tcell.ModNone, tcell.KeyESC, handleEsc)
 	TlTui.App.SetInputCapture(c.Capture)
 }
 

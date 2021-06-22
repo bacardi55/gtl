@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+  // TODO: Remove ioutil dependencies since go ≥ 1.16.
 	"io/ioutil"
 
 	"github.com/mitchellh/go-homedir"
@@ -31,6 +32,18 @@ cli_limit = 10
 mode = "tui"
 # If false, standard ascii characters will be used.
 tui_status_emoji = false
+
+# Enable tinylog edition from gtl:
+# This will use an external editor,
+# configured in your EDITOR environment variable.
+# You can check with 'echo $EDITOR' to see if it
+# Configured correctly.
+allow_edit = false
+# Path to tinylog file. This option is ignored if allow_edit = false.
+tinylog_path = "path/to/tinylog/file.gmi"
+# Path to script to be executed after the edition is done.
+# This script needs to be executable.
+post_edit_script = "path/to/script"
 `)
 
 func Init(configArg string, Data *core.TlData) {

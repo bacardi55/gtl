@@ -38,6 +38,16 @@ func displayStreamTui(data *core.TlData) error {
 	TlTui.SetAppUI(data)
 	TlTui.SetShortcuts()
 
+	if data.Config.Allow_edit == true && data.Config.Tinylog_path != "" {
+		if err := TlTui.InitTlEditor(data.Config.Tinylog_path, data.Config.Post_edit_script); err != nil {
+			log.Println("Error while enabling tinylog edition:\n", err)
+		} else {
+			log.Println("Tinylog edition enabled.")
+		}
+	} else {
+		log.Println("Tinylog edition not enabled.")
+	}
+
 	TlTui.RefreshStream = func(refresh bool) {
 		if TlTui.Filter == "All Subscriptions" {
 			TlTui.Filter = ""
@@ -431,4 +441,39 @@ func isMuted(author string) (bool, int) {
 	}
 
 	return found, foundIndex
+}
+
+func createFormModal() *cview.Modal {
+	m := cview.NewModal()
+	return m
+}
+
+func updateFormModalContent(message string, mainButtonName string, buttonName string, execFunc func()) {
+	m := TlTui.FormModal
+	f := m.GetForm()
+	f.ClearButtons()
+
+	m.SetText(message)
+
+	if buttonName != "" {
+		f.AddButton(buttonName, execFunc)
+	}
+
+	f.AddButton(mainButtonName, func() {
+		toggleFormModal()
+	})
+}
+
+func toggleFormModal() {
+	if TlTui.DisplayFormModal == false {
+		TlTui.DisplayFormModal = true
+		TlTui.ContentBox.SendToBack("timeline")
+		TlTui.ContentBox.SendToFront("newEntryModal")
+		TlTui.ContentBox.ShowPanel("newEntryModal")
+	} else {
+		TlTui.DisplayFormModal = false
+		TlTui.ContentBox.SendToFront("timeline")
+		TlTui.ContentBox.SendToBack("newEntryModal")
+		TlTui.ContentBox.HidePanel("newEntryModal")
+	}
 }
