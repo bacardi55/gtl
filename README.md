@@ -1,4 +1,4 @@
-# GTL: Go Tiny Logs
+# GTL: Gemini Tiny Logs
 
 Goal: A TUI for the [tinylogs](https://codeberg.org/bacardi55/gemini-tinylog-rfc/src/branch/main) format on the [gemini](gemini.circumlunar.space/) space.
 
