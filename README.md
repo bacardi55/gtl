@@ -174,8 +174,6 @@ By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if need
 
 The --config option only look for the file, it will not create it if the file given as argument of --config doesn't exist.
 
-**Known Bug**: If you intend to let gtl create the default configuration file, you need to create the ~/.config/gtl directory first as it won't be created automatically.
-
 
 ## Subscription management
 
