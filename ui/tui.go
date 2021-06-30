@@ -39,7 +39,7 @@ func displayStreamTui(data *core.TlData) error {
 	TlTui.SetShortcuts()
 
 	if data.Config.Allow_edit == true && data.Config.Tinylog_path != "" {
-		if err := TlTui.InitTlEditor(data.Config.Tinylog_path, data.Config.Post_edit_script); err != nil {
+		if err := TlTui.InitTlEditor(data.Config.Tinylog_path, data.Config.Post_edit_script, data.Config.Post_edit_refresh); err != nil {
 			log.Println("Error while enabling tinylog edition:\n", err)
 		} else {
 			log.Println("Tinylog edition enabled.")

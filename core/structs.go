@@ -28,16 +28,17 @@ func (Data *TlData) RefreshFeeds() error {
 }
 
 type TlConfig struct {
-	Subscribed_data  string
-	Date_format      string
-	Log_file         string
-	Highlights       string
-	Cli_limit        int
-	Mode             string
-	Tui_status_emoji bool
-	Allow_edit       bool
-	Tinylog_path     string
-	Post_edit_script string
+	Subscribed_data   string
+	Date_format       string
+	Log_file          string
+	Highlights        string
+	Cli_limit         int
+	Mode              string
+	Tui_status_emoji  bool
+	Allow_edit        bool
+	Tinylog_path      string
+	Post_edit_script  string
+	Post_edit_refresh bool
 }
 
 type TlFeed struct {

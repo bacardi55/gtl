@@ -12,11 +12,12 @@ type TlEditor struct {
 	Editor            string
 	TlFilePath        string
 	PostEditionScript string
+	PostScriptRefresh bool
 }
 
 var Tle TlEditor
 
-func (tle *TlEditor) Init(tinylogPath string, postScriptPath string) error {
+func (tle *TlEditor) Init(tinylogPath string, postScriptPath string, postScriptRefresh bool) error {
 	// Retrieve editor from env variable.
 	env_editor := os.Getenv("EDITOR")
 	path_editor, err := exec.LookPath(env_editor)
@@ -24,6 +25,8 @@ func (tle *TlEditor) Init(tinylogPath string, postScriptPath string) error {
 		return fmt.Errorf("Couldn't find the editor. os.Getenv('EDITOR') returns:", env_editor, "\n", err)
 	}
 	tle.Editor = path_editor
+
+	tle.PostScriptRefresh = postScriptRefresh
 
 	// Make sure tinylog file exists.
 	tlFilePath, e := homedir.Expand(tinylogPath)

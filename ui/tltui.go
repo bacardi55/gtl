@@ -93,11 +93,11 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.RefreshBox = createRefreshBox()
 }
 
-func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string) error {
+func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string, postScriptRefresh bool) error {
 	TlTui.FormModal = createFormModal()
 	TlTui.ContentBox.AddPanel("newEntryModal", TlTui.FormModal, true, false)
 
-	if err := Tle.Init(tinylogPath, postScriptPath); err != nil {
+	if err := Tle.Init(tinylogPath, postScriptPath, postScriptRefresh); err != nil {
 		return err
 	}
 
@@ -185,8 +185,6 @@ func (TlTui *TlTUI) SetShortcuts() {
 	}
 
 	handleNewEntry := func(ev *tcell.EventKey) *tcell.EventKey {
-		//var message, buttonName string
-		//var execFunc func()
 		mainButtonName, buttonName, message, execFunc := "Cancel", "", "", func() {}
 
 		if TlTui.App.Suspend(editTl) == true {
@@ -199,12 +197,15 @@ func (TlTui *TlTUI) SetShortcuts() {
 					var m string
 					if e := Tle.Push(); e != nil {
 						m = "Couldn't run script, please check the logs."
+						buttonName = "ok"
+						updateFormModalContent(m, "ok", "", func() {})
+						TlTui.FocusManager.Focus(TlTui.ContentBox)
 					} else {
-						m = "Post script ran successfully :)"
+						toggleFormModal()
+						if Tle.PostScriptRefresh == true {
+							handleRefresh(ev)
+						}
 					}
-					buttonName = "ok"
-					updateFormModalContent(m, "ok", "", func() {})
-					TlTui.FocusManager.Focus(TlTui.ContentBox)
 				}
 			} else {
 				message = ""

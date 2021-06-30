@@ -49,6 +49,9 @@ tinylog_path = "path/to/tinylog/file.gmi"
 # This script needs to be executable.
 # If not a valid executable script, it will be ignored.
 post_edit_script = "path/to/script"
+# Auto refresh feeds after editing the tinylog file.
+# Only used when allow_edit = true
+post_edit_refresh = false
 `)
 
 func Init(configArg string, Data *core.TlData) {
@@ -97,8 +100,7 @@ func loadConfig(configFile string, Config *core.TlConfig) error {
 		return fmt.Errorf("Couldn't read configuration file; ", configFile)
 	}
 
-	toml.Unmarshal(b, Config)
-	return nil
+	return toml.Unmarshal(b, Config)
 }
 
 // Init Config:
