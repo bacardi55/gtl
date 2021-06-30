@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -208,18 +207,22 @@ func (TlTui *TlTUI) SetShortcuts() {
 					TlTui.FocusManager.Focus(TlTui.ContentBox)
 				}
 			} else {
-				message = message + "\t\n No post edition script configured."
-				mainButtonName = "ok"
+				message = ""
+				mainButtonName = ""
 			}
 		} else {
 			buttonName = ""
 			execFunc = nil
 			message = "Tinylog couldn't be edited"
 		}
-		log.Println(message)
-		updateFormModalContent(message, mainButtonName, buttonName, execFunc)
-		toggleFormModal()
-		TlTui.FocusManager.Focus(TlTui.ContentBox)
+
+		if message != "" {
+			updateFormModalContent(message, mainButtonName, buttonName, execFunc)
+			toggleFormModal()
+			TlTui.FocusManager.Focus(TlTui.ContentBox)
+		} else {
+			TlTui.FocusManager.Focus(TlTui.ContentBox)
+		}
 
 		return nil
 	}
