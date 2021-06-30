@@ -64,7 +64,7 @@ func displayStreamTui(data *core.TlData) error {
 		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 
 		tv := getContentTextView(data)
-		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights))
+		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights, TlTui.Filter))
 		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
 
 		// Needs to happen after the getContentTextView function for displaying
@@ -101,7 +101,7 @@ func contentBox(data *core.TlData) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
 	p.SetBorderColorFocused(tcell.ColorGreen)
-	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false))
+	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false, ""))
 	p.SetPadding(0, 0, 1, 0)
 
 	tv := getContentTextView(data)
@@ -275,12 +275,19 @@ func createFooterTextView(latestRefresh time.Time, format string) *cview.TextVie
 	return tv
 }
 
-func createTimelineTitle(t time.Time, highlights bool) string {
+func createTimelineTitle(t time.Time, highlights bool, filter string) string {
+	start := ""
+
 	if highlights == true {
-		return fmt.Sprintf("  Highlights - Refreshed at %v  ", t.Format("15:04 MST"))
+		start = start + "Highlights"
 	} else {
-		return fmt.Sprintf("  Timeline - Refreshed at %v  ", t.Format("15:04 MST"))
+		start = start + "Timeline"
 	}
+
+	if filter != "" {
+		start = start + " from " + filter
+	}
+	return fmt.Sprintf("  %v - Refreshed at %v  ", start, t.Format("15:04 MST"))
 }
 
 func createHelpBox() *cview.Panels {
