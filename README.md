@@ -158,7 +158,7 @@ tui_status_emoji = false
 # You can check with 'echo $EDITOR' to see if it
 # is configured correctly.
 # ctrl+n is disabled when set to false.
-# Available starting (since ≥ v0.5.0)
+# Settings available since v0.5.0
 allow_edit = false
 # Path to tinylog file. This option is ignored if
 # allow_edit = false.
@@ -171,7 +171,7 @@ tinylog_path = "path/to/tinylog/file.gmi"
 post_edit_script = "path/to/script"
 # Auto refresh feeds after editing the tinylog file.
 # Only used when allow_edit = true
-# Settings available starting (since ≥ v0.5.1)
+# Settings available since v0.5.1
 post_edit_refresh = false
 ```
 
