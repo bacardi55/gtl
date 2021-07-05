@@ -19,7 +19,7 @@ var shortcuts = []TlShortcut{
 	{"Timeline", "t", "Display timeline, remove active filters."},
 	{"Highlights", "h", "Display only entries containing highlights, keep tinylog filters active."},
 	{"Focus", "TAB", "Switch focus between the timeline and the subsciption list."},
-	{"Sidebar toggle", "s", "Hide/Show Subscription sidebar."},
+	{"Sidebar toggle", "s", "Hide/Show TinyLogs sidebar."},
 	{"Fitler tinylog", "Enter/Left click", "Only display entries from this tinylog"},
 	{"(Un)Mute tinylog", "Alt-Enter/Right click", "Hide entries from this tinylog"},
 	{"Help", "?", "Toggle displaying this help."},
@@ -49,7 +49,7 @@ func displayStreamTui(data *core.TlData) error {
 	}
 
 	TlTui.RefreshStream = func(refresh bool) {
-		if TlTui.Filter == "All Subscriptions" {
+		if TlTui.Filter == "All TinyLogs" {
 			TlTui.Filter = ""
 			TlTui.Muted = []string{}
 		}
@@ -57,7 +57,7 @@ func displayStreamTui(data *core.TlData) error {
 		if refresh == true {
 			e := data.RefreshFeeds()
 			if e != nil {
-				log.Fatalln("Couldn't refresh feeds")
+				log.Fatalln("Couldn't refresh TinyLogs")
 			}
 		}
 		TlTui.ListTl = createListTl(data.Feeds)
@@ -87,7 +87,7 @@ func displayStreamTui(data *core.TlData) error {
 
 func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
 	p := cview.NewPanels()
-	p.SetTitle(" Subscriptions: ")
+	p.SetTitle(" [::u]Subscribed Authors[::-]: ")
 	p.SetBorder(true)
 	p.SetBorderColorFocused(tcell.ColorGreen)
 	p.SetPadding(1, 1, 0, 0)
@@ -191,8 +191,8 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 	orderedTl := getOrderedSubscriptions(tl)
 	sort.Sort(&orderedTl)
 
-	list.AddContextItem("(Un)Mute tinylog", 'm', func(index int) {
-		// index == 0 means All Subscriptions.
+	list.AddContextItem("(Un)Mute TinyLog", 'm', func(index int) {
+		// index == 0 means All Feeds.
 		if index > 0 {
 			author := orderedTl.Items[index-1].DisplayName
 			found, foundIndex := isMuted(author)
@@ -207,7 +207,7 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 		}
 	})
 
-	i := createListItem("All Subscriptions", "> Press '?' for help")
+	i := createListItem("All TinyLogs", "> Press '?' for help")
 	i.SetSelectedFunc(func() {
 		TlTui.Filter = TlTui.ListTl.GetCurrentItem().GetMainText()
 		TlTui.RefreshStream(false)
@@ -279,21 +279,23 @@ func createTimelineTitle(t time.Time, highlights bool, filter string) string {
 	start := ""
 
 	if highlights == true {
-		start = start + "Highlights"
+		start = start + "[::bu]Highlights[::-]"
 	} else {
-		start = start + "Timeline"
+		start = start + "[::bu]Timeline[::-]"
 	}
 
 	if filter != "" {
-		start = start + " from " + filter
+		start = start + " from [red::]" + filter + "[white::]"
+		return fmt.Sprintf("  %v  ", start)
+	} else {
+		return fmt.Sprintf("  %v - [::i]Refreshed at %v[::-]  ", start, t.Format("15:04 MST"))
 	}
-	return fmt.Sprintf("  %v - Refreshed at %v  ", start, t.Format("15:04 MST"))
 }
 
 func createHelpBox() *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
-	p.SetTitle(" Help: ")
+	p.SetTitle(" [::u]Help[::-]: ")
 	p.SetPadding(2, 0, 5, 0)
 
 	helpTable := cview.NewTable()
@@ -336,12 +338,12 @@ func createHelpBox() *cview.Panels {
 func createRefreshBox() *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
-	p.SetTitle(" Refreshing stream: ")
+	p.SetTitle(" [::bu]Refreshing stream[::-]: ")
 	p.SetPadding(2, 0, 5, 0)
 
 	tv := cview.NewTextView()
 	tv.SetTextAlign(cview.AlignCenter)
-	tv.SetText("Feeds are being refreshed, please wait…")
+	tv.SetText("TinyLogs are being refreshed, please wait…")
 
 	p.AddPanel("refreshing", tv, true, true)
 	TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
