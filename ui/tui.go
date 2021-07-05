@@ -146,9 +146,9 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		ignoreEntry := false
 		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
-			c = gemtextFormat(i.Content, false)
+			c = gemtextFormat(i.Content, false, TlTui.Emoji)
 		} else if TlTui.FilterHighlights == false {
-			c = gemtextFormat(i.Content, f)
+			c = gemtextFormat(i.Content, f, TlTui.Emoji)
 			if f == true {
 				c = "[::b]" + c + "[::-]"
 			}
@@ -406,7 +406,7 @@ func getStatusIcon(f core.TlFeed) string {
 	return r
 }
 
-func gemtextFormat(s string, isHighlighted bool) string {
+func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
 	closeFormat := "[white::-]"
 	if isHighlighted == true {
 		closeFormat = "[white::b]"
@@ -423,6 +423,18 @@ func gemtextFormat(s string, isHighlighted bool) string {
 	// Format links:
 	re = regexp.MustCompile("(?im)^(=>)( [^\n]*[\n]*)")
 	s = re.ReplaceAllString(s, "[skyblue::b]→$2"+closeFormat)
+
+	// Format responses:
+	// Must be after link format.
+	re = regexp.MustCompile(`(?im)^(\[skyblue::b\]→ [^ ]* ){0,1}(re: )(.*)$`)
+	startFormat := ""
+	if emoji == true {
+		startFormat = "💬 "
+	} else {
+		startFormat = "↳ "
+	}
+	startFormat = startFormat + "$3 $1"
+	s = re.ReplaceAllString(s, startFormat+closeFormat)
 
 	// Format lists:
 	re = regexp.MustCompile("(?im)^([*] [^\n]*)")
