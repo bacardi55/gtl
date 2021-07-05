@@ -85,9 +85,7 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	focusManager.Add(TlTui.SideBarBox)
 	focusManager.Add(TlTui.ContentBox)
 	TlTui.FocusManager = focusManager
-	// TODO: Investigate
-	// This fix an issue where the first time user hits TAB, it doesn't change focus.
-	TlTui.FocusManager.FocusNext()
+	TlTui.FocusManager.Focus(TlTui.ContentBox)
 
 	TlTui.HelpBox = createHelpBox()
 	TlTui.RefreshBox = createRefreshBox()
@@ -123,6 +121,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 		TlTui.App.QueueUpdateDraw(refreshStart)
 		TlTui.App.QueueUpdate(refresh)
 		TlTui.App.QueueUpdateDraw(refreshEnd)
+		TlTui.FocusManager.Focus(TlTui.ContentBox)
 		return nil
 	}
 
@@ -132,6 +131,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 		}
 		TlTui.FilterHighlights = !TlTui.FilterHighlights
 		TlTui.RefreshStream(false)
+		TlTui.FocusManager.Focus(TlTui.ContentBox)
 		return nil
 	}
 
@@ -146,6 +146,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 		// Select "All" in subscription sidebar:
 		TlTui.ListTl.SetCurrentItem(0)
 		TlTui.RefreshStream(false)
+		TlTui.FocusManager.Focus(TlTui.ContentBox)
 		return nil
 	}
 
