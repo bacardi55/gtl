@@ -4,11 +4,11 @@ Goal: A TUI for the [tinylogs](https://codeberg.org/bacardi55/gemini-tinylog-rfc
 
 [See screenshots](#screenshots)
 
-# Installation
+## Installation
 
 gtl requires go ≥ 1.16
 
-# From Source
+### From Source
 ```
 git clone http://git.bacardi55.io/bacardi55/gtl.git
 cd gtl
@@ -18,16 +18,16 @@ make build
 
 Put the binary in a directory available in your $PATH if you don't want to type the full path to the program.
 
-# From Binaries
+### From Binaries
 
 You can download binaries for linux [here](https://github.com/bacardi55/gtl/releases).
 Binaries are only available for linux 386, amd64, arm and arm64 for now.
 
 *PS*: I don't have a Mac or Windows box easily accessible, so any help/patch on this is appreciated :).
 
-# Usage
+## Usage
 
-## Quick start:
+### Quick start:
 
 *Assuming you put the binary in ~/bin*:
 ```
@@ -46,13 +46,13 @@ while true; do clear && ~/bin/gtl --mode cli --limit 10 && sleep 1800; done;
 
 Or use the TUI and refresh the timeline when you want.
 
-## Global commands:
+### Global commands:
 ```
 gtl --help
 gtl --version
 ```
 
-## Use gtl TUI
+### Use gtl TUI
 
 [Screenshot of the TUI below](#tui-mode).
 
@@ -91,7 +91,7 @@ If `tui_status_emoji` is set to true in the configuration file (see below), emoj
 * `F` or `🔎`: Indicates that the feed is selected. It means only entries from this tinylog are displayed.
 * `M` or `🔕`: Indicates that the feed is muted. It means no entry of this tinylog will be displayed.
 
-## Use gtl CLI
+### Use gtl CLI
 
 [Screenshot of the CLI below](#cli-mode).
 
@@ -129,7 +129,9 @@ subscribed_data = "path/to/sub/file"
 
 Screenshot of the CLI below.
 
-# Default config file
+## Configuration
+
+### Default configuration file
 
 ```toml
 # Default config file:
@@ -180,7 +182,7 @@ By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if need
 The --config option only look for the file, it will not create it if the file given as argument of --config doesn't exist.
 
 
-## Subscription management
+### Subscription management
 
 You can add and remove tinylog entry either manually from the file directly, or use gtl to do it for you:
 ```
@@ -190,13 +192,13 @@ Subscription management usage:
 ```
 
 
-# Screenshots
+## Screenshots
 
-## TUI mode
+### TUI mode
 
 ![Gtl TUI screenshot](docs/images/gtl_tui_screenshot.png)
 
-## CLI mode
+### CLI mode
 
 ![Gtl CLI screenshot](docs/images/gtl_screenshot.png)
 
