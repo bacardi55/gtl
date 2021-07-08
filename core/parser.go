@@ -161,9 +161,9 @@ func parseTinyLogHeaderForAuthor(header string) string {
 	lines := strings.Split(header, "\n")
 
 	for _, line := range lines {
-		if strings.HasPrefix(line, "author:") {
+		if strings.HasPrefix(strings.ToLower(line), "author:") {
 			metaAuthor = strings.TrimSpace(line[len("author:"):])
-		} else if strings.HasPrefix(line, "avatar:") {
+		} else if strings.HasPrefix(strings.ToLower(line), "avatar:") {
 			metaAvatar = strings.TrimSpace(line[len("avatar:"):])
 			if n := strings.Split(metaAvatar, " "); len(n) > 1 {
 				metaAvatar = n[0]
