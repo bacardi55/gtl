@@ -181,7 +181,6 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 				}
 				separator = true
 			}
-			log.Println("entry-" + strconv.Itoa(nbEntries))
 			content = content + fmt.Sprintf("\n[\"entry-"+strconv.Itoa(nbEntries)+"\"]%v - %v\n%v\n%v[\"\"]\n", d, i.Published.Format(data.Config.Date_format), a, c)
 			nbEntries++
 		}
@@ -191,7 +190,6 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	tv.SetDynamicColors(true)
 	tv.SetRegions(true)
 	tv.SetToggleHighlights(false)
-	log.Println(content)
 	tv.SetText(content)
 
 	return tv
