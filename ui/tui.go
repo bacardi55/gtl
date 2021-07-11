@@ -74,9 +74,6 @@ func displayStreamTui(data *core.TlData) error {
 		}
 		// Needs to happen after TlTui.LastRefresh is updated.
 		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights, TlTui.Filter))
-
-		//tv = createFooterTextView(TlTui.LastRefresh, data.Config.Date_format)
-		//TlTui.Footer.AddPanel("footer", tv, true, true)
 	}
 
 	TlTui.App.SetRoot(TlTui.Layout, true)
@@ -273,24 +270,6 @@ func createList(title string, border bool) *cview.List {
 	list.SetWrapAround(true)
 
 	return list
-}
-
-func createFooter(latestRefresh time.Time, format string) *cview.Panels {
-	p := cview.NewPanels()
-
-	tv := createFooterTextView(latestRefresh, format)
-
-	p.AddPanel("footer", tv, true, true)
-	return p
-}
-
-func createFooterTextView(latestRefresh time.Time, format string) *cview.TextView {
-	tv := cview.NewTextView()
-	tv.SetMaxLines(1)
-	tv.SetTextAlign(cview.AlignCenter)
-	content := "Last Refresh:\t" + latestRefresh.Format(format)
-	tv.SetText(content)
-	return tv
 }
 
 func createTimelineTitle(t time.Time, highlights bool, filter string) string {

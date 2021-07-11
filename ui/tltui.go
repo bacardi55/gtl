@@ -37,8 +37,6 @@ type TlTUI struct {
 	FocusManager     *cview.FocusManager
 	FormModal        *cview.Modal
 	DisplayFormModal bool
-	// TODO: remove footer.
-	Footer           *cview.Panels
 	Filter           string
 	FilterHighlights bool
 	RefreshStream    func(bool)
@@ -83,10 +81,8 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.MainFlex.AddItem(TlTui.ContentBox, 0, 3, true)
 	TlTui.LastRefresh = time.Now()
 
-	TlTui.Footer = createFooter(time.Now(), data.Config.Date_format)
 	TlTui.Layout.SetDirection(cview.FlexRow)
 	TlTui.Layout.AddItem(TlTui.MainFlex, 0, 1, true)
-	//TlTui.Layout.AddItem(TlTui.Footer, 1, 0, false)
 
 	focusManager := cview.NewFocusManager(TlTui.App.SetFocus)
 	focusManager.SetWrapAround(true)
