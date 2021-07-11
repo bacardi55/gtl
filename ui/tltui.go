@@ -8,8 +8,8 @@ import (
 
 	"code.rocketnine.space/tslocum/cbind"
 	"code.rocketnine.space/tslocum/cview"
+	"github.com/atotto/clipboard"
 	"github.com/gdamore/tcell/v2"
-	//"github.com/atotto/clipboard"
 
 	"git.bacardi55.io/bacardi55/gtl/core"
 )
@@ -22,6 +22,11 @@ type TlShortcut struct {
 
 type TlTuiSubs struct {
 	Items []core.TlFeed
+}
+
+type TlClipboard struct {
+	Enabled    bool
+	DateFormat string
 }
 
 type TlTUI struct {
@@ -44,6 +49,7 @@ type TlTUI struct {
 	Help             bool
 	DisplaySidebar   bool
 	Emoji            bool
+	Clipboard        TlClipboard
 	Muted            []string
 	NbEntries        int
 	SelectedEntry    int
@@ -66,6 +72,10 @@ func (TlTui *TlTUI) InitApp(useEmoji bool) {
 	TlTui.Emoji = false
 	if useEmoji == true {
 		TlTui.Emoji = true
+	}
+
+	TlTui.Clipboard = TlClipboard{
+		Enabled: false,
 	}
 }
 
@@ -95,6 +105,11 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.RefreshBox = createRefreshBox()
 
 	TlTui.NbEntries = len(data.Stream.Items)
+
+	if data.Config.Tui_copy_stub_clipboard == true {
+		TlTui.Clipboard.Enabled = true
+		TlTui.Clipboard.DateFormat = data.Config.Date_format
+	}
 }
 
 func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string, postScriptRefresh bool) error {
@@ -193,6 +208,10 @@ func (TlTui *TlTUI) SetShortcuts() {
 
 	handleNewEntry := func(ev *tcell.EventKey) *tcell.EventKey {
 		mainButtonName, buttonName, message, execFunc := "Cancel", "", "", func() {}
+
+		if TlTui.Clipboard.Enabled == true {
+			clipboard.WriteAll(createNewEntryStub(TlTui.Clipboard.DateFormat))
+		}
 
 		if TlTui.App.Suspend(editTl) == true {
 			message = "Tinylog edited successfully"

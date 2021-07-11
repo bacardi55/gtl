@@ -55,6 +55,8 @@ post_edit_refresh = false
 # Limit the number of entries displayed in TUI.
 # Indicate 0 for all entries.
 tui_max_entries = 0
+# Copy a pre formatted text to clipboard when creating a new entry
+tui_copy_stub_clipboard = false
 `)
 
 func Init(configArg string, Data *core.TlData) {

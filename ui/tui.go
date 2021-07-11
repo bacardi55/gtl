@@ -506,3 +506,8 @@ func openEntryModal() {
   //TODO.
 }
 */
+
+func createNewEntryStub(dateFormat string) string {
+	stub := "## " + time.Now().Format(dateFormat) + "\n"
+	return stub
+}

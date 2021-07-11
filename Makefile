@@ -1,7 +1,7 @@
 GOCMD := CGO_ENABLED=0 go
 BINARY := gtl
 BINDIR := ./bin
-VERSION := 0.5.2
+VERSION := 0.6.0
 
 GOLDFLAGS := -s -w -X main.Version=$(VERSION)
 
@@ -37,4 +37,4 @@ dependencies:
 	${GOCMD} get "code.rocketnine.space/tslocum/cview"
 	${GOCMD} get "github.com/gdamore/tcell"
 	${GOCMD} get "code.rocketnine.space/tslocum/cbind"
-	${GOCMD} get "github.com/atotto/clipboard/cmd/gocopy"
+	${GOCMD} get "github.com/atotto/clipboard/"
