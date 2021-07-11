@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -63,9 +64,10 @@ func displayStreamTui(data *core.TlData) error {
 		TlTui.ListTl = createListTl(data.Feeds)
 		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 
-		tv := getContentTextView(data)
+		//tv := getContentTextView(data)
 		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights, TlTui.Filter))
-		TlTui.ContentBox.AddPanel("timeline", tv, true, true)
+		TlTui.TimelineTV = getContentTextView(data)
+		TlTui.ContentBox.AddPanel("timeline", TlTui.TimelineTV, true, true)
 
 		// Needs to happen after the getContentTextView function for displaying
 		// a seperator between new and old entries.
@@ -103,10 +105,22 @@ func contentBox(data *core.TlData) *cview.Panels {
 	p.SetBorderColorFocused(tcell.ColorGreen)
 	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false, ""))
 	p.SetPadding(0, 0, 1, 0)
+	/*
+	  p.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	    if event.Key() == tcell.KeyEnter {
+	      if TlTui.SelectedEntry > -1 {
+	        openEntryModal()
+	      }
+	      return nil
+	    }
 
-	tv := getContentTextView(data)
+	    return event
+	  })
+	*/
 
-	p.AddPanel("timeline", tv, true, true)
+	TlTui.TimelineTV = getContentTextView(data)
+	p.AddPanel("timeline", TlTui.TimelineTV, true, true)
+
 	return p
 }
 
@@ -134,7 +148,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 				for _, h := range highlights {
 					h = strings.TrimSpace(h)
 					if strings.Contains(i.Content, h) {
-						i.Content = strings.Replace(i.Content, h, "[:red:]"+h+"[:black:]", -1)
+						i.Content = strings.Replace(i.Content, h, "[:red:]"+h+"[:-:]", -1)
 						f = true
 						break
 					}
@@ -150,7 +164,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		} else if TlTui.FilterHighlights == false {
 			c = gemtextFormat(i.Content, f, TlTui.Emoji)
 			if f == true {
-				c = "[::b]" + c + "[::-]"
+				c = "[:-:b]" + c + "[:-:-]"
 			}
 		} else {
 			ignoreEntry = true
@@ -165,13 +179,17 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 				}
 				separator = true
 			}
-			content = content + fmt.Sprintf("\n%v - %v\n%v\n%v\n", d, i.Published.Format(data.Config.Date_format), a, c)
+			log.Println("entry-" + strconv.Itoa(nbEntries))
+			content = content + fmt.Sprintf("\n[\"entry-"+strconv.Itoa(nbEntries)+"\"]%v - %v\n%v\n%v[\"\"]\n", d, i.Published.Format(data.Config.Date_format), a, c)
 			nbEntries++
 		}
 	}
 
 	tv := cview.NewTextView()
 	tv.SetDynamicColors(true)
+	tv.SetRegions(true)
+	tv.SetToggleHighlights(false)
+	log.Println(content)
 	tv.SetText(content)
 
 	return tv
@@ -498,3 +516,9 @@ func toggleFormModal() {
 		TlTui.ContentBox.HidePanel("newEntryModal")
 	}
 }
+
+/*
+func openEntryModal() {
+  //TODO.
+}
+*/

@@ -1,12 +1,15 @@
 package ui
 
 import (
+	//"log"
+	"strconv"
 	"strings"
 	"time"
 
 	"code.rocketnine.space/tslocum/cbind"
 	"code.rocketnine.space/tslocum/cview"
 	"github.com/gdamore/tcell/v2"
+	//"github.com/atotto/clipboard"
 
 	"git.bacardi55.io/bacardi55/gtl/core"
 )
@@ -27,12 +30,14 @@ type TlTUI struct {
 	MainFlex         *cview.Flex
 	SideBarBox       *cview.Panels
 	ContentBox       *cview.Panels
+	TimelineTV       *cview.TextView
 	HelpBox          *cview.Panels
 	RefreshBox       *cview.Panels
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager
 	FormModal        *cview.Modal
 	DisplayFormModal bool
+	// TODO: remove footer.
 	Footer           *cview.Panels
 	Filter           string
 	FilterHighlights bool
@@ -42,6 +47,8 @@ type TlTUI struct {
 	DisplaySidebar   bool
 	Emoji            bool
 	Muted            []string
+	NbEntries        int
+	SelectedEntry    int
 }
 
 func (TlTui *TlTUI) InitApp(useEmoji bool) {
@@ -52,6 +59,7 @@ func (TlTui *TlTUI) InitApp(useEmoji bool) {
 	TlTui.LastRefresh = time.Now()
 	TlTui.Filter = ""
 	TlTui.FilterHighlights = false
+	TlTui.SelectedEntry = -1
 	// Todo: make it configurable.
 	TlTui.DisplaySidebar = true
 
@@ -89,6 +97,8 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 
 	TlTui.HelpBox = createHelpBox()
 	TlTui.RefreshBox = createRefreshBox()
+
+	TlTui.NbEntries = len(data.Stream.Items)
 }
 
 func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string, postScriptRefresh bool) error {
@@ -229,6 +239,28 @@ func (TlTui *TlTUI) SetShortcuts() {
 		return nil
 	}
 
+	/*
+	  handleReply := func(ev *tcell.EventKey) *tcell.EventKey {
+	    if TlTui.SelectedEntry == -1 {
+	      // Todo: Display an error in modal Box.
+	      return ev
+	    }
+	    highlights := TlTui.TimelineTV.GetHighlights()
+	    log.Println(highlights[0])
+	    // We can have only one highlight in gtl.
+	    // Todo: Report bug in cview.
+	    //entry := TlTui.TimelineTV.GetRegionText(highlights[0])
+	    entry := TlTui.TimelineTV.GetRegionText("entry-0")
+
+	    log.Println(entry)
+
+	    //clipboard.WriteAll(entry)
+	    handleNewEntry(ev)
+
+	    return nil
+	  }
+	*/
+
 	handleQuit := func(ev *tcell.EventKey) *tcell.EventKey {
 		// Don't quit if within help.
 		if TlTui.Help == true {
@@ -248,15 +280,43 @@ func (TlTui *TlTUI) SetShortcuts() {
 		} else if TlTui.DisplayFormModal == true {
 			toggleFormModal()
 			return nil
+		} else if TlTui.ContentBox.HasFocus() == true {
+			TlTui.SelectedEntry = -1
+			TlTui.TimelineTV.Highlight("")
 		}
 		return ev
 	}
 
+	handleTlNav := func(ev *tcell.EventKey) *tcell.EventKey {
+		// Only usable on ContentBox.
+		if TlTui.ContentBox.HasFocus() == false {
+			return ev
+		}
+
+		if ev.Rune() == 'J' {
+			// Highlight next item.
+			if TlTui.SelectedEntry < TlTui.NbEntries {
+				TlTui.SelectedEntry += 1
+			}
+		} else if ev.Rune() == 'K' {
+			if TlTui.SelectedEntry > 0 {
+				TlTui.SelectedEntry -= 1
+			}
+		}
+		TlTui.TimelineTV.Highlight("entry-" + strconv.Itoa(TlTui.SelectedEntry))
+		TlTui.TimelineTV.ScrollToHighlight()
+
+		return nil
+	}
+
 	c.SetRune(tcell.ModCtrl, 'n', handleNewEntry)
+	//c.SetRune(tcell.ModCtrl, 'r', handleReply)
 	c.SetRune(tcell.ModNone, 'r', handleRefresh)
 	c.SetRune(tcell.ModNone, 'h', handleHighlights)
 	c.SetRune(tcell.ModNone, 't', handleTimeline)
 	c.SetRune(tcell.ModNone, 's', handleToggleSidebar)
+	c.SetRune(tcell.ModNone, 'J', handleTlNav)
+	c.SetRune(tcell.ModNone, 'K', handleTlNav)
 	c.SetKey(tcell.ModNone, tcell.KeyTAB, handleTab)
 	c.SetRune(tcell.ModNone, '?', handleHelp)
 	c.SetRune(tcell.ModNone, 'q', handleQuit)

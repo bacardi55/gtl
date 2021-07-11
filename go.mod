@@ -4,8 +4,9 @@ go 1.13
 
 require (
 	code.rocketnine.space/tslocum/cbind v0.1.5
-	code.rocketnine.space/tslocum/cview v1.5.5
+	code.rocketnine.space/tslocum/cview v1.5.6
 	git.sr.ht/~adnano/go-gemini v0.2.1
+	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/fatih/color v1.12.0
 	github.com/gdamore/tcell/v2 v2.3.11
 	github.com/mitchellh/go-homedir v1.1.0

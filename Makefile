@@ -37,3 +37,4 @@ dependencies:
 	${GOCMD} get "code.rocketnine.space/tslocum/cview"
 	${GOCMD} get "github.com/gdamore/tcell"
 	${GOCMD} get "code.rocketnine.space/tslocum/cbind"
+	${GOCMD} get "github.com/atotto/clipboard/cmd/gocopy"
