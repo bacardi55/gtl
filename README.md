@@ -72,7 +72,8 @@ t: Display timeline (remove all filters like highlights of specific tinylog)
 h: Toggle Highligts only / all entries (keep tinylog filter).
 s: Toggle hide/show subscription sidebar (left).
 Tab: Switch between timeline and subscription list.
-Arrow keys up/down or j/k: navigate
+Arrow keys up/down or j/k: scroll timeline or feeds list
+J/K: Navigate tinylog entries (to select entries) # Available only since v0.6.0
 ctrl+n: Open tinylog in $EDITOR. (See configuration below.)
 q or Ctrl-C: Quit
 ```
