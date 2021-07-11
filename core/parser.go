@@ -202,6 +202,9 @@ func parseTinyLogItem(content string, author string) (TlFeedItem, error) {
 
 // Get date from entry.
 func parseTinyLogItemForDate(content string) (time.Time, error) {
+	if len(content) < 4 {
+		return time.Time{}, fmt.Errorf("No date format found for this entry: %v", content)
+	}
 	stringDate := content[3:]
 	var date time.Time
 
