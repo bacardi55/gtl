@@ -127,6 +127,11 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	separator := false
 	nbEntries := 0
 	for _, i := range data.Stream.Items {
+		// If a limit is set and has been reached.
+		if data.Config.Tui_max_entries > 0 && nbEntries >= data.Config.Tui_max_entries {
+			break
+		}
+
 		// If not the wrong author to filter on.
 		if TlTui.Filter != "" && TlTui.Filter != i.Author {
 			continue

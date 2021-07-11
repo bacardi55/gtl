@@ -52,6 +52,9 @@ post_edit_script = "path/to/script"
 # Auto refresh feeds after editing the tinylog file.
 # Only used when allow_edit = true
 post_edit_refresh = false
+# Limit the number of entries displayed in TUI.
+# Indicate 0 for all entries.
+tui_max_entries = 0
 `)
 
 func Init(configArg string, Data *core.TlData) {

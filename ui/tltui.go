@@ -246,9 +246,8 @@ func (TlTui *TlTUI) SetShortcuts() {
 	    // We can have only one highlight in gtl.
 	    // Todo: Report bug in cview.
 	    //entry := TlTui.TimelineTV.GetRegionText(highlights[0])
-	    entry := TlTui.TimelineTV.GetRegionText("entry-0")
 
-	    log.Println(entry)
+	    //log.Println(entry)
 
 	    //clipboard.WriteAll(entry)
 	    handleNewEntry(ev)

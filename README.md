@@ -175,6 +175,10 @@ post_edit_script = "path/to/script"
 # Only used when allow_edit = true
 # Settings available since v0.5.1
 post_edit_refresh = false
+# Limit the number of entries displayed in TUI.
+# Indicate 0 for all entries.
+# Settings available since v0.6.0
+tui_max_entries = 0
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.

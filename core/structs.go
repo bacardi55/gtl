@@ -39,6 +39,7 @@ type TlConfig struct {
 	Tinylog_path      string
 	Post_edit_script  string
 	Post_edit_refresh bool
+	Tui_max_entries   int
 }
 
 type TlFeed struct {
