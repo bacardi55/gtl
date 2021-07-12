@@ -2,6 +2,8 @@ package ui
 
 import (
 	"fmt"
+	"os/exec"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -45,4 +47,26 @@ func formatElapsedTime(elapsed time.Duration) string {
 	}
 
 	return ret + " ago"
+}
+
+// Open http(s), gemini and gopher links in their dedicated browser.
+// Never tested on windows or MacOS yet…
+func openLinkInBrowser(url string) error {
+	var err error
+
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		err = fmt.Errorf("unsupported platform")
+	}
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

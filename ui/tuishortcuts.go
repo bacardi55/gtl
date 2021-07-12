@@ -1,11 +1,17 @@
 package ui
 
 import (
+	"fmt"
 	"log"
+	"regexp"
 	"strconv"
+	"strings"
+	"time"
 
 	"code.rocketnine.space/tslocum/cbind"
 	"github.com/gdamore/tcell/v2"
+
+	"git.bacardi55.io/bacardi55/gtl/core"
 )
 
 type TlShortcut struct {
@@ -19,6 +25,8 @@ func (TlTui *TlTUI) SetShortcuts() {
 
 	c.SetRune(tcell.ModNone, 'N', openEditorHandler)
 	c.SetRune(tcell.ModNone, 'R', openEditorHandler)
+
+	c.SetRune(tcell.ModNone, 'O', linksHandler)
 
 	c.SetRune(tcell.ModNone, 'r', refreshHandler)
 
@@ -246,4 +254,105 @@ func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 	TlTui.FocusManager.Focus(TlTui.ContentBox)
 
 	return nil
+}
+
+func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if TlTui.SelectedEntry < 0 {
+		updateFormModalContent("No selected entry.", "Ok", "", func() {})
+		toggleFormModal()
+	}
+
+	tlfi, e := getSelectedEntryText()
+	if e != nil {
+		log.Println(e)
+		updateFormModalContent(e.Error(), "Ok", "", func() {})
+		toggleFormModal()
+	}
+
+	links := extractLinks(tlfi)
+	var err error
+
+	if len(links) < 1 {
+		updateFormModalContent("No link to open in this entry.", "Ok", "", func() {})
+		toggleFormModal()
+		err = nil
+
+	} else if len(links) == 1 {
+		// Only 1 link found, open it directly.
+		err = openLinkInBrowser(strings.Split(links[0], " ")[1])
+
+	} else if len(links) > 1 {
+		// More than 1 link found, ask for confirmation.
+		m := TlTui.FormModal
+		f := m.GetForm()
+		f.Clear(true)
+
+		message := "Multiple links detected, open them all?"
+		for i, l := range links {
+			message += "\n(" + strconv.Itoa(i+1) + ") " + l + "\n"
+		}
+
+		m.SetText(message)
+		f.AddButton("Yes", func() {
+			for _, l := range links {
+				openLinkInBrowser(strings.Split(l, " ")[1])
+				time.Sleep(100 * time.Millisecond)
+			}
+			toggleFormModal()
+		})
+
+		f.AddButton("No", func() {
+			toggleFormModal()
+		})
+		toggleFormModal()
+	}
+
+	if err != nil {
+		log.Println(err)
+		updateFormModalContent(err.Error(), "Ok", "", func() {})
+		toggleFormModal()
+	}
+
+	TlTui.FocusManager.Focus(TlTui.ContentBox)
+	return nil
+}
+
+func getSelectedEntryText() (*core.TlFeedItem, error) {
+	// TODO: GetRegionText().
+	entry := `22 hours ago - Sun 11 Jul 2021 22:04 CEST
+🤔 @bacardi55
+Just opened my first issue on cview tracker:
+→ https://code.rocketnine.space/tslocum/cview/issues/69
+→ https://code.rocketnine.space/tslocum/cview/issues/69
+When this get resolve, the v0.6.0 could start again with multiple new things coming… :)
+With a second link to test:
+→ gemini://gmi.bacardi55.io
+→ ftp://test.com`
+
+	lines := strings.Split(entry, "\n")
+
+	if len(lines) < 3 {
+		return nil, fmt.Errorf("Couldn't parse selected entry - nb of line issue.")
+	}
+
+	date := strings.Split(lines[0], "-")
+	if len(date) < 2 {
+		return nil, fmt.Errorf("Couldn't parse selected entry - date issue.")
+	}
+	d := core.ParseTlDate(date[1])
+
+	tlfi := &core.TlFeedItem{
+		Author:    lines[1],
+		Content:   strings.Join(lines[2:], "\n"),
+		Published: d,
+	}
+
+	return tlfi, nil
+}
+
+func extractLinks(tlfi *core.TlFeedItem) []string {
+	log.Println(tlfi.Content)
+
+	re := regexp.MustCompile("(?im)→ (gemini|gopher|https{0,1})://(.*)$")
+	return re.FindAllString(tlfi.Content, -1)
 }

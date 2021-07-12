@@ -42,6 +42,8 @@ type TlTUI struct {
 	Muted            []string
 	NbEntries        int
 	SelectedEntry    int
+	// TODO: Clean other entries now that full config is here.
+	TlConfig *core.TlConfig
 }
 
 func (TlTui *TlTUI) InitApp(useEmoji bool) {
@@ -99,6 +101,8 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 		TlTui.Clipboard.Enabled = true
 		TlTui.Clipboard.DateFormat = data.Config.Date_format
 	}
+
+	TlTui.TlConfig = data.Config
 }
 
 func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string, postScriptRefresh bool) error {

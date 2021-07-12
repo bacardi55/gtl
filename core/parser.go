@@ -208,14 +208,11 @@ func parseTinyLogItemForDate(content string) (time.Time, error) {
 	stringDate := content[3:]
 	var date time.Time
 
+	d := ParseTlDate(stringDate)
 	valid := false
-	for _, format := range supportedTimeFormat {
-		d, e := time.Parse(format, stringDate)
-		if e == nil {
-			valid = true
-			date = d
-			break
-		}
+	if !d.IsZero() {
+		valid = true
+		date = d
 	}
 
 	if valid == false {
@@ -223,4 +220,15 @@ func parseTinyLogItemForDate(content string) (time.Time, error) {
 	}
 
 	return date, nil
+}
+
+func ParseTlDate(stringDate string) time.Time {
+	for _, format := range supportedTimeFormat {
+		d, e := time.Parse(format, stringDate)
+		if e == nil {
+			return d
+		}
+	}
+
+	return time.Time{}
 }

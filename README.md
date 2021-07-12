@@ -76,6 +76,7 @@ Arrow keys up/down or j/k: scroll timeline or feeds list
 J/K: Navigate tinylog entries (to select entries) # Available only since v0.6.0
 N: Open tinylog in $EDITOR and optionaly copy a new entry stub to clipboard. (See configuration below.) # since v0.6.0
 R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific entry. (See configuration below.) # since v0.6.0
+O: Open link(s) in selected entry. # since v0.6.0
 q or Ctrl-C: Quit
 ```
 You can navigate on the subscription list and:
