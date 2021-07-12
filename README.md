@@ -74,7 +74,8 @@ s: Toggle hide/show subscription sidebar (left).
 Tab: Switch between timeline and subscription list.
 Arrow keys up/down or j/k: scroll timeline or feeds list
 J/K: Navigate tinylog entries (to select entries) # Available only since v0.6.0
-ctrl+n: Open tinylog in $EDITOR. (See configuration below.)
+N: Open tinylog in $EDITOR and optionaly copy a new entry stub to clipboard. (See configuration below.) # since v0.6.0
+R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific entry. (See configuration below.) # since v0.6.0
 q or Ctrl-C: Quit
 ```
 You can navigate on the subscription list and:
@@ -181,6 +182,7 @@ post_edit_refresh = false
 # Settings available since v0.6.0
 tui_max_entries = 0
 # Copy a pre formatted text to clipboard when creating a new entry
+# On linux, requires 'xclip' or 'xsel'
 # Settings available since v0.6.0
 tui_copy_stub_clipboard = false
 ```

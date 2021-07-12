@@ -56,6 +56,7 @@ post_edit_refresh = false
 # Indicate 0 for all entries.
 tui_max_entries = 0
 # Copy a pre formatted text to clipboard when creating a new entry
+# On linux, requires 'xclip' or 'xsel'
 tui_copy_stub_clipboard = false
 `)
 

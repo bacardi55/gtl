@@ -10,19 +10,24 @@ import (
 	"time"
 
 	"code.rocketnine.space/tslocum/cview"
+	"github.com/atotto/clipboard"
 	"github.com/gdamore/tcell/v2"
 
 	"git.bacardi55.io/bacardi55/gtl/core"
 )
 
 var shortcuts = []TlShortcut{
+	{"Navigate", "↑∕↓j/k", "Refresh timeline but keep active filters."},
 	{"Refresh", "r", "Refresh timeline but keep active filters."},
 	{"Timeline", "t", "Display timeline, remove active filters."},
 	{"Highlights", "h", "Display only entries containing highlights, keep tinylog filters active."},
 	{"Focus", "TAB", "Switch focus between the timeline and the subsciption list."},
 	{"Sidebar toggle", "s", "Hide/Show TinyLogs sidebar."},
-	{"Fitler tinylog", "Enter/Left click", "Only display entries from this tinylog"},
-	{"(Un)Mute tinylog", "Alt-Enter/Right click", "Hide entries from this tinylog"},
+	{"Fitler tinylog", "Enter/Left click", "Only display entries from this tinylog."},
+	{"(Un)Mute tinylog", "Alt-Enter/Right click", "Hide entries from this tinylog."},
+	{"Select tinylog entry", "J/K", "Select prev/next entries."},
+	{"New tinylog entry", "N", "Open tinylog editor with optional stub in clipboard."},
+	{"Reply to tinylog entry", "R", "On a selected entry, open tinylog editor with optional stub in clipboard."},
 	{"Help", "?", "Toggle displaying this help."},
 	{"Quit", "q / Ctrl-c", "Quit GTL."},
 }
@@ -102,18 +107,6 @@ func contentBox(data *core.TlData) *cview.Panels {
 	p.SetBorderColorFocused(tcell.ColorGreen)
 	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false, ""))
 	p.SetPadding(0, 0, 1, 0)
-	/*
-	  p.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-	    if event.Key() == tcell.KeyEnter {
-	      if TlTui.SelectedEntry > -1 {
-	        openEntryModal()
-	      }
-	      return nil
-	    }
-
-	    return event
-	  })
-	*/
 
 	TlTui.TimelineTV = getContentTextView(data)
 	p.AddPanel("timeline", TlTui.TimelineTV, true, true)
@@ -499,13 +492,18 @@ func toggleFormModal() {
 	}
 }
 
-/*
-func openEntryModal() {
-  //TODO.
-}
-*/
-
 func createNewEntryStub(dateFormat string) string {
-	stub := "## " + time.Now().Format(dateFormat) + "\n"
+	stub := "## " + time.Now().Format(dateFormat) + "\n\n\n"
 	return stub
+}
+
+func createResponseStub(dateFormat string) string {
+	// Stubs is blocked by cview bug.
+	// Temporary empty stub:
+	stub := "## " + time.Now().Format(dateFormat) + "\nRE:\n@author:\n\n"
+	return stub
+}
+
+func copyToClipboard(content string) error {
+	return clipboard.WriteAll(content)
 }
