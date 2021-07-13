@@ -507,10 +507,19 @@ func createNewEntryStub(dateFormat string) string {
 	return stub
 }
 
-func createResponseStub(dateFormat string) string {
-	// Stubs is blocked by cview bug.
-	// Temporary empty stub:
-	stub := "## " + time.Now().Format(dateFormat) + "\nRE:\n@author:\n\n"
+func createResponseStub(tlfi *core.TlFeedItem, dateFormat string) string {
+	lines := strings.Split(tlfi.Content, "\n")
+
+	a := tlfi.Author
+	if strings.Contains(tlfi.Author, " ") {
+		a = strings.Split(tlfi.Author, " ")[1]
+	}
+
+	stub := "## " + time.Now().Format(dateFormat) + "\nRE: " + a + " " + tlfi.Published.Format(dateFormat) + "\n"
+	for _, l := range lines[2:] {
+		stub += "> " + l + "\n"
+	}
+	stub += "\n"
 	return stub
 }
 

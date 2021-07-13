@@ -207,8 +207,12 @@ func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 				toggleFormModal()
 				return ev
 			}
-			// TODO: Blocked by cview issue.
-			text = createResponseStub(TlTui.Clipboard.DateFormat)
+			tlfi, e := getSelectedEntryText()
+			if e != nil {
+				updateFormModalContent("Couldn't find a valid entry.", "Ok", "", func() {})
+				toggleFormModal()
+			}
+			text = createResponseStub(tlfi, TlTui.Clipboard.DateFormat)
 		} else if ev.Rune() == 'N' {
 			text = createNewEntryStub(TlTui.Clipboard.DateFormat)
 		}
@@ -339,7 +343,7 @@ With a second link to test:
 	if len(date) < 2 {
 		return nil, fmt.Errorf("Couldn't parse selected entry - date issue.")
 	}
-	d := core.ParseTlDate(date[1])
+	d := core.ParseTlDate(strings.TrimSpace(date[1]))
 
 	tlfi := &core.TlFeedItem{
 		Author:    lines[1],
