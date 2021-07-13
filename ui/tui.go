@@ -403,9 +403,9 @@ func getStatusIcon(f core.TlFeed) string {
 }
 
 func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
-	closeFormat := "[white::-]"
+	closeFormat := "[-:-:-]"
 	if isHighlighted == true {
-		closeFormat = "[white::b]"
+		closeFormat = "[-:-:b]"
 	}
 
 	// Format quotes:
@@ -433,11 +433,20 @@ func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
 	s = re.ReplaceAllString(s, startFormat+closeFormat)
 
 	// Format lists:
-	re = regexp.MustCompile("(?im)^([*] [^\n]*)")
+	re = regexp.MustCompile("(?im)^([*] .*$)")
 	if isHighlighted == true {
-		s = re.ReplaceAllString(s, "  [::b]$1"+closeFormat)
+		s = re.ReplaceAllString(s, "  [::bd]$1"+closeFormat)
 	} else {
-		s = re.ReplaceAllString(s, "  [-:-:-]$1"+closeFormat)
+		s = re.ReplaceAllString(s, "  [::d]$1"+closeFormat)
+	}
+
+	// Format headers
+	re = regexp.MustCompile("(?im)^(####* )(.*$)")
+	// If highlighted, already bold anyway.
+	if isHighlighted == false {
+		s = re.ReplaceAllString(s, "[grey::b]$1[-::u]$2"+closeFormat)
+	} else {
+		s = re.ReplaceAllString(s, "[grey::b]$1[-::bu]$2"+closeFormat)
 	}
 
 	return s
