@@ -435,9 +435,9 @@ func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
 	// Format lists:
 	re = regexp.MustCompile("(?im)^([*] [^\n]*)")
 	if isHighlighted == true {
-		s = re.ReplaceAllString(s, " [::bi]$1"+closeFormat)
+		s = re.ReplaceAllString(s, "  [::b]$1"+closeFormat)
 	} else {
-		s = re.ReplaceAllString(s, " [::i]$1"+closeFormat)
+		s = re.ReplaceAllString(s, "  [-:-:-]$1"+closeFormat)
 	}
 
 	return s
