@@ -167,8 +167,8 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		}
 
 		if ignoreEntry != true {
-			a := fmt.Sprintf("[red]" + i.Author + "[white::]")
-			d := "[skyblue::]" + formatElapsedTime(t.Sub(i.Published)) + "[white::]"
+			a := fmt.Sprintf("[red]" + i.Author + "[-::]")
+			d := "[skyblue::]" + formatElapsedTime(t.Sub(i.Published)) + "[-::]"
 			if isTlEntryNew(i, TlTui.LastRefresh) != true && separator != true {
 				if nbEntries > 0 {
 					content = content + "            --------------------------- \n"
@@ -435,9 +435,9 @@ func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
 	// Format lists:
 	re = regexp.MustCompile("(?im)^([*] .*$)")
 	if isHighlighted == true {
-		s = re.ReplaceAllString(s, "  [::bd]$1"+closeFormat)
+		s = re.ReplaceAllString(s, "  [-:-:bd]$1"+closeFormat)
 	} else {
-		s = re.ReplaceAllString(s, "  [::d]$1"+closeFormat)
+		s = re.ReplaceAllString(s, "  [-:-:d]$1"+closeFormat)
 	}
 
 	// Format headers
