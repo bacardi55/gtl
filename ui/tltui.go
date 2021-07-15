@@ -37,16 +37,14 @@ type TlTUI struct {
 	LastRefresh      time.Time
 	Help             bool
 	DisplaySidebar   bool
-	Emoji            bool
 	Clipboard        TlClipboard
 	Muted            []string
 	NbEntries        int
 	SelectedEntry    int
-	// TODO: Clean other entries now that full config is here.
-	TlConfig *core.TlConfig
+	TlConfig         *core.TlConfig
 }
 
-func (TlTui *TlTUI) InitApp(useEmoji bool) {
+func (TlTui *TlTUI) InitApp() {
 	TlTui.App = cview.NewApplication()
 	TlTui.App.EnableMouse(true)
 
@@ -60,17 +58,14 @@ func (TlTui *TlTUI) InitApp(useEmoji bool) {
 
 	TlTui.DisplayFormModal = false
 
-	TlTui.Emoji = false
-	if useEmoji == true {
-		TlTui.Emoji = true
-	}
-
 	TlTui.Clipboard = TlClipboard{
 		Enabled: false,
 	}
 }
 
 func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
+	TlTui.TlConfig = data.Config
+
 	TlTui.Layout = cview.NewFlex()
 	TlTui.Layout.SetTitle("Gemini Tiny Logs")
 	TlTui.Layout.SetDirection(cview.FlexRow)
@@ -102,7 +97,6 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 		TlTui.Clipboard.DateFormat = data.Config.Date_format
 	}
 
-	TlTui.TlConfig = data.Config
 }
 
 func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string, postScriptRefresh bool) error {

@@ -41,7 +41,7 @@ func displayStreamTui(data *core.TlData) error {
 		return fmt.Errorf("Couldn't refresh feeds")
 	}
 
-	TlTui.InitApp(data.Config.Tui_status_emoji)
+	TlTui.InitApp()
 	TlTui.SetAppUI(data)
 	TlTui.SetShortcuts()
 
@@ -156,9 +156,9 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		ignoreEntry := false
 		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
-			c = gemtextFormat(i.Content, false, TlTui.Emoji)
+			c = gemtextFormat(i.Content, false, TlTui.TlConfig.Tui_status_emoji)
 		} else if TlTui.FilterHighlights == false {
-			c = gemtextFormat(i.Content, f, TlTui.Emoji)
+			c = gemtextFormat(i.Content, f, TlTui.TlConfig.Tui_status_emoji)
 			if f == true {
 				c = "[:-:b]" + c + "[:-:-]"
 			}
@@ -365,7 +365,7 @@ func getHelpContent(field string) string {
 func getStatusIcon(f core.TlFeed) string {
 	status := f.Status
 	r := ""
-	if TlTui.Emoji == true {
+	if TlTui.TlConfig.Tui_status_emoji == true {
 		if status == core.FeedValid {
 			r = "✔"
 		} else if status == core.FeedUnreachable {
