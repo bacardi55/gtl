@@ -125,7 +125,7 @@ func uiChangeHandler(ev *tcell.EventKey) *tcell.EventKey {
 			toggleFormModal()
 			return nil
 
-		} else if TlTui.ContentBox.HasFocus() == true && TlTui.SelectedEntry != -1 {
+		} else if TlTui.ContentBox.HasFocus() == true {
 			// Unselect entries if any.
 			TlTui.SelectedEntry = -1
 			TlTui.TimelineTV.Highlight("")
