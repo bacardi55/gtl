@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -42,6 +43,8 @@ var supportedTimeFormat = []string{
 	"Mon Jan 02 2006 3:04 PM MST",
 	"2006-01-02 15:04:05 -0700",
 	"2006-01-02 15:04 -0700",
+	"2006-01-02 15:04:05 -07:00",
+	"2006-01-02 15:04 -07:00",
 	"Mon 02 Jan 2006 03:04:05 PM -0700",
 	"Mon 02 Jan 2006 03:04 PM -0700",
 	"Mon 02 Jan 2006 15:04 -0700",
@@ -115,39 +118,44 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 // Parse gemini content of the tinylog file.
 func parseTinyLogContent(rawFeed TlRawFeed) (string, []*TlFeedItem, error) {
 	author := rawFeed.Name
-
-	entries := strings.Split(rawFeed.Content, "\n\n")
-	nbEntries := len(entries)
-
 	var fi []*TlFeedItem
 
-	if nbEntries < 1 {
+	currentPos := 0
+	pos := strings.Index(rawFeed.Content, "## ")
+	content := rawFeed.Content
+	if pos == -1 {
+		// Not found, ignoring feed.
 		return author, fi, fmt.Errorf("Invalid tinylog format")
+	} else if pos > 1 {
+		// Found something before first entry as a header.
+		header := rawFeed.Content[0 : pos-1]
+		a := parseTinyLogHeaderForAuthor(header)
+		if a != "" {
+			author = a
+		} else {
+			log.Println("Ignoring malformed header", author, header)
+		}
+		currentPos = pos
 	}
 
-	if nbEntries > 0 {
-		foundMeta := false
-		for i := 0; i < nbEntries; i++ {
-			l := strings.TrimSpace(entries[i])
-			if strings.HasPrefix(l, "##") {
-				f, e := parseTinyLogItem(l, author)
-				if e != nil {
-					// Ignoring the entry but continuing in case other entries of this feed are in a known format.
-					log.Println(e)
-				} else {
-					fi = append(fi, &f)
-				}
-			} else if foundMeta == false {
-				a := parseTinyLogHeaderForAuthor(entries[i])
-				if a != "" {
-					author = a
-					foundMeta = true
-				} else {
-					log.Println("Ignoring malformed entry", author, l)
-				}
-			} else {
-				log.Println("Ignoring malformed entry", author, l)
-			}
+	content = rawFeed.Content[currentPos:]
+	re := regexp.MustCompile(`(?im)(^## .*)$`)
+	entriesIndex := re.FindAllIndex([]byte(content), -1)
+
+	for i := 0; i < len(entriesIndex); i++ {
+		var start, end int
+		start = entriesIndex[i][0]
+		if i+1 == len(entriesIndex) {
+			end = len(content) - 1
+		} else {
+			end = entriesIndex[i+1][0] - 1
+		}
+		f, err := parseTinyLogItem(content[start:end], author)
+		if err != nil {
+			// Ignoring the entry but continuing in case other entries of this feed are in a known format.
+			log.Println(err)
+		} else {
+			fi = append(fi, &f)
 		}
 	}
 
