@@ -28,7 +28,7 @@ func getFeeds(subFile string) map[string]core.TlFeed {
 		log.Println("Creating the subscription file")
 		os.Create(subFilePath)
 		// Add 1 entry to avoid bugs with empty subscription file.
-		if e = AddTlSubscription(subFilePath, "gemini://gmi.bacardi55.io/tinylog.gmi", "bacardi55"); e != nil {
+		if e = AddTlSubscription(subFilePath, "gemini://tinylogs.gmi.bacardi55.io/index.gmi", "GTL"); e != nil {
 			log.Fatalln(e)
 		}
 		file, _ = os.Open(subFilePath)
