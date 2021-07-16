@@ -42,6 +42,7 @@ type TlTUI struct {
 	NbEntries        int
 	SelectedEntry    int
 	TlConfig         *core.TlConfig
+	TlStream         *core.TlStream
 }
 
 func (TlTui *TlTUI) InitApp() {
@@ -65,6 +66,7 @@ func (TlTui *TlTUI) InitApp() {
 
 func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.TlConfig = data.Config
+	TlTui.TlStream = data.Stream
 
 	TlTui.Layout = cview.NewFlex()
 	TlTui.Layout.SetTitle("Gemini Tiny Logs")

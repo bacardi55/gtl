@@ -231,7 +231,12 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 		it := createListItem(t, "=> "+f.Link)
 		list.AddItem(it)
 		it.SetSelectedFunc(func() {
-			TlTui.Filter = strings.TrimSpace(strings.Split(TlTui.ListTl.GetCurrentItem().GetMainText(), "-")[1])
+			tmp := strings.Split(TlTui.ListTl.GetCurrentItem().GetMainText(), "-")
+			if len(tmp) < 2 {
+				TlTui.Filter = ""
+			} else {
+				TlTui.Filter = strings.TrimSpace(tmp[1])
+			}
 			TlTui.RefreshStream(false)
 		})
 	}
@@ -469,6 +474,7 @@ func isMuted(author string) (bool, int) {
 
 func createFormModal() *cview.Modal {
 	m := cview.NewModal()
+	m.SetBackgroundColor(tcell.ColorBlack.TrueColor())
 	return m
 }
 

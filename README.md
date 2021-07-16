@@ -77,6 +77,7 @@ J/K: Navigate tinylog entries (to select entries) # Available only since v0.6.0
 N: Open tinylog in $EDITOR and optionaly copy a new entry stub to clipboard. (See configuration below.) # since v0.6.0
 R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific entry. (See configuration below.) # since v0.6.0
 O: Open link(s) in selected entry. # since v0.6.0
+T: If the selected entry is a response to another tinylog entry, will open the original entry in a popup.
 q or Ctrl-C: Quit
 ```
 You can navigate on the subscription list and:

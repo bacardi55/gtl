@@ -28,6 +28,8 @@ func (TlTui *TlTUI) SetShortcuts() {
 
 	c.SetRune(tcell.ModNone, 'O', linksHandler)
 
+	c.SetRune(tcell.ModNone, 'T', threadHandler)
+
 	c.SetRune(tcell.ModNone, 'r', refreshHandler)
 
 	c.SetRune(tcell.ModNone, 'h', mainDisplayHandler)
@@ -319,6 +321,87 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 
 	TlTui.FocusManager.Focus(TlTui.ContentBox)
 	return nil
+}
+
+func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
+	TlTui.FocusManager.Focus(TlTui.ContentBox)
+	if TlTui.SelectedEntry < 0 {
+		updateFormModalContent("No selected entry.", "Ok", "", func() {})
+		toggleFormModal()
+		return ev
+	}
+
+	//TODO: Use getSelectedEntryText() when cview issue is fixed:
+	// https://code.rocketnine.space/tslocum/cview/issues/69
+	entry := `3 days ago - Tue 13 Jul 2021 18:33 CEST
+🤔 @bacardi55
+💬 @frrobert 2021-07-13 15:59 UTC
+ > lace with the strict option does that
+Interesting :). I was thinking about doing something like this but with a more text/gemini friendly output so that gemini browser can actually parse it (almost as a big tinylog)!
+I think I'll poc that quickly after I release the next gtl version to see how it can look like :).
+`
+
+	if isReponseToEntry(entry) == true {
+		index := findOriginalEntry(entry)
+		if index == -1 {
+			// Nothing found.
+			updateFormModalContent("No original entry found.", "Ok", "", nil)
+			toggleFormModal()
+		} else {
+			// Display a thread.
+			// TODO: Improve UI if this is fixed:
+			// https://code.rocketnine.space/tslocum/cview/issues/71
+			// Otherwise, might need to move to another way of displaying the original post.
+			updateFormModalContent("Original entry \n\n"+entry, "Ok", "", nil)
+			toggleFormModal()
+		}
+	} else {
+		updateFormModalContent("Not a response format, no original to look for.", "Ok", "", func() {})
+		toggleFormModal()
+	}
+
+	return nil
+}
+
+func isReponseToEntry(entry string) bool {
+	lines := strings.Split(entry, "\n")
+	if len(lines) < 3 {
+		return false
+	}
+
+	re := regexp.MustCompile(`(?im)^(↳|\x{1F4AC})`)
+	return re.MatchString(lines[2])
+}
+
+// Find the index in the stream of the original entry.
+// Return -1 if original entry isn't found.
+func findOriginalEntry(entry string) int {
+	lines := strings.Split(entry, "\n")
+	r := strings.Split(string(lines[2]), " ")
+
+	if len(r) < 3 {
+		return -1
+	}
+
+	author := r[1]
+	date := core.ParseTlDate(strings.Join(r[2:], " "))
+
+	for i, s := range TlTui.TlStream.Items {
+		tmp := strings.Split(s.Author, " ")
+		a := ""
+		// Removing avatar if any.
+		if len(tmp) > 1 {
+			a = strings.Join(tmp[1:], " ")
+		} else {
+			a = tmp[0]
+		}
+
+		if strings.Contains(a, author) && s.Published == date {
+			return i
+		}
+	}
+
+	return -1
 }
 
 func getSelectedEntryText() (*core.TlFeedItem, error) {
