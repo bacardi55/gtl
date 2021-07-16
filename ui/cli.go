@@ -21,8 +21,11 @@ func displayStreamCli(data *core.TlData, limit int) error {
 
 	var max int
 	max = len(stream.Items)
-	if limit > 0 {
+	if limit > 0 && limit < len(stream.Items) {
 		max = limit
+
+	} else if limit > len(stream.Items) || limit == 0 {
+		max = len(stream.Items) - 5
 	} else if data.Config.Cli_limit > 0 {
 		max = data.Config.Cli_limit
 	}
