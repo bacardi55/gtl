@@ -132,6 +132,21 @@ subscribed_data = "path/to/sub/file"
 
 Screenshot of the CLI below.
 
+### Use gtl gemini mode
+
+You can use gtl to generate a valid text/gemini output that could then be place in a capsule and read via a gemini browser:
+
+```bash
+~/bin/gtl --config ~/.config/gtl/test.gtl.toml --mode gemini --limit 55
+```
+
+You can see an example used here:
+gemini://tinylogs.gmi.bacardi55.io
+
+Or see a screenshot below.
+
+Funny thing, the format is compatible with the tinylog RFC, so you can subscribe to it via gtl (there is a screenshot of this below too).
+
 ## Configuration
 
 ### Default configuration file
@@ -152,7 +167,7 @@ log_file = "/dev/null"
 # Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
 # Will be ignored in tui mode.
 cli_limit = 10
-# Mode: either cli or tui
+# Mode: either cli, tui or gemini
 mode = "tui"
 # If false, standard ascii characters will be used.
 tui_status_emoji = false
@@ -212,4 +227,12 @@ Subscription management usage:
 ### CLI mode
 
 ![Gtl CLI screenshot](docs/images/gtl_screenshot.png)
+
+### Gemini mode
+
+![Gtl Gemini output screenshot](docs/images/gtl_gmi_screenshot.png)
+
+![Gtl Gemini output in a browser screenshot](docs/images/gtl_gmi_screenshot_browser.png)
+
+![Gtl Gemini output in gtl screenshot](docs/images/gtl_gmi_screenshot_gtl.png)
 

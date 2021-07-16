@@ -19,6 +19,8 @@ func (Ui *TlUI) Run(data *core.TlData, limit int) error {
 		return displayStreamCli(data, limit)
 	} else if Ui.Mode == "tui" {
 		return displayStreamTui(data)
+	} else if Ui.Mode == "gemini" {
+		return displayStreamGemini(data, limit)
 	} else {
 		return fmt.Errorf("Unknown mode.")
 	}

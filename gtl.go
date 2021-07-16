@@ -75,9 +75,9 @@ func main() {
 
 	// Display stream and quit.
 	var gtlUI ui.TlUI
-	if modeArg == "tui" || modeArg == "cli" {
+	if modeArg == "tui" || modeArg == "cli" || modeArg == "gemini" {
 		gtlUI.Mode = modeArg
-	} else if Data.Config.Mode == "tui" || Data.Config.Mode == "cli" {
+	} else if Data.Config.Mode == "tui" || Data.Config.Mode == "cli" || Data.Config.Mode == "gemini" {
 		gtlUI.Mode = Data.Config.Mode
 	} else {
 		fmt.Printf("Unknown mode, fallback on TUI.")
