@@ -105,11 +105,10 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 // s: hide/Show sidebar.
 // q: quit.
 func uiChangeHandler(ev *tcell.EventKey) *tcell.EventKey {
-	if TlTui.DisplayFormModal == true {
-		return ev
-	}
-
 	if ev.Key() == tcell.KeyTAB {
+		if TlTui.DisplayFormModal == true {
+			return ev
+		}
 		// If help of if sidebar is hidden, nothing to switch focus to.
 		if TlTui.Help == false && TlTui.DisplaySidebar == true {
 			TlTui.FocusManager.FocusNext()
@@ -134,6 +133,9 @@ func uiChangeHandler(ev *tcell.EventKey) *tcell.EventKey {
 			TlTui.TimelineTV.Highlight("")
 		}
 	} else if ev.Rune() == 's' {
+		if TlTui.DisplayFormModal == true {
+			return ev
+		}
 		sidebarToggleDisplay()
 		return nil
 	} else if ev.Rune() == 'q' {
@@ -305,10 +307,14 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 		message := "Multiple links detected, open them all?"
 		for i, l := range links {
 			message += "\n(" + strconv.Itoa(i+1) + ") " + l + "\n"
+			f.AddButton(strconv.Itoa(i+1), func() {
+				openLinkInBrowser(strings.Split(l, " ")[1])
+				time.Sleep(100 * time.Millisecond)
+			})
 		}
 
 		m.SetText(message)
-		f.AddButton("Yes", func() {
+		f.AddButton("All", func() {
 			for _, l := range links {
 				openLinkInBrowser(strings.Split(l, " ")[1])
 				time.Sleep(100 * time.Millisecond)
@@ -316,7 +322,7 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 			toggleFormModal()
 		})
 
-		f.AddButton("No", func() {
+		f.AddButton("Cancel", func() {
 			toggleFormModal()
 		})
 		TlTui.FormModal.SetTextAlign(cview.AlignLeft)
