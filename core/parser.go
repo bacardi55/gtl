@@ -32,7 +32,6 @@ var supportedTimeFormat = []string{
 	"Mon Jan 02 15:04:05 MST 2006",
 	"Mon Jan 02 03:04:05 PM MST 2006",
 	"Mon Jan  2 03:04:05 PM MST 2006",
-	"2006-01-02",
 	"Mon 02 January 2006 15:04:05 MST",
 	"Mon 02 Jan 2006 15:04:05 MST",
 	"Mon Jan 02 2006 15:04 MST",
