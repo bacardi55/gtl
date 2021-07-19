@@ -331,15 +331,12 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 		return ev
 	}
 
-	//TODO: Use getSelectedEntryText() when cview issue is fixed:
-	// https://code.rocketnine.space/tslocum/cview/issues/69
-	entry := `3 days ago - Tue 13 Jul 2021 18:33 CEST
-🤔 @bacardi55
-💬 @frrobert 2021-07-13 15:59 UTC
- > lace with the strict option does that
-Interesting :). I was thinking about doing something like this but with a more text/gemini friendly output so that gemini browser can actually parse it (almost as a big tinylog)!
-I think I'll poc that quickly after I release the next gtl version to see how it can look like :).
-`
+	tlfi, e := getSelectedEntryText()
+	if e != nil {
+		updateFormModalContent("Couldn't find a valid entry.", "Ok", "", func() {})
+		toggleFormModal()
+	}
+	entry := tlfi.Content
 
 	if isReponseToEntry(entry) == true {
 		index := findOriginalEntry(entry)
@@ -405,17 +402,7 @@ func findOriginalEntry(entry string) int {
 }
 
 func getSelectedEntryText() (*core.TlFeedItem, error) {
-	// TODO: GetRegionText().
-	entry := `22 hours ago - Sun 11 Jul 2021 22:04 CEST
-🤔 @bacardi55
-Just opened my first issue on cview tracker:
-→ https://code.rocketnine.space/tslocum/cview/issues/69
-→ https://code.rocketnine.space/tslocum/cview/issues/69
-When this get resolve, the v0.6.0 could start again with multiple new things coming… :)
-With a second link to test:
-→ gemini://gmi.bacardi55.io
-→ ftp://test.com`
-
+	entry := TlTui.TimelineTV.GetRegionText("entry-" + strconv.Itoa(TlTui.SelectedEntry))
 	lines := strings.Split(entry, "\n")
 
 	if len(lines) < 3 {
@@ -438,8 +425,6 @@ With a second link to test:
 }
 
 func extractLinks(tlfi *core.TlFeedItem) []string {
-	log.Println(tlfi.Content)
-
 	re := regexp.MustCompile("(?im)→ (gemini|gopher|https{0,1})://(.*)$")
 	return re.FindAllString(tlfi.Content, -1)
 }
