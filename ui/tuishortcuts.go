@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"code.rocketnine.space/tslocum/cbind"
+	"code.rocketnine.space/tslocum/cview"
 	"github.com/gdamore/tcell/v2"
 
 	"git.bacardi55.io/bacardi55/gtl/core"
@@ -318,6 +319,7 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 		f.AddButton("No", func() {
 			toggleFormModal()
 		})
+		TlTui.FormModal.SetTextAlign(cview.AlignLeft)
 		toggleFormModal()
 	}
 
@@ -353,11 +355,8 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 			updateFormModalContent("No original entry found.", "Ok", "", nil)
 			toggleFormModal()
 		} else {
-			// Display a thread.
-			// TODO: Improve UI if this is fixed:
-			// https://code.rocketnine.space/tslocum/cview/issues/71
-			// Otherwise, might need to move to another way of displaying the original post.
-			updateFormModalContent("Original entry \n\n"+entry, "Ok", "", nil)
+			updateFormModalContent("[-:-:bu]Original entry[::-]\n\n"+entry, "Ok", "", nil)
+			TlTui.FormModal.SetTextAlign(cview.AlignLeft)
 			toggleFormModal()
 		}
 	} else {

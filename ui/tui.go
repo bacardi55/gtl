@@ -481,7 +481,10 @@ func createFormModal() *cview.Modal {
 func updateFormModalContent(message string, mainButtonName string, buttonName string, execFunc func()) {
 	m := TlTui.FormModal
 	f := m.GetForm()
-	f.ClearButtons()
+	f.Clear(true)
+
+	// To override this, use TlTui.FormModal.SetTextAlign() after calling this function.
+	m.SetTextAlign(cview.AlignCenter)
 
 	m.SetText(message)
 
