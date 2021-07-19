@@ -181,7 +181,7 @@ func sidebarToggleDisplay() {
 func tlNavHandler(ev *tcell.EventKey) *tcell.EventKey {
 	// Only usable on ContentBox.
 	if TlTui.ContentBox.HasFocus() == false {
-		return ev
+		TlTui.FocusManager.Focus(TlTui.ContentBox)
 	}
 
 	if ev.Rune() == 'J' {
@@ -355,13 +355,22 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 	entry := tlfi.Content
 
 	if isReponseToEntry(entry) == true {
-		index := findOriginalEntry(entry)
-		if index == -1 {
+		tlfi := findOriginalEntry(entry)
+		if tlfi == nil {
 			// Nothing found.
 			updateFormModalContent("No original entry found.", "Ok", "", nil)
 			toggleFormModal()
 		} else {
-			updateFormModalContent("[-:-:bu]Original entry[::-]\n\n"+entry, "Ok", "", nil)
+			// TODO: Bug in cview when modal text contains [-:-:-] or other.
+			// TODO: Open a bug in cview.
+			t := time.Now()
+			d := formatElapsedTime(t.Sub(tlfi.Published))
+			a := tlfi.Author
+			//c := strings.Replace(gemtextFormat(tlfi.Content, false, TlTui.TlConfig.Tui_status_emoji), "\n", "\n\n", -1)
+			c := strings.Replace(tlfi.Content, "\n", "\n\n", -1)
+			fe := "Original entry:\n\n" + d + " - " + tlfi.Published.Format(TlTui.TlConfig.Date_format) + "\n\n" + a + "\n\n" + c + "\n"
+
+			updateFormModalContent(fe, "Ok", "", nil)
 			TlTui.FormModal.SetTextAlign(cview.AlignLeft)
 			toggleFormModal()
 		}
@@ -382,18 +391,26 @@ func isReponseToEntry(entry string) bool {
 
 // Find the index in the stream of the original entry.
 // Return -1 if original entry isn't found.
-func findOriginalEntry(entry string) int {
+func findOriginalEntry(entry string) *core.TlFeedItem {
 	lines := strings.Split(entry, "\n")
-	r := strings.Split(string(lines[0]), " ")
 
-	if len(r) < 3 {
-		return -1
+	line := lines[0]
+	index := 0
+	author := ""
+	if i := strings.Index(line, "@"); i > -1 {
+		author = strings.Split(line[i:], " ")[0]
+		index = i + len(author)
 	}
 
-	author := r[1]
-	date := core.ParseTlDate(strings.TrimSpace(strings.Join(r[2:], " ")))
+	index2 := strings.Index(line, "→")
+	if index2 == -1 {
+		index2 = len(line) - 1
+	}
+	stringDate := strings.TrimSpace(line[index:index2])
 
-	for i, s := range TlTui.TlStream.Items {
+	date := core.ParseTlDate(stringDate)
+
+	for _, s := range TlTui.TlStream.Items {
 		a := ""
 
 		tmp := strings.Split(s.Author, " ")
@@ -404,12 +421,12 @@ func findOriginalEntry(entry string) int {
 			a = tmp[0]
 		}
 
-		if strings.Contains(a, author) && s.Published.Truncate(time.Minute) == date.Truncate(time.Minute) {
-			return i
+		if (strings.Contains(a, author) || strings.Contains(author, a)) && s.Published.Truncate(time.Minute) == date.Truncate(time.Minute) {
+			return s
 		}
 	}
 
-	return -1
+	return nil
 }
 
 func getSelectedEntryText() (*core.TlFeedItem, error) {

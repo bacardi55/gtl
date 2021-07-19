@@ -66,6 +66,7 @@ func displayStreamTui(data *core.TlData) error {
 			if e != nil {
 				log.Fatalln("Couldn't refresh TinyLogs")
 			}
+			TlTui.TlStream = data.Stream
 		}
 		TlTui.ListTl = createListTl(data.Feeds)
 		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
