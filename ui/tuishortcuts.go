@@ -370,30 +370,28 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 
 func isReponseToEntry(entry string) bool {
 	lines := strings.Split(entry, "\n")
-	if len(lines) < 3 {
-		return false
-	}
 
 	re := regexp.MustCompile(`(?im)^(↳|\x{1F4AC})`)
-	return re.MatchString(lines[2])
+	return re.MatchString(lines[0])
 }
 
 // Find the index in the stream of the original entry.
 // Return -1 if original entry isn't found.
 func findOriginalEntry(entry string) int {
 	lines := strings.Split(entry, "\n")
-	r := strings.Split(string(lines[2]), " ")
+	r := strings.Split(string(lines[0]), " ")
 
 	if len(r) < 3 {
 		return -1
 	}
 
 	author := r[1]
-	date := core.ParseTlDate(strings.Join(r[2:], " "))
+	date := core.ParseTlDate(strings.TrimSpace(strings.Join(r[2:], " ")))
 
 	for i, s := range TlTui.TlStream.Items {
-		tmp := strings.Split(s.Author, " ")
 		a := ""
+
+		tmp := strings.Split(s.Author, " ")
 		// Removing avatar if any.
 		if len(tmp) > 1 {
 			a = strings.Join(tmp[1:], " ")
@@ -401,7 +399,7 @@ func findOriginalEntry(entry string) int {
 			a = tmp[0]
 		}
 
-		if strings.Contains(a, author) && s.Published == date {
+		if strings.Contains(a, author) && s.Published.Truncate(time.Minute) == date.Truncate(time.Minute) {
 			return i
 		}
 	}

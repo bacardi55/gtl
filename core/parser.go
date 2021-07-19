@@ -237,5 +237,6 @@ func ParseTlDate(stringDate string) time.Time {
 		}
 	}
 
+	log.Println("No time format found for", stringDate)
 	return time.Time{}
 }
