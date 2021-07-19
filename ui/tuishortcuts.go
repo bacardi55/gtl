@@ -182,13 +182,21 @@ func tlNavHandler(ev *tcell.EventKey) *tcell.EventKey {
 	}
 
 	if ev.Rune() == 'J' {
+		max := TlTui.NbEntries
+		if TlTui.TlConfig.Tui_max_entries > 0 && TlTui.TlConfig.Tui_max_entries < TlTui.NbEntries {
+			max = TlTui.TlConfig.Tui_max_entries
+		}
 		// Highlight next item.
-		if TlTui.SelectedEntry < TlTui.NbEntries {
+		if TlTui.SelectedEntry < max-1 {
 			TlTui.SelectedEntry += 1
+		} else {
+			TlTui.SelectedEntry = max - 1
 		}
 	} else if ev.Rune() == 'K' {
 		if TlTui.SelectedEntry > 0 {
 			TlTui.SelectedEntry -= 1
+		} else {
+			TlTui.SelectedEntry = 0
 		}
 	}
 	TlTui.TimelineTV.Highlight("entry-" + strconv.Itoa(TlTui.SelectedEntry))
