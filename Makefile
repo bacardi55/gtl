@@ -1,7 +1,7 @@
 GOCMD := CGO_ENABLED=0 go
 BINARY := gtl
 BINDIR := ./bin
-VERSION := 0.6.0
+VERSION := 0.6.0-alpha
 
 GOLDFLAGS := -s -w -X main.Version=$(VERSION)
 
