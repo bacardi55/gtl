@@ -2,238 +2,33 @@
 
 Goal: A TUI for the [tinylogs](https://codeberg.org/bacardi55/gemini-tinylog-rfc/src/branch/main) format on the [gemini](gemini.circumlunar.space/) space.
 
-[See screenshots](#screenshots)
+![Gtl TUI screenshot](docs/images/gtl_tui_screenshot.png)
+
+## Quick start:
+
+*Assuming you downloaded the right binary for your system and put it in your binary, eg: ~/bin*:
+```
+# will create the configuration and subscription files in ~/.config/gtl/ and subscribe to tinylog aggregator (gemini://tinylogs.gmi.bacardi55.io).
+~/bin/gtl
+```
+
+To read the global help:
+```
+gtl --help
+```
 
 ## Installation
 
-gtl requires go ≥ 1.16
-
-### From Source
-```
-git clone http://git.bacardi55.io/bacardi55/gtl.git
-cd gtl
-make dependencies
-make build
-```
-
-Put the binary in a directory available in your $PATH if you don't want to type the full path to the program.
-
-### From Binaries
-
-You can download binaries for linux [here](https://github.com/bacardi55/gtl/releases).
-Binaries are only available for linux 386, amd64, arm and arm64 for now.
-
-*PS*: I don't have a Mac or Windows box easily accessible, so any help/patch on this is appreciated :).
-
-## Usage
-
-### Quick start:
-
-*Assuming you put the binary in ~/bin*:
-```
-~/bin/gtl # will create the configuration and subscription files in ~/.config/gtl/ and a subscription path.
-[~/bin/gtl add --url gemini://capsule.tld/tinylog.gmi # Adding other entries than just my default one.
-[# Repeat add command for all the feeds.]
-~/bin/gtl --mode cli --limit 10
-# Or use the TUI mode:
-~/bin/gtl --mode tui
-```
-
-You can still use gtl "continuously":
-```
-while true; do clear && ~/bin/gtl --mode cli --limit 10 && sleep 1800; done;
-```
-
-Or use the TUI and refresh the timeline when you want.
-
-### Global commands:
-```
-gtl --help
-gtl --version
-```
-
-### Use gtl TUI
-
-[Screenshot of the TUI below](#tui-mode).
-
-```
-gtl --mode tui
-```
-or configure the `gtl.toml` to set `mode = tui` (see config below).
-
-PS: TUI is the default mode since v0.4.8
-
-
-**TUI Shortcuts:**
-```
-?: Display help
-r: Refresh timeline (refresh all tinylogs)
-t: Display timeline (remove all filters like highlights of specific tinylog)
-h: Toggle Highligts only / all entries (keep tinylog filter).
-s: Toggle hide/show subscription sidebar (left).
-Tab: Switch between timeline and subscription list.
-Arrow keys up/down or j/k: scroll timeline or feeds list
-J/K: Navigate tinylog entries (to select entries) # Available only since v0.6.0
-N: Open tinylog in $EDITOR and optionaly copy a new entry stub to clipboard. (See configuration below.) # since v0.6.0
-R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific entry. (See configuration below.) # since v0.6.0
-O: Open link(s) in selected entry. # since v0.6.0
-T: If the selected entry is a response to another tinylog entry, will open the original entry in a popup.
-q or Ctrl-C: Quit
-```
-You can navigate on the subscription list and:
-* left click or press enter: Will filter only entries from this tinylog and hide all entries from other tinylogs. A Status `F` or `🔎` is indicated.
-* right click or press alt+enter: Will open a menu to mute / unmute a tinylog. A tinylog muted means no entry from this tinylog are displayed. A Status `M` or `🔕` is displayed.
-
-**TUI Emoji Status:**
-
-If `tui_status_emoji` is set to true in the configuration file (see below), emoji will be used for the status. Otherwise, simple ASCII characters will be used.
-
-* `V` or `✔`: All good :)
-* `X` or `❌`: Indicates that the feed format is wrong or that no entries has been found.
-* `D` or `☠️ `: Indicates that the capsule/page is unreachable.
-* `S` or `🔓`: Indicates an error with the SSL certificate.
-* `F` or `🔎`: Indicates that the feed is selected. It means only entries from this tinylog are displayed.
-* `M` or `🔕`: Indicates that the feed is muted. It means no entry of this tinylog will be displayed.
-
-### Use gtl CLI
-
-[Screenshot of the CLI below](#cli-mode).
-
-```
-Usage:
-	--config configFile	Indicate a specific config file.
-	--mode {cli,tui}	Select the cli or tui mode.
-	--limit X		When using cli mode, display only X item.
-	--help			Display this help message.
-```
-
-Example:
-```bash
-gtl --mode cli --limit 10
-gtl --limit 10 # cli mode is default, so this is the same as above.
-gtl --mode cli --limit 10 --config path/to/config/file # with specific path for config file.
-```
-
-If you don't provide a config file path, gtl will look for it in `{homepath}/.config/gtl/gtl.toml`
-
-You need a subscription file though with the list of tinylogs to follow. For easier migration, the format is the same as [lace](https://friendo.monster/log/lace.html):
-```
-<urlOfTinyLog> nameOfTinyLog
-<urlOfTinyLog2> nameOfTinyLog2
-…
-```
-
-**Warning**: The `nameOfTinyLog` is optional. But if you don't indicate one and the tinylog doesn't have an `author: @authorName` metadata, gtl will not no what to display for the author and will indicate "unknown"
-
-This file should be in your configuration file:
-
-```toml
-subscribed_data = "path/to/sub/file"
-```
-
-Screenshot of the CLI below.
-
-### Use gtl gemini mode
-
-You can use gtl to generate a valid text/gemini output that could then be place in a capsule and read via a gemini browser:
-
-```bash
-~/bin/gtl --config ~/.config/gtl/test.gtl.toml --mode gemini --limit 55
-```
-
-You can see an example used here:
-gemini://tinylogs.gmi.bacardi55.io
-
-Or see a screenshot below.
-
-Funny thing, the format is compatible with the tinylog RFC, so you can subscribe to it via gtl (there is a screenshot of this below too).
+Please read the [installation page](docs/install.md).
 
 ## Configuration
 
-### Default configuration file
+Please read the [configuration page](docs/config.md)
 
-```toml
-# Default config file:
-# Path to subscribed tinylogs:
-subscribed_data = "~/.config/gtl/subs"
-# Refresh time:
-refresh = 10
-# Date display format
-date_format = "Mon 02 Jan 2006 15:04 MST"
-# Log file:
-log_file = "/dev/null"
-# Optional: Highlight when text is found in content.
-# Separate values by a coma, eg:
-# highlights = "@bacardi55, @bacardi, anything"
-# Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
-# Will be ignored in tui mode.
-cli_limit = 10
-# Mode: either cli, tui or gemini
-mode = "tui"
-# If false, standard ascii characters will be used.
-tui_status_emoji = false
+## Usage
 
-# Enable tinylog edition from gtl:
-# This will use an external editor,
-# configured in your EDITOR environment variable.
-# You can check with 'echo $EDITOR' to see if it
-# is configured correctly.
-# ctrl+n is disabled when set to false.
-# Settings available since v0.5.0
-allow_edit = false
-# Path to tinylog file. This option is ignored if
-# allow_edit = false.
-# If not a valid file, editing will not be possible
-# and ctrl+n will be disabled.
-tinylog_path = "path/to/tinylog/file.gmi"
-# Path to script to be executed after the edition is done.
-# This script needs to be executable.
-# If not a valid executable script, it will be ignored.
-post_edit_script = "path/to/script"
-# Auto refresh feeds after editing the tinylog file.
-# Only used when allow_edit = true
-# Settings available since v0.5.1
-post_edit_refresh = false
-# Limit the number of entries displayed in TUI.
-# Indicate 0 for all entries.
-# Settings available since v0.6.0
-tui_max_entries = 0
-# Copy a pre formatted text to clipboard when creating a new entry
-# On linux, requires 'xclip' or 'xsel'
-# Settings available since v0.6.0
-tui_copy_stub_clipboard = false
-```
-
-By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.
-
-The --config option only look for the file, it will not create it if the file given as argument of --config doesn't exist.
-
-
-### Subscription management
-
-You can add and remove tinylog entry either manually from the file directly, or use gtl to do it for you:
-```
-Subscription management usage:
-	add --url url [--title title]	Indicate a new tinylog url (and optional title) to subscribe to.
-	rm --url url			Indicate a tinylog url to be removed from the subscription.
-```
-
-
-## Screenshots
-
-### TUI mode
-
-![Gtl TUI screenshot](docs/images/gtl_tui_screenshot.png)
-
-### CLI mode
-
-![Gtl CLI screenshot](docs/images/gtl_screenshot.png)
-
-### Gemini mode
-
-![Gtl Gemini output screenshot](docs/images/gtl_gmi_screenshot.png)
-
-![Gtl Gemini output in a browser screenshot](docs/images/gtl_gmi_screenshot_browser.png)
-
-![Gtl Gemini output in gtl screenshot](docs/images/gtl_gmi_screenshot_gtl.png)
+Gtl can run in 3 modes:
+* TUI: An interactive TUI. See the [TUI mode documentation](docs/mode-tui.md).
+* CLI: A command line interface. See the [CLI mode documentation](docs/mode-cli.md).
+* Gemini: A mode that return a text/gemini output, compatible with the Tinylog format. See the [Gemini mode documentation](docs/mode-gemini.md).
 
