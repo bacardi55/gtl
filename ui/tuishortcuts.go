@@ -81,6 +81,8 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.FilterHighlights = !TlTui.FilterHighlights
 		TlTui.RefreshStream(false)
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
+		// Reset SelectedEntry:
+		TlTui.SelectedEntry = -1
 
 		return nil
 	} else if ev.Rune() == 't' {
@@ -92,6 +94,8 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.ListTl.SetCurrentItem(0)
 		TlTui.RefreshStream(false)
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
+		// Reset SelectedEntry:
+		TlTui.SelectedEntry = -1
 
 		return nil
 	}

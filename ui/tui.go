@@ -238,6 +238,7 @@ func createListTl(tl map[string]core.TlFeed) *cview.List {
 			} else {
 				TlTui.Filter = strings.TrimSpace(tmp[1])
 			}
+			TlTui.SelectedEntry = -1
 			TlTui.RefreshStream(false)
 		})
 	}
