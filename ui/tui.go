@@ -186,6 +186,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	tv.SetRegions(true)
 	tv.SetToggleHighlights(false)
 	tv.SetText(content)
+	tv.SetMouseCapture(timelineMouseHandler)
 
 	return tv
 }
@@ -534,4 +535,21 @@ func createResponseStub(tlfi *core.TlFeedItem, dateFormat string) string {
 
 func copyToClipboard(content string) error {
 	return clipboard.WriteAll(content)
+}
+
+func timelineMouseHandler(action cview.MouseAction, event *tcell.EventMouse) (cview.MouseAction, *tcell.EventMouse) {
+	switch action {
+	case cview.MouseLeftClick:
+		if !TlTui.ContentBox.HasFocus() {
+			TlTui.FocusManager.Focus(TlTui.ContentBox)
+			TlTui.App.Draw()
+		}
+		//x, y := event.Position()
+		// Do nothing for now.
+		// Blocked by https://code.rocketnine.space/tslocum/cview/issues/73
+		// Doing nothing prevent the wrong region to be selected.
+		return action, nil
+	}
+
+	return action, event
 }
