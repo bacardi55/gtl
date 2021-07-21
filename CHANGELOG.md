@@ -8,7 +8,7 @@ CHANGELOG
 * Shortcut to create a new entry is now "N" (uppercase) and no longer ctrl+n.
 
 ## New features:
-* Implements region in timeline TextView: This will allow to navigate between entries using J and K (uppercase!)
+* Implements region in timeline TextView: This will allow to navigate between entries using J and K (uppercase)
 * #28: stubs for new entry: Clicking on "N" (uppercase) will copy in the clipboard a stub for a new entry with the current date if the option `tui_copy_stub_clipboard` is set (see README).
 * #28: stubs for response: When selecting entry with J/K, using "R" (uppercase) will copy a pre-formatted response in your clipboard if the option `tui_copy_stub_clipboard` is set (see README).
 * #33: Open links in entries, relates to #23. When using J/K to select an entry, using "O" will automatically open the link in the entry. If more than one link is in the entry, a popup will ask for one (or all) link(s) to open.
@@ -28,6 +28,8 @@ CHANGELOG
 * Fix error for missing file: if a tinylog isn't available on a working capsule, status was wrong.
 * Fix limit bug in cli mode
 * Remove date format duplicate
+
+Please read the README that has been updated accordingly.
 
 ## 0.5.2
 
