@@ -27,9 +27,9 @@ func (TlTui *TlTUI) SetShortcuts() {
 	c.SetRune(tcell.ModNone, 'N', openEditorHandler)
 	c.SetRune(tcell.ModNone, 'R', openEditorHandler)
 
-	c.SetRune(tcell.ModNone, 'O', linksHandler)
-
-	c.SetRune(tcell.ModNone, 'T', threadHandler)
+	c.SetRune(tcell.ModNone, 'O', entryHandler)
+	c.SetRune(tcell.ModNone, 'T', entryHandler)
+	c.SetKey(tcell.ModAlt, tcell.KeyEnter, entryHandler)
 
 	c.SetRune(tcell.ModNone, 'r', refreshHandler)
 
@@ -212,6 +212,64 @@ func tlNavHandler(ev *tcell.EventKey) *tcell.EventKey {
 	return nil
 }
 
+// Manage shortcuts related to entries.
+func entryHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if ev.Rune() == 'O' {
+		return linksHandler(ev)
+	} else if ev.Rune() == 'T' {
+		return threadHandler(ev)
+	} else if ev.Modifiers() == tcell.ModAlt && ev.Key() == tcell.KeyEnter {
+		return shiftEnterHandler(ev)
+	}
+	return ev
+}
+
+func shiftEnterHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if !TlTui.ContentBox.HasFocus() || TlTui.DisplayFormModal {
+		return ev
+	}
+
+	if TlTui.SelectedEntry < 0 {
+		updateFormModalContent("Select an entry first.", "Ok", "", func() {})
+		toggleFormModal()
+		return nil
+	}
+
+	tlfi, e := getSelectedEntryText()
+	if e != nil {
+		log.Println(e)
+		updateFormModalContent(e.Error(), "Ok", "", func() {})
+		toggleFormModal()
+	}
+
+	TlTui.FormModal.GetForm().Clear(true)
+	TlTui.FormModal.SetTextAlign(cview.AlignLeft)
+
+	fe := gemtextFormatModal(tlfi)
+	TlTui.FormModal.SetText(fe)
+
+	TlTui.FormModal.GetForm().AddButton("Open Links", func() {
+		toggleFormModal()
+		linksHandler(nil)
+	})
+	TlTui.FormModal.GetForm().AddButton("Open Thread", func() {
+		toggleFormModal()
+		threadHandler(nil)
+	})
+	TlTui.FormModal.GetForm().AddButton("Reply", func() {
+		toggleFormModal()
+		e := tcell.NewEventKey(0, 'R', tcell.ModNone)
+		openEditorHandler(e)
+	})
+	TlTui.FormModal.GetForm().AddButton("Cancel", func() {
+		toggleFormModal()
+	})
+
+	toggleFormModal()
+
+	return ev
+}
+
 // Manage editor related feature.
 func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 	mainButtonName, buttonName, message, execFunc := "Cancel", "", "", func() {}
@@ -365,15 +423,8 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 			updateFormModalContent("No original entry found.", "Ok", "", nil)
 			toggleFormModal()
 		} else {
-			// TODO: Bug in cview when modal text contains [-:-:-] or other.
-			// TODO: Open a bug in cview.
-			t := time.Now()
-			d := formatElapsedTime(t.Sub(tlfi.Published))
-			a := tlfi.Author
-			//c := strings.Replace(gemtextFormat(tlfi.Content, false, TlTui.TlConfig.Tui_status_emoji), "\n", "\n\n", -1)
-			c := strings.Replace(tlfi.Content, "\n", "\n\n", -1)
-			fe := "Original entry:\n\n" + d + " - " + tlfi.Published.Format(TlTui.TlConfig.Date_format) + "\n\n" + a + "\n\n" + c + "\n"
-
+			fe := gemtextFormatModal(tlfi)
+			fe = "[-:-:u]Original entry[-]:\n\n" + fe
 			updateFormModalContent(fe, "Ok", "", nil)
 			TlTui.FormModal.SetTextAlign(cview.AlignLeft)
 			toggleFormModal()
@@ -384,6 +435,19 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 	}
 
 	return nil
+}
+
+func gemtextFormatModal(tlfi *core.TlFeedItem) string {
+	// TODO: Bug in cview when modal text contains [-:-:-] or other.
+	// https://code.rocketnine.space/tslocum/cview/issues/72
+	t := time.Now()
+	d := formatElapsedTime(t.Sub(tlfi.Published))
+	a := tlfi.Author
+	//c := strings.Replace(gemtextFormat(tlfi.Content, false, TlTui.TlConfig.Tui_status_emoji), "\n", "\n\n", -1)
+	c := strings.Replace(tlfi.Content, "\n", "\n\n", -1)
+	fe := d + " - " + tlfi.Published.Format(TlTui.TlConfig.Date_format) + "\n\n" + a + "\n\n" + c + "\n"
+
+	return fe
 }
 
 func isReponseToEntry(entry string) bool {

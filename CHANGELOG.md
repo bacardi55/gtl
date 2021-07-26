@@ -15,6 +15,7 @@ CHANGELOG
 * #37: Implement a gemini compatible output
 * #36: Show the tinylog entry being replied to: When selecting an entry with J/K, if the entry is a response to another tinylog entry and in the RFC format for a response, it will show the original entry in a popup when using "T" (uppercase)?
 * #35: parser v2: Improve parser to be compatible with proposition 15 of the RFC (https://codeberg.org/bacardi55/gemini-tinylog-rfc/issues/15) that allow multiple break line in posts. Also improve parsing in general.
+* Implement a modal for entry details via alt+enter
 
 ## Smaller improvements:
 * [TUI] Add optional limit to number of displayed entries: Allow to limit the number of entries displayed in the timeline. See `tui_max_entries` option in README.
