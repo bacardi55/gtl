@@ -417,20 +417,20 @@ func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
 	}
 
 	// Format quotes:
-	re := regexp.MustCompile("(?im)^(> .*[^\n])([\n]*)")
+	re := regexp.MustCompile("(?im)^(> .*)($)")
 	if isHighlighted == true {
-		s = re.ReplaceAllString(s, "[grey::bi] $1"+closeFormat+"$2")
+		s = re.ReplaceAllString(s, "[grey:-:bi] $1"+closeFormat+"$2")
 	} else {
-		s = re.ReplaceAllString(s, "[grey::i] $1"+closeFormat+"$2")
+		s = re.ReplaceAllString(s, "[grey:-:i] $1"+closeFormat+"$2")
 	}
 
 	// Format links:
 	re = regexp.MustCompile("(?im)^(=>)( [^\n]*[\n]*)")
-	s = re.ReplaceAllString(s, "[skyblue::b]→$2"+closeFormat)
+	s = re.ReplaceAllString(s, "[skyblue:-:b]→$2"+closeFormat)
 
 	// Format responses:
 	// Must be after link format.
-	re = regexp.MustCompile(`(?im)^(\[skyblue::b\]→ [^ ]* ){0,1}(re: )(.*)$`)
+	re = regexp.MustCompile(`(?im)^(\[skyblue:-:b\]→ [^ ]* ){0,1}(re: )(.*)$`)
 	startFormat := ""
 	if emoji == true {
 		startFormat = "💬 "
@@ -452,9 +452,9 @@ func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
 	re = regexp.MustCompile("(?im)^(####* )(.*$)")
 	// If highlighted, already bold anyway.
 	if isHighlighted == false {
-		s = re.ReplaceAllString(s, "[grey::b]$1[-::u]$2"+closeFormat)
+		s = re.ReplaceAllString(s, "[grey:-:b]$1[-:-:u]$2"+closeFormat)
 	} else {
-		s = re.ReplaceAllString(s, "[grey::b]$1[-::bu]$2"+closeFormat)
+		s = re.ReplaceAllString(s, "[grey:-:b]$1[-:-:bu]$2"+closeFormat)
 	}
 
 	return s
