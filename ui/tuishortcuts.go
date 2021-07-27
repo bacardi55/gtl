@@ -366,9 +366,9 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 		f := m.GetForm()
 		f.Clear(true)
 
-		message := "Multiple links detected, open them all?"
+		message := "Multiple links detected, open them all?\n"
 		for i, l := range links {
-			message += "\n(" + strconv.Itoa(i+1) + ") " + l + "\n"
+			message += "(" + strconv.Itoa(i+1) + ") " + strings.TrimSpace(l) + "\n\n"
 			f.AddButton(strconv.Itoa(i+1), func() {
 				openLinkInBrowser(strings.Split(l, " ")[1])
 				time.Sleep(100 * time.Millisecond)
