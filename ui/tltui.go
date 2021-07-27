@@ -40,8 +40,8 @@ type TlTUI struct {
 	Clipboard        TlClipboard
 	Muted            []string
 	NbEntries        int
-	TlConfig *core.TlConfig
-	TlStream *core.TlStream
+	TlConfig         *core.TlConfig
+	TlStream         *core.TlStream
 }
 
 func (TlTui *TlTUI) InitApp() {

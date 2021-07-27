@@ -17,6 +17,7 @@ CHANGELOG
 * #35: parser v2: Improve parser to be compatible with proposition 15 of the RFC (https://codeberg.org/bacardi55/gemini-tinylog-rfc/issues/15) that allow multiple break line in posts. Also improve parsing in general.
 * Implement a modal for entry details via alt+enter
 * Implement `tui_show_stub` option to show the stub to copy instead (or additionally) of copying it to the clipboard. Can be useful if you run gtl without X and/or are using tools like tmux to copy texts. Idea is from @szczezuja.
+* Implement entry selection via mouse left click and simplify highlights code.
 
 ## Smaller improvements:
 * [TUI] Add optional limit to number of displayed entries: Allow to limit the number of entries displayed in the timeline. See `tui_max_entries` option in README.

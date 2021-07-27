@@ -440,7 +440,7 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 			toggleFormModal()
 		} else {
 			fe := gemtextFormatModal(tlfi)
-			fe = "[-:-:u]Original entry[-]:\n\n" + fe
+			fe = "Original entry:\n\n" + fe
 			updateFormModalContent(fe, "Ok", "", nil)
 			TlTui.FormModal.SetTextAlign(cview.AlignLeft)
 			toggleFormModal()
@@ -460,7 +460,7 @@ func gemtextFormatModal(tlfi *core.TlFeedItem) string {
 	d := formatElapsedTime(t.Sub(tlfi.Published))
 	a := tlfi.Author
 	//c := strings.Replace(gemtextFormat(tlfi.Content, false, TlTui.TlConfig.Tui_status_emoji), "\n", "\n\n", -1)
-	c := strings.Replace(tlfi.Content, "\n", "\n\n", -1)
+	c := tlfi.Content
 	fe := d + " - " + tlfi.Published.Format(TlTui.TlConfig.Date_format) + "\n\n" + a + "\n\n" + c + "\n"
 
 	return fe

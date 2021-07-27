@@ -30,6 +30,7 @@ R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific en
 O: Open link(s) in selected entry. # since v0.6.0
 T: If the selected entry is a response to another tinylog entry, will open the original entry in a popup.
 Alt+Enter: Open the selected entry in a modal. Also show buttons to open links (O), Open a thread (T) or start a reply (R)
+Left Click on an entry: Select the clicked entry
 ```
 
 ## TUI subscription shortcuts
