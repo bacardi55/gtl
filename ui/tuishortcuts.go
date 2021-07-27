@@ -295,7 +295,7 @@ func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 			TlTui.FormModal.GetForm().Clear(true)
 			// The format is ugly because an issue in cview:
 			// https://code.rocketnine.space/tslocum/cview/issues/72#issuecomment-3968
-			TlTui.FormModal.SetText(text)
+			TlTui.FormModal.SetText(strings.Replace(text, "\n", "\n\n", -1))
 			TlTui.FormModal.SetTextAlign(cview.AlignLeft)
 			TlTui.FormModal.GetForm().AddButton("Reply", func() {
 				toggleFormModal()
