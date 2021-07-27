@@ -81,8 +81,6 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.FilterHighlights = !TlTui.FilterHighlights
 		TlTui.RefreshStream(false)
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
-		// Reset SelectedEntry:
-		TlTui.SelectedEntry = -1
 
 		return nil
 	} else if ev.Rune() == 't' {
@@ -94,8 +92,6 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.ListTl.SetCurrentItem(0)
 		TlTui.RefreshStream(false)
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
-		// Reset SelectedEntry:
-		TlTui.SelectedEntry = -1
 
 		return nil
 	}
@@ -132,8 +128,6 @@ func uiChangeHandler(ev *tcell.EventKey) *tcell.EventKey {
 			return nil
 
 		} else if TlTui.ContentBox.HasFocus() == true {
-			// Unselect entries if any.
-			TlTui.SelectedEntry = -1
 			TlTui.TimelineTV.Highlight("")
 		}
 	} else if ev.Rune() == 's' {
@@ -188,25 +182,27 @@ func tlNavHandler(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
 	}
 
+	selectedEntry := getSelectedEntryNumber()
 	if ev.Rune() == 'J' {
 		max := TlTui.NbEntries
 		if TlTui.TlConfig.Tui_max_entries > 0 && TlTui.TlConfig.Tui_max_entries < TlTui.NbEntries {
 			max = TlTui.TlConfig.Tui_max_entries
 		}
+
 		// Highlight next item.
-		if TlTui.SelectedEntry < max-1 {
-			TlTui.SelectedEntry += 1
+		if selectedEntry < max-1 {
+			selectedEntry += 1
 		} else {
-			TlTui.SelectedEntry = max - 1
+			selectedEntry = max - 1
 		}
 	} else if ev.Rune() == 'K' {
-		if TlTui.SelectedEntry > 0 {
-			TlTui.SelectedEntry -= 1
+		if selectedEntry > 0 {
+			selectedEntry -= 1
 		} else {
-			TlTui.SelectedEntry = 0
+			selectedEntry = 0
 		}
 	}
-	TlTui.TimelineTV.Highlight("entry-" + strconv.Itoa(TlTui.SelectedEntry))
+	TlTui.TimelineTV.Highlight("entry-" + strconv.Itoa(selectedEntry))
 	TlTui.TimelineTV.ScrollToHighlight()
 
 	return nil
@@ -229,7 +225,7 @@ func shiftEnterHandler(ev *tcell.EventKey) *tcell.EventKey {
 		return ev
 	}
 
-	if TlTui.SelectedEntry < 0 {
+	if getSelectedEntryNumber() < 0 {
 		updateFormModalContent("Select an entry first.", "Ok", "", func() {})
 		toggleFormModal()
 		return nil
@@ -275,7 +271,7 @@ func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 	if TlTui.Clipboard.Enabled || TlTui.TlConfig.Tui_show_stub {
 		var text string
 		if ev.Rune() == 'R' {
-			if TlTui.SelectedEntry == -1 {
+			if getSelectedEntryNumber() < 0 {
 				updateFormModalContent("Select an entry first to be able respond to it.", "Ok", "", func() {})
 				toggleFormModal()
 				return ev
@@ -354,9 +350,10 @@ func launchEditor() {
 }
 
 func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
-	if TlTui.SelectedEntry < 0 {
+	if getSelectedEntryNumber() < 0 {
 		updateFormModalContent("No selected entry.", "Ok", "", func() {})
 		toggleFormModal()
+		return nil
 	}
 
 	tlfi, e := getSelectedEntryText()
@@ -364,6 +361,7 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 		log.Println(e)
 		updateFormModalContent(e.Error(), "Ok", "", func() {})
 		toggleFormModal()
+		return nil
 	}
 
 	links := extractLinks(tlfi)
@@ -421,7 +419,7 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 
 func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 	TlTui.FocusManager.Focus(TlTui.ContentBox)
-	if TlTui.SelectedEntry < 0 {
+	if getSelectedEntryNumber() < 0 {
 		updateFormModalContent("No selected entry.", "Ok", "", func() {})
 		toggleFormModal()
 		return ev
@@ -516,7 +514,7 @@ func findOriginalEntry(entry string) *core.TlFeedItem {
 }
 
 func getSelectedEntryText() (*core.TlFeedItem, error) {
-	entry := TlTui.TimelineTV.GetRegionText("entry-" + strconv.Itoa(TlTui.SelectedEntry))
+	entry := TlTui.TimelineTV.GetRegionText("entry-" + strconv.Itoa(getSelectedEntryNumber()))
 	lines := strings.Split(entry, "\n")
 
 	if len(lines) < 3 {
@@ -531,7 +529,7 @@ func getSelectedEntryText() (*core.TlFeedItem, error) {
 
 	tlfi := &core.TlFeedItem{
 		Author:    lines[1],
-		Content:   strings.Join(lines[2:], "\n"),
+		Content:   strings.TrimSpace(strings.Join(lines[2:], "\n")),
 		Published: d,
 	}
 
@@ -541,4 +539,17 @@ func getSelectedEntryText() (*core.TlFeedItem, error) {
 func extractLinks(tlfi *core.TlFeedItem) []string {
 	re := regexp.MustCompile("(?im)→ (gemini|gopher|https{0,1})://(.*)$")
 	return re.FindAllString(tlfi.Content, -1)
+}
+
+func getSelectedEntryNumber() int {
+	h := TlTui.TimelineTV.GetHighlights()
+
+	if len(h) == 1 {
+		i, e := strconv.Atoi(strings.Replace(h[0], "entry-", "", -1))
+		if e == nil {
+			return i
+		}
+	}
+
+	return -1
 }

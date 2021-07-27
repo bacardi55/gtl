@@ -40,9 +40,8 @@ type TlTUI struct {
 	Clipboard        TlClipboard
 	Muted            []string
 	NbEntries        int
-	SelectedEntry    int
-	TlConfig         *core.TlConfig
-	TlStream         *core.TlStream
+	TlConfig *core.TlConfig
+	TlStream *core.TlStream
 }
 
 func (TlTui *TlTUI) InitApp() {
@@ -53,7 +52,6 @@ func (TlTui *TlTUI) InitApp() {
 	TlTui.LastRefresh = time.Now()
 	TlTui.Filter = ""
 	TlTui.FilterHighlights = false
-	TlTui.SelectedEntry = -1
 	// Todo: make it configurable.
 	TlTui.DisplaySidebar = true
 

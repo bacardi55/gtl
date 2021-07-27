@@ -33,7 +33,6 @@ CHANGELOG
 
 ## Known Issues:
 * Text in modal is not nicely formatted (eg: Thread or reply stub). This is due to an issue in cview: https://code.rocketnine.space/tslocum/cview/issues/72
-* Clicks in timeline don't select an entry. Indeed, this is on purpose to block an issue in cview when selecting a specific region: https://code.rocketnine.space/tslocum/cview/issues/73
 
 Please read the README that has been updated accordingly.
 
