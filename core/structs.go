@@ -41,6 +41,7 @@ type TlConfig struct {
 	Post_edit_refresh       bool
 	Tui_max_entries         int
 	Tui_copy_stub_clipboard bool
+	Tui_show_stub           bool
 }
 
 type TlFeed struct {

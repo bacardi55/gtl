@@ -58,6 +58,13 @@ tui_max_entries = 0
 # Copy a pre formatted text to clipboard when creating a new entry
 # On linux, requires 'xclip' or 'xsel'
 tui_copy_stub_clipboard = false
+# If you are running gtl without X, the copy to clipboard feature
+# will not work (Or if you don't have xclip or xsel).
+# In this case, enabling this option will allow gtl to display
+# the sub text in a modal for easy copy in tools like tmux
+# At this stage, the rendering is ugly because of an issue in cview:
+# https://code.rocketnine.space/tslocum/cview/issues/72#issuecomment-3968
+tui_show_stub = false
 `)
 
 func Init(configArg string, Data *core.TlData) {

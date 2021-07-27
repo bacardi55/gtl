@@ -272,9 +272,7 @@ func shiftEnterHandler(ev *tcell.EventKey) *tcell.EventKey {
 
 // Manage editor related feature.
 func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
-	mainButtonName, buttonName, message, execFunc := "Cancel", "", "", func() {}
-
-	if TlTui.Clipboard.Enabled == true {
+	if TlTui.Clipboard.Enabled || TlTui.TlConfig.Tui_show_stub {
 		var text string
 		if ev.Rune() == 'R' {
 			if TlTui.SelectedEntry == -1 {
@@ -291,11 +289,33 @@ func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 		} else if ev.Rune() == 'N' {
 			text = createNewEntryStub(TlTui.Clipboard.DateFormat)
 		}
-		if copyToClipboard(text) != nil {
-			log.Println("Couldn't copy Stub to clipboard")
+		if TlTui.Clipboard.Enabled {
+			if copyToClipboard(text) != nil {
+				log.Println("Couldn't copy Stub to clipboard")
+			}
+		}
+
+		if TlTui.TlConfig.Tui_show_stub {
+			TlTui.FormModal.GetForm().Clear(true)
+			// The format is ugly because an issue in cview:
+			// https://code.rocketnine.space/tslocum/cview/issues/72#issuecomment-3968
+			TlTui.FormModal.SetText(text)
+			TlTui.FormModal.SetTextAlign(cview.AlignLeft)
+			TlTui.FormModal.GetForm().AddButton("Reply", func() {
+				toggleFormModal()
+				launchEditor()
+			})
+			toggleFormModal()
+			return nil
 		}
 	}
 
+	launchEditor()
+	return nil
+}
+
+func launchEditor() {
+	mainButtonName, buttonName, message, execFunc := "Cancel", "", "", func() {}
 	if TlTui.App.Suspend(editTl) == true {
 		message = "Tinylog edited successfully"
 
@@ -312,7 +332,7 @@ func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 				} else {
 					toggleFormModal()
 					if Tle.PostScriptRefresh == true {
-						refreshHandler(ev)
+						refreshHandler(nil)
 					}
 				}
 			}
@@ -331,8 +351,6 @@ func openEditorHandler(ev *tcell.EventKey) *tcell.EventKey {
 		toggleFormModal()
 	}
 	TlTui.FocusManager.Focus(TlTui.ContentBox)
-
-	return nil
 }
 
 func linksHandler(ev *tcell.EventKey) *tcell.EventKey {

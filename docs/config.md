@@ -52,6 +52,13 @@ tui_max_entries = 0
 # On linux, requires 'xclip' or 'xsel'
 # Settings available since v0.6.0
 tui_copy_stub_clipboard = false
+# If you are running gtl without X, the copy to clipboard feature
+# will not work (Or if you don't have `xclip` or `xsel`).
+# In this case, enabling this option will allow gtl to display
+# the sub text in a modal for easy copy in tools like tmux
+# At this stage, the rendering is ugly because of an issue in cview:
+# https://code.rocketnine.space/tslocum/cview/issues/72#issuecomment-3968
+tui_show_stub = false
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.

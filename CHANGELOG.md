@@ -16,6 +16,7 @@ CHANGELOG
 * #36: Show the tinylog entry being replied to: When selecting an entry with J/K, if the entry is a response to another tinylog entry and in the RFC format for a response, it will show the original entry in a popup when using "T" (uppercase)?
 * #35: parser v2: Improve parser to be compatible with proposition 15 of the RFC (https://codeberg.org/bacardi55/gemini-tinylog-rfc/issues/15) that allow multiple break line in posts. Also improve parsing in general.
 * Implement a modal for entry details via alt+enter
+* Implement `tui_show_stub` option to show the stub to copy instead (or additionally) of copying it to the clipboard. Can be useful if you run gtl without X and/or are using tools like tmux to copy texts. Idea is from @szczezuja.
 
 ## Smaller improvements:
 * [TUI] Add optional limit to number of displayed entries: Allow to limit the number of entries displayed in the timeline. See `tui_max_entries` option in README.
@@ -29,6 +30,10 @@ CHANGELOG
 * Fix error for missing file: if a tinylog isn't available on a working capsule, status was wrong.
 * Fix limit bug in cli mode
 * Remove date format duplicate
+
+## Known Issues:
+* Text in modal is not nicely formatted (eg: Thread or reply stub). This is due to an issue in cview: https://code.rocketnine.space/tslocum/cview/issues/72
+* Clicks in timeline don't select an entry. Indeed, this is on purpose to block an issue in cview when selecting a specific region: https://code.rocketnine.space/tslocum/cview/issues/73
 
 Please read the README that has been updated accordingly.
 
