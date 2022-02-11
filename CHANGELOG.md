@@ -1,13 +1,19 @@
 CHANGELOG
 
-## v0.6.0 - WIP:
+## WIP - v0.7.0 - WIP:
+
+### Bug Fixes
+* Fix 42: Hide new line separator in response stub
+
+
+## v0.6.0:
 
 **Major release**
 
-## Breaking changes:
+### Breaking changes:
 * Shortcut to create a new entry is now "N" (uppercase) and no longer ctrl+n.
 
-## New features:
+### New features:
 * Implements region in timeline TextView: This will allow to navigate between entries using J and K (uppercase)
 * #28: stubs for new entry: Clicking on "N" (uppercase) will copy in the clipboard a stub for a new entry with the current date if the option `tui_copy_stub_clipboard` is set (see README).
 * #28: stubs for response: When selecting entry with J/K, using "R" (uppercase) will copy a pre-formatted response in your clipboard if the option `tui_copy_stub_clipboard` is set (see README).
@@ -19,20 +25,20 @@ CHANGELOG
 * Implement `tui_show_stub` option to show the stub to copy instead (or additionally) of copying it to the clipboard. Can be useful if you run gtl without X and/or are using tools like tmux to copy texts. Idea is from @szczezuja.
 * Implement entry selection via mouse left click and simplify highlights code.
 
-## Smaller improvements:
+### Smaller improvements:
 * [TUI] Add optional limit to number of displayed entries: Allow to limit the number of entries displayed in the timeline. See `tui_max_entries` option in README.
 * Use gemini://tinylogs.gmi.bacardi55.io/ as default subscripton when no subscription file is found.
 * Update dependencies
 * Remove dead code
 
-## Bug fixes
+### Bug fixes
 * Improve gemtext formating for level 3 headers and lists.
 * Fix #29: Timeline refresh was previous refresh
 * Fix error for missing file: if a tinylog isn't available on a working capsule, status was wrong.
 * Fix limit bug in cli mode
 * Remove date format duplicate
 
-## Known Issues:
+### Known Issues:
 * Text in modal is not nicely formatted (eg: Thread or reply stub). This is due to an issue in cview: https://code.rocketnine.space/tslocum/cview/issues/72
 
 Please read the README that has been updated accordingly.

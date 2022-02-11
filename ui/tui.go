@@ -525,6 +525,10 @@ func createResponseStub(tlfi *core.TlFeedItem, dateFormat string) string {
 
 	stub := "## " + time.Now().Format(dateFormat) + "\nRE: " + a + " " + tlfi.Published.Format(dateFormat) + "\n"
 	for _, l := range strings.Split(tlfi.Content, "\n") {
+		// Ignore separator line:
+		if strings.Contains(l, "           ---------------------------") {
+			continue
+		}
 		stub += "> " + l + "\n"
 	}
 	stub += "\n"
