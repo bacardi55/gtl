@@ -71,7 +71,7 @@ func parseSubscriptions(content io.Reader) (map[string]core.TlFeed, error) {
 			}
 			Feeds[Feed.Title] = Feed
 		} else {
-			return Feeds, fmt.Errorf("Ignoring malformated entry: ", line)
+			log.Printf("Ignoring malformed entry (line %d): - content: \"%v\n\"", i, line)
 			continue
 		}
 	}
