@@ -11,6 +11,9 @@ bin/
 # Dockerfile is used for build tests
 Dockerfile
 
+# Test config
+example_config/
+
 # Test binary, built with `go test -c`
 *.test
 
