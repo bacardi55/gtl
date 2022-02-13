@@ -57,9 +57,9 @@ func parseSubscriptions(content io.Reader) (map[string]core.TlFeed, error) {
 	for i := 0; scanner.Scan(); i++ {
 		line := scanner.Text()
 		v := strings.Fields(strings.TrimSpace(line))
-		if lv := len(v); lv == 2 {
+		if lv := len(v); lv >= 2 {
 			Feed := core.TlFeed{
-				Title: strings.TrimSpace(v[1]),
+				Title: strings.TrimSpace(strings.Join(v[1:], " ")),
 				Link:  strings.TrimSpace(v[0]),
 			}
 			Feeds[Feed.Title] = Feed
