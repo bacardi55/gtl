@@ -54,10 +54,12 @@ func (TlTui *TlTUI) SetShortcuts() {
 func refreshHandler(ev *tcell.EventKey) *tcell.EventKey {
 	var refreshStart = func() {
 		TlTui.App.SetRoot(TlTui.RefreshBox, true)
+		TlTui.FocusManager.Focus(TlTui.RefreshBox)
 	}
 
 	var refreshEnd = func() {
 		TlTui.App.SetRoot(TlTui.Layout, true)
+		TlTui.FocusManager.Focus(TlTui.ContentBox)
 	}
 
 	var refresh = func() {

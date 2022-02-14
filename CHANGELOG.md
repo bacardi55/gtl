@@ -2,6 +2,9 @@ CHANGELOG
 
 ## WIP - v0.7.0 - WIP:
 
+### New features:
+* Implements #44: Custom theme. See the documentation in [docs/mode-tui-theming.md]
+
 ### Bug Fixes
 * Fix 42: Hide new line separator in response stub
 * Fix subscription name with space in their name

@@ -1,6 +1,8 @@
 # Use gtl TUI
 
-![Gtl TUI screenshot](docs/images/gtl_tui_screenshot.png)
+![Gtl TUI screenshot](/docs/images/gtl_tui_screenshot.png)
+
+![Gtl TUI screenshot (light theme example)](/docs/images/gtl_tui_screenshot_light.png)
 
 ```
 gtl --mode tui
@@ -29,6 +31,10 @@ q or Ctrl-C: Quit
 You can navigate on the subscription list and:
 * left click or press enter: Will filter only entries from this tinylog and hide all entries from other tinylogs. A Status `F` or `🔎` is indicated.
 * right click or press alt+enter: Will open a menu to mute / unmute a tinylog. A tinylog muted means no entry from this tinylog are displayed. A Status `M` or `🔕` is displayed.
+
+**TUI Theming**
+
+Please read the [theming documentation](/docs/mode-tui-theming.md) to customize colors in TUI mode.
 
 **TUI Emoji Status:**
 

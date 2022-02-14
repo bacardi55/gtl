@@ -68,7 +68,7 @@ func displayStreamTui(data *core.TlData) error {
 			}
 			TlTui.TlStream = data.Stream
 		}
-		TlTui.ListTl = createListTl(data.Feeds)
+		TlTui.ListTl = createListTl(data)
 		TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
 
 		TlTui.TimelineTV = getContentTextView(data)
@@ -80,7 +80,7 @@ func displayStreamTui(data *core.TlData) error {
 			TlTui.LastRefresh = time.Now()
 		}
 		// Needs to happen after TlTui.LastRefresh is updated.
-		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights, TlTui.Filter))
+		TlTui.ContentBox.SetTitle(createTimelineTitle(TlTui.LastRefresh, TlTui.FilterHighlights, TlTui.Filter, data.Config))
 	}
 
 	TlTui.App.SetRoot(TlTui.Layout, true)
@@ -91,14 +91,57 @@ func displayStreamTui(data *core.TlData) error {
 	return nil
 }
 
-func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
+func sideBarBox(data *core.TlData) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetTitle(" [::u]Subscribed Authors[::-]: ")
 	p.SetBorder(true)
-	p.SetBorderColorFocused(tcell.ColorGreen)
 	p.SetPadding(1, 1, 0, 0)
 
-	TlTui.ListTl = createListTl(tl)
+	// Box border color, default to white:
+	p.SetBorderColor(tcell.ColorWhite.TrueColor())
+	// If in config:
+	if data.Config.Tui_color_box != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_box, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_box)")
+		} else {
+			p.SetBorderColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Focus color, default to green:
+	p.SetBorderColorFocused(tcell.ColorGreen.TrueColor())
+	// If in config:
+	if data.Config.Tui_color_focus_box != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_focus_box, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_focus_box)")
+		} else {
+			p.SetBorderColorFocused(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Background color:
+	if data.Config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			p.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// DefaultColor, default is white (use default text color):
+	if data.Config.Tui_color_text != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_text, 16, 32)
+		if e != nil {
+			log.Println("Text color isn't valid (tui_color_text)")
+		} else {
+			p.SetTitleColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	TlTui.ListTl = createListTl(data)
 	p.AddPanel("subscriptions", TlTui.ListTl, true, true)
 	return p
 }
@@ -106,9 +149,42 @@ func sideBarBox(tl map[string]core.TlFeed) *cview.Panels {
 func contentBox(data *core.TlData) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
-	p.SetBorderColorFocused(tcell.ColorGreen)
-	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false, ""))
+	p.SetTitle(createTimelineTitle(TlTui.LastRefresh, false, "", data.Config))
 	p.SetPadding(0, 0, 1, 0)
+
+	// Box border color, default to white:
+	p.SetBorderColor(tcell.ColorWhite.TrueColor())
+	// If in config:
+	if data.Config.Tui_color_box != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_box, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_box)")
+		} else {
+			p.SetBorderColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Focus color, default to green:
+	p.SetBorderColorFocused(tcell.ColorGreen.TrueColor())
+	// If in config:
+	if data.Config.Tui_color_focus_box != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_focus_box, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_focus_box)")
+		} else {
+			p.SetBorderColorFocused(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Background color:
+	if data.Config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			p.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
 
 	TlTui.TimelineTV = getContentTextView(data)
 	p.AddPanel("timeline", TlTui.TimelineTV, true, true)
@@ -145,7 +221,17 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 				for _, h := range highlights {
 					h = strings.TrimSpace(h)
 					if strings.Contains(i.Content, h) {
-						i.Content = strings.Replace(i.Content, h, "[:red:]"+h+"[:-:]", -1)
+						// Highlight color, default is red (ff0000):
+						hightlightColor := "ff0000"
+						if data.Config.Tui_color_highlight != "" {
+							h, e := strconv.ParseInt(data.Config.Tui_color_highlight, 16, 32)
+							if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+								log.Println("Author name color isn't valid (Tui_color_highlight)")
+							} else {
+								hightlightColor = data.Config.Tui_color_highlight
+							}
+						}
+						i.Content = strings.Replace(i.Content, h, "[:#"+hightlightColor+":]"+h+"[:-:]", -1)
 						f = true
 						break
 					}
@@ -153,13 +239,14 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 			}
 		}
 
+		// Highlights only:
 		var c string
 		ignoreEntry := false
 		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
-			c = gemtextFormat(i.Content, false, TlTui.TlConfig.Tui_status_emoji)
+			c = gemtextFormat(i.Content, false, TlTui.TlConfig.Tui_status_emoji, data.Config)
 		} else if TlTui.FilterHighlights == false {
-			c = gemtextFormat(i.Content, f, TlTui.TlConfig.Tui_status_emoji)
+			c = gemtextFormat(i.Content, f, TlTui.TlConfig.Tui_status_emoji, data.Config)
 			if f == true {
 				c = "[:-:b]" + c + "[:-:-]"
 			}
@@ -167,15 +254,40 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 			ignoreEntry = true
 		}
 
+		// Entry not ignored:
 		if ignoreEntry != true {
-			a := fmt.Sprintf("[red]" + i.Author + "[-::]")
-			d := "[skyblue::]" + formatElapsedTime(t.Sub(i.Published)) + "[-::]"
+			// Author color, default is red (ff0000):
+			authorColor := "ff0000"
+			if data.Config.Tui_color_author_name != "" {
+				h, e := strconv.ParseInt(data.Config.Tui_color_author_name, 16, 32)
+				if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+					log.Println("Author name color isn't valid (Tui_color_author_name)")
+				} else {
+					authorColor = data.Config.Tui_color_author_name
+				}
+			}
+			a := fmt.Sprintf("[#" + authorColor + "]" + i.Author + "[-::]")
+
+			// ElapsedColor, default is Skyblue (87CEEB):
+			elapsedColor := "87ceeb"
+			if data.Config.Tui_color_elapsed_time != "" {
+				h, e := strconv.ParseInt(data.Config.Tui_color_elapsed_time, 16, 32)
+				if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+					log.Println("Elapsed time color isn't valid (Tui_color_elapsed_time)")
+				} else {
+					elapsedColor = data.Config.Tui_color_elapsed_time
+				}
+			}
+			d := "[#" + elapsedColor + "::]" + formatElapsedTime(t.Sub(i.Published)) + "[-::]"
+
+			// Separator:
 			if isTlEntryNew(i, TlTui.LastRefresh) != true && separator != true {
 				if nbEntries > 0 {
 					content = content + "            --------------------------- \n"
 				}
 				separator = true
 			}
+
 			content = content + fmt.Sprintf("\n[\"entry-"+strconv.Itoa(nbEntries)+"\"]%v - %v\n%v\n%v\n", d, i.Published.Format(data.Config.Date_format), a, c)
 			nbEntries++
 		}
@@ -187,6 +299,46 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	tv.SetToggleHighlights(false)
 	tv.SetText(content)
 
+	// Selected background color, default white:
+	if data.Config.Tui_color_selected_background != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_selected_background, 16, 32)
+		if e != nil {
+			log.Println("Selected background color isn't valid (Tui_color_selected_background)")
+		} else {
+			tv.SetHighlightBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Selected foreground color, default white:
+	if data.Config.Tui_color_selected_foreground != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_selected_foreground, 16, 32)
+		if e != nil {
+			log.Println("Selected foreground color isn't valid (Tui_color_selected_foreground)")
+		} else {
+			tv.SetHighlightForegroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Background color:
+	if data.Config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			tv.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Default text color:
+	if data.Config.Tui_color_text != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_text, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_text)")
+		} else {
+			tv.SetTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
 	return tv
 }
 
@@ -194,12 +346,44 @@ func isTlEntryNew(tlfi *core.TlFeedItem, lastRefresh time.Time) bool {
 	return tlfi.Published.After(lastRefresh)
 }
 
-func createListTl(tl map[string]core.TlFeed) *cview.List {
+func createListTl(data *core.TlData) *cview.List {
+	tl := data.Feeds
+
 	list := createList("", false)
 	list.ShowSecondaryText(true)
-	list.SetMainTextColor(tcell.Color196)
-	list.SetSecondaryTextColor(tcell.ColorSkyblue)
 	list.SetSelectedAlwaysCentered(false)
+
+	// Author color, default is red:
+	list.SetMainTextColor(tcell.ColorRed.TrueColor())
+	if data.Config.Tui_color_author_name != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_author_name, 16, 32)
+		if e != nil {
+			log.Println("Author name color isn't valid (tui_color_author_name)")
+		} else {
+			list.SetMainTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Link color, default is skyblue (87CEEB):
+	list.SetSecondaryTextColor(tcell.ColorSkyblue.TrueColor())
+	if data.Config.Tui_color_links != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_links, 16, 32)
+		if e != nil {
+			log.Println("Link color isn't valid (tui_color_links)")
+		} else {
+			list.SetSecondaryTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Background color:
+	if data.Config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			list.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
 
 	orderedTl := getOrderedSubscriptions(tl)
 	sort.Sort(&orderedTl)
@@ -275,24 +459,46 @@ func createList(title string, border bool) *cview.List {
 	return list
 }
 
-func createTimelineTitle(t time.Time, highlights bool, filter string) string {
+func createTimelineTitle(t time.Time, highlights bool, filter string, config *core.TlConfig) string {
+	// DefaultColor, default is white (use default text color):
+	defaultColor := "ffffff"
+	if config.Tui_color_text != "" {
+		h, e := strconv.ParseInt(config.Tui_color_text, 16, 32)
+		if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+			log.Println("Text color isn't valid (Tui_color_text)")
+		} else {
+			defaultColor = config.Tui_color_text
+		}
+	}
+
+	// Author color, default is red (ff0000):
+	authorColor := "ff0000"
+	if config.Tui_color_author_name != "" {
+		h, e := strconv.ParseInt(config.Tui_color_author_name, 16, 32)
+		if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+			log.Println("Author name color isn't valid (Tui_color_author_name)")
+		} else {
+			authorColor = config.Tui_color_author_name
+		}
+	}
+
 	start := ""
 
 	if highlights == true {
-		start = start + "[::bu]Highlights[::-]"
+		start = start + "[#" + defaultColor + "::bu]Highlights[::-]"
 	} else {
-		start = start + "[::bu]Timeline[::-]"
+		start = start + "[#" + defaultColor + "::bu]Timeline[::-]"
 	}
 
 	if filter != "" {
-		start = start + " from [red::]" + filter + "[white::]"
+		start = start + " from [#" + authorColor + "::]" + filter + "[#" + defaultColor + "::]"
 		return fmt.Sprintf("  %v  ", start)
 	} else {
-		return fmt.Sprintf("  %v - [::i]Refreshed at %v[::-]  ", start, t.Format("15:04 MST"))
+		return fmt.Sprintf("  %v - [#"+defaultColor+"::i]Refreshed at %v[::-]  ", start, t.Format("15:04 MST"))
 	}
 }
 
-func createHelpBox() *cview.Panels {
+func createHelpBox(config *core.TlConfig) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
 	p.SetTitle(" [::u]Help[::-]: ")
@@ -304,28 +510,55 @@ func createHelpBox() *cview.Panels {
 	helpTable.SetSelectable(false, false)
 	helpTable.SetSortClicked(false)
 
+	// Background color, default is black:
+	p.SetBackgroundColor(tcell.ColorBlack.TrueColor())
+	helpTable.SetBackgroundColor(tcell.ColorBlack.TrueColor())
+	if config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			p.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+			helpTable.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Box border color, default to green:
+	p.SetBorderColor(tcell.ColorGreen.TrueColor())
+	p.SetBorderColorFocused(tcell.ColorGreen.TrueColor())
+	// If in config:
+	if config.Tui_color_focus_box != "" {
+		h, e := strconv.ParseInt(config.Tui_color_focus_box, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_focus_box)")
+		} else {
+			p.SetBorderColor(tcell.NewHexColor(int32(h)))
+			p.SetBorderColorFocused(tcell.NewHexColor(int32(h)))
+		}
+	}
+
 	// 3 rows: Name, Command, Description.
-	c := cview.NewTableCell("Name")
+	c := getNewTableCell("Name", config)
 	c.SetAttributes(tcell.AttrBold | tcell.AttrUnderline)
 	helpTable.SetCell(0, 0, c)
 
-	c = cview.NewTableCell("Command")
+	c = getNewTableCell("Command", config)
 	c.SetAttributes(tcell.AttrBold | tcell.AttrUnderline)
 	helpTable.SetCell(0, 1, c)
 
-	c = cview.NewTableCell("Description")
+	c = getNewTableCell("Description", config)
 	c.SetAttributes(tcell.AttrBold | tcell.AttrUnderline)
 	helpTable.SetCell(0, 2, c)
 
 	for i, shortcut := range shortcuts {
-		tc := cview.NewTableCell(shortcut.Name)
+		tc := getNewTableCell(shortcut.Name, config)
 		helpTable.SetCell(i+1, 0, tc)
 
-		tc = cview.NewTableCell(shortcut.Command)
+		tc = getNewTableCell(shortcut.Command, config)
 		tc.SetAttributes(tcell.AttrBold)
 		helpTable.SetCell(i+1, 1, tc)
 
-		tc = cview.NewTableCell(shortcut.Description)
+		tc = getNewTableCell(shortcut.Description, config)
 		helpTable.SetCell(i+1, 2, tc)
 	}
 
@@ -335,7 +568,7 @@ func createHelpBox() *cview.Panels {
 	return p
 }
 
-func createRefreshBox() *cview.Panels {
+func createRefreshBox(config *core.TlConfig) *cview.Panels {
 	p := cview.NewPanels()
 	p.SetBorder(true)
 	p.SetTitle(" [::bu]Refreshing stream[::-]: ")
@@ -344,6 +577,45 @@ func createRefreshBox() *cview.Panels {
 	tv := cview.NewTextView()
 	tv.SetTextAlign(cview.AlignCenter)
 	tv.SetText("TinyLogs are being refreshed, please wait…")
+
+	// Background color, default is black:
+	tv.SetBackgroundColor(tcell.ColorBlack.TrueColor())
+	p.SetBackgroundColor(tcell.ColorBlack.TrueColor())
+	if config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			tv.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+			p.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Text color, default is white:
+	tv.SetTextColor(tcell.ColorWhite.TrueColor())
+	p.SetTitleColor(tcell.ColorWhite.TrueColor())
+	if config.Tui_color_text != "" {
+		h, e := strconv.ParseInt(config.Tui_color_text, 16, 32)
+		if e != nil {
+			log.Println("Text color isn't valid (tui_color_text)")
+		} else {
+			tv.SetTextColor(tcell.NewHexColor(int32(h)))
+			p.SetTitleColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Border color, default is green:
+	p.SetBorderColor(tcell.ColorGreen.TrueColor())
+	p.SetBorderColorFocused(tcell.ColorGreen.TrueColor())
+	if config.Tui_color_focus_box != "" {
+		h, e := strconv.ParseInt(config.Tui_color_focus_box, 16, 32)
+		if e != nil {
+			log.Println("Text color isn't valid (tui_color_text)")
+		} else {
+			p.SetBorderColor(tcell.NewHexColor(int32(h)))
+			p.SetTitleColor(tcell.NewHexColor(int32(h)))
+		}
+	}
 
 	p.AddPanel("refreshing", tv, true, true)
 	TlTui.SideBarBox.AddPanel("subscriptions", TlTui.ListTl, true, true)
@@ -408,7 +680,7 @@ func getStatusIcon(f core.TlFeed) string {
 	return r
 }
 
-func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
+func gemtextFormat(s string, isHighlighted bool, emoji bool, config *core.TlConfig) string {
 	closeFormat := "[-:-:-]"
 	if isHighlighted == true {
 		closeFormat = "[-:-:b]"
@@ -416,15 +688,34 @@ func gemtextFormat(s string, isHighlighted bool, emoji bool) string {
 
 	// Format quotes:
 	re := regexp.MustCompile("(?im)^(> .*)($)")
+	// Quoted text, default color is grey (808080):
+	quoteColor := "808080"
+	if config.Tui_color_quote != "" {
+		h, e := strconv.ParseInt(config.Tui_color_quote, 16, 32)
+		if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+			log.Println("Link color isn't valid (Tui_color_quote)")
+		} else {
+			quoteColor = config.Tui_color_quote
+		}
+	}
 	if isHighlighted == true {
-		s = re.ReplaceAllString(s, "[grey:-:bi] $1"+closeFormat+"$2")
+		s = re.ReplaceAllString(s, "[#"+quoteColor+":-:bi] $1"+closeFormat+"$2")
 	} else {
-		s = re.ReplaceAllString(s, "[grey:-:i] $1"+closeFormat+"$2")
+		s = re.ReplaceAllString(s, "[#"+quoteColor+":-:i] $1"+closeFormat+"$2")
 	}
 
-	// Format links:
+	// Format links, default color is skyblue (87CEEB):
+	linkColor := "87ceeb"
+	if config.Tui_color_links != "" {
+		h, e := strconv.ParseInt(config.Tui_color_elapsed_time, 16, 32)
+		if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+			log.Println("Link color isn't valid (Tui_color_links)")
+		} else {
+			linkColor = config.Tui_color_links
+		}
+	}
 	re = regexp.MustCompile("(?im)^(=>)( [^\n]*[\n]*)")
-	s = re.ReplaceAllString(s, "[skyblue:-:b]→$2"+closeFormat)
+	s = re.ReplaceAllString(s, "[#"+linkColor+":-:b]→$2"+closeFormat)
 
 	// Format responses:
 	// Must be after link format.
@@ -473,9 +764,44 @@ func isMuted(author string) (bool, int) {
 	return found, foundIndex
 }
 
-func createFormModal() *cview.Modal {
+func createFormModal(config *core.TlConfig) *cview.Modal {
 	m := cview.NewModal()
+
+	// Background color, default is black:
 	m.SetBackgroundColor(tcell.ColorBlack.TrueColor())
+	if config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			m.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Border color, default is white:
+	frame := m.GetFrame()
+	frame.SetBorderColorFocused(tcell.ColorWhite.TrueColor())
+	frame.SetBorderColor(tcell.ColorWhite.TrueColor())
+	if config.Tui_color_focus_box != "" {
+		h, e := strconv.ParseInt(config.Tui_color_focus_box, 16, 32)
+		if e != nil {
+			log.Println("Focus box color isn't valid (Tui_color_focus_box)")
+		} else {
+			frame.SetBorderColorFocused(tcell.NewHexColor(int32(h)))
+			frame.SetBorderColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Default text color:
+	if config.Tui_color_text != "" {
+		h, e := strconv.ParseInt(config.Tui_color_text, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_text)")
+		} else {
+			m.SetTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
 	return m
 }
 
@@ -537,4 +863,21 @@ func createResponseStub(tlfi *core.TlFeedItem, dateFormat string) string {
 
 func copyToClipboard(content string) error {
 	return clipboard.WriteAll(content)
+}
+
+func getNewTableCell(title string, config *core.TlConfig) *cview.TableCell {
+	c := cview.NewTableCell(title)
+	// Text color, default to white:
+	c.SetTextColor(tcell.ColorWhite.TrueColor())
+	// If in config:
+	if config.Tui_color_text != "" {
+		h, e := strconv.ParseInt(config.Tui_color_text, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_text)")
+		} else {
+			c.SetTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	return c
 }

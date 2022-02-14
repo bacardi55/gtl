@@ -71,7 +71,7 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.Layout.SetDirection(cview.FlexRow)
 
 	TlTui.MainFlex = cview.NewFlex()
-	TlTui.SideBarBox = sideBarBox(data.Feeds)
+	TlTui.SideBarBox = sideBarBox(data)
 	TlTui.MainFlex.AddItem(TlTui.SideBarBox, 0, 1, false)
 	TlTui.ContentBox = contentBox(data)
 	TlTui.MainFlex.AddItem(TlTui.ContentBox, 0, 3, true)
@@ -87,8 +87,8 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.FocusManager = focusManager
 	TlTui.FocusManager.Focus(TlTui.ContentBox)
 
-	TlTui.HelpBox = createHelpBox()
-	TlTui.RefreshBox = createRefreshBox()
+	TlTui.HelpBox = createHelpBox(TlTui.TlConfig)
+	TlTui.RefreshBox = createRefreshBox(data.Config)
 
 	TlTui.NbEntries = len(data.Stream.Items)
 
@@ -100,7 +100,7 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 }
 
 func (TlTui *TlTUI) InitTlEditor(tinylogPath string, postScriptPath string, postScriptRefresh bool) error {
-	TlTui.FormModal = createFormModal()
+	TlTui.FormModal = createFormModal(TlTui.TlConfig)
 	TlTui.ContentBox.AddPanel("newEntryModal", TlTui.FormModal, true, false)
 
 	if err := Tle.Init(tinylogPath, postScriptPath, postScriptRefresh); err != nil {

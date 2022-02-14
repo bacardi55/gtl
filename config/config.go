@@ -16,6 +16,7 @@ import (
 )
 
 var defaultConf = []byte(`# Default config file
+## General configuration:
 # Path to subscribed tinylogs:
 subscribed_data = "~/.config/gtl/subs"
 # Date display format
@@ -33,6 +34,7 @@ mode = "tui"
 # If false, standard ascii characters will be used.
 tui_status_emoji = false
 
+## TUI options:
 # Enable tinylog edition from gtl:
 # This will use an external editor,
 # configured in your EDITOR environment variable.
@@ -65,6 +67,21 @@ tui_copy_stub_clipboard = false
 # At this stage, the rendering is ugly because of an issue in cview:
 # https://code.rocketnine.space/tslocum/cview/issues/72#issuecomment-3968
 tui_show_stub = false
+
+## TUI Theming:
+# Define colors for GTL TUI mode.
+# Default (dark) theme:
+#tui_color_background = "000000"
+#tui_color_box = "FFFFFF"
+#tui_color_focus_box = "008000"
+#tui_color_author_name = "FF0000"
+#tui_color_links = "87CEEB"
+#tui_color_elapsed_time = "87CEEB"
+#tui_color_text = "FFFFFF"
+#tui_color_selected_background = "FFFFFF"
+#tui_color_selected_foreground = "000000"
+#tui_color_highlight = "FF0000"
+#tui_color_quote = "808080"
 `)
 
 func Init(configArg string, Data *core.TlData) {

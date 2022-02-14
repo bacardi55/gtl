@@ -59,12 +59,13 @@ tui_copy_stub_clipboard = false
 # At this stage, the rendering is ugly because of an issue in cview:
 # https://code.rocketnine.space/tslocum/cview/issues/72#issuecomment-3968
 tui_show_stub = false
+# TUI Theming:
+# Please see the TUI and theming documentation page in docs/mode-tui.md and docs/theming.md
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.
 
 The --config option only look for the file, it will not create it if the file given as argument of --config doesn't exist.
-
 
 ## Subscription management
 
