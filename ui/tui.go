@@ -30,6 +30,7 @@ var shortcuts = []TlShortcut{
 	{"Reply to tinylog entry", "R", "On a selected entry, open tinylog editor with optional stub in clipboard."},
 	{"Open link(s) in tinylog entry", "O", "On a selected entry, open link(s) in browser."},
 	{"Open thread", "T", "If the selected entry is a response to another tinylog entry, will open the original entry in a popup."},
+	{"Open action modal", "Alt-Enter", "Open modal action for a selected entry"},
 	{"Help", "?", "Toggle displaying this help."},
 	{"Quit", "q / Ctrl-c", "Quit GTL."},
 }
