@@ -33,6 +33,7 @@ type TlTUI struct {
 	DisplayFormModal bool
 	Filter           string
 	FilterHighlights bool
+	FilterSearch     string
 	RefreshStream    func(bool)
 	LastRefresh      time.Time
 	Help             bool

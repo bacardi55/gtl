@@ -35,6 +35,7 @@ func (TlTui *TlTUI) SetShortcuts() {
 
 	c.SetRune(tcell.ModNone, 'h', mainDisplayHandler)
 	c.SetRune(tcell.ModNone, 't', mainDisplayHandler)
+	c.SetRune(tcell.ModNone, '/', mainDisplayHandler)
 
 	c.SetRune(tcell.ModNone, 'J', tlNavHandler)
 	c.SetRune(tcell.ModNone, 'K', tlNavHandler)
@@ -52,6 +53,10 @@ func (TlTui *TlTUI) SetShortcuts() {
 
 // Manage refresh shortcut.
 func refreshHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if TlTui.DisplayFormModal == true {
+		return ev
+	}
+
 	var refreshStart = func() {
 		TlTui.App.SetRoot(TlTui.RefreshBox, true)
 		TlTui.FocusManager.Focus(TlTui.RefreshBox)
@@ -81,6 +86,8 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 	if ev.Rune() == 'h' {
 		// Toggle Highlights filter:
 		TlTui.FilterHighlights = !TlTui.FilterHighlights
+		// Remove search filter:
+		TlTui.FilterSearch = ""
 		TlTui.RefreshStream(false)
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
 
@@ -90,11 +97,32 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 		TlTui.FilterHighlights = false
 		// Remove tinylog filter:
 		TlTui.Filter = ""
+		// Remove search filter:
+		TlTui.FilterSearch = ""
 		// Select "All" in subscription sidebar:
 		TlTui.ListTl.SetCurrentItem(0)
 		TlTui.RefreshStream(false)
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
 
+		return nil
+	} else if ev.Rune() == '/' {
+		// Open search modal:
+		updateFormModalContent("Filters entries:", "Cancel", "Search", func() {
+			// Hide modal:
+			toggleFormModal()
+			// We don't change TlTui.FilterHighlights and TlTui.Filter
+			// to be able to search only a filtered entries
+			// Refresh stream (without updating tinylogs):
+			TlTui.RefreshStream(false)
+			// Focus content box:
+			TlTui.FocusManager.Focus(TlTui.ContentBox)
+		})
+		// Retrieve the form to add the search input:
+		m := TlTui.FormModal
+		f := m.GetForm()
+		f.AddInputField("search", "", 0, nil, func(text string) { searchHandler(text) })
+
+		toggleFormModal()
 		return nil
 	}
 
@@ -107,6 +135,10 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 // s: hide/Show sidebar.
 // q: quit.
 func uiChangeHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if TlTui.DisplayFormModal == true {
+		return ev
+	}
+
 	if ev.Key() == tcell.KeyTAB {
 		if TlTui.DisplayFormModal == true {
 			return ev
@@ -453,6 +485,11 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 	}
 
 	return nil
+}
+
+func searchHandler(text string) {
+	// Just add the content of the search input in a global variable:
+	TlTui.FilterSearch = text
 }
 
 func gemtextFormatModal(tlfi *core.TlFeedItem) string {

@@ -4,6 +4,7 @@ CHANGELOG
 
 ### New features:
 * Implements #44: Custom theme. See the documentation in [docs/mode-tui-theming.md]
+* Implements #47: Search. Shortcut `/` will open a modal asking for a search. It will basically filter entries that contains exactly your search (case insensitive). It isn’t fuzzy or advance searching (more filtering)
 
 ### Bug Fixes
 * Fix 42: Hide new line separator in response stub

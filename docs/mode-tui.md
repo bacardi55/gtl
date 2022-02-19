@@ -26,6 +26,7 @@ N: Open tinylog in $EDITOR and optionaly copy a new entry stub to clipboard. (Se
 R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific entry. (See configuration below.) # since v0.6.0
 O: Open link(s) in selected entry. # since v0.6.0
 T: If the selected entry is a response to another tinylog entry, will open the original entry in a popup.
+/: Search entries containing a specific text. Search will keep the active filters ((un)muted tinylog(s), highlights) to only search on already filtered entries. Search is very basic, it will filters exact text only (case insensitive).
 q or Ctrl-C: Quit
 ```
 You can navigate on the subscription list and:

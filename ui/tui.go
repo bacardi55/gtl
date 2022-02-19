@@ -31,6 +31,7 @@ var shortcuts = []TlShortcut{
 	{"Open link(s) in tinylog entry", "O", "On a selected entry, open link(s) in browser."},
 	{"Open thread", "T", "If the selected entry is a response to another tinylog entry, will open the original entry in a popup."},
 	{"Open action modal", "Alt-Enter", "Open modal action for a selected entry"},
+	{"Search", "/", "Search entries containing a specific text. Search will keep the active filters ((un)muted tinylog(s), highlights) to only search on already filtered entries"},
 	{"Help", "?", "Toggle displaying this help."},
 	{"Quit", "q / Ctrl-c", "Quit GTL."},
 }
@@ -201,7 +202,8 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	nbEntries := 0
 	for _, i := range data.Stream.Items {
 		// If a limit is set and has been reached.
-		if data.Config.Tui_max_entries > 0 && nbEntries >= data.Config.Tui_max_entries {
+		// In case of search, we don't care about max entries limit:
+		if len(TlTui.FilterSearch) == 0 && (data.Config.Tui_max_entries > 0 && nbEntries >= data.Config.Tui_max_entries) {
 			break
 		}
 
@@ -217,33 +219,38 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 			}
 		}
 
+		// Highlight color, default is red (ff0000):
+		hightlightColor := "ff0000"
+		if data.Config.Tui_color_highlight != "" {
+			h, e := strconv.ParseInt(data.Config.Tui_color_highlight, 16, 32)
+			if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+				log.Println("Author name color isn't valid (Tui_color_highlight)")
+			} else {
+				hightlightColor = data.Config.Tui_color_highlight
+			}
+		}
+
 		f := false
 		if len(data.Config.Highlights) > 0 {
 			if highlights := strings.Split(data.Config.Highlights, ","); len(highlights) > 0 {
-				for _, h := range highlights {
-					h = strings.TrimSpace(h)
-					if strings.Contains(i.Content, h) {
-						// Highlight color, default is red (ff0000):
-						hightlightColor := "ff0000"
-						if data.Config.Tui_color_highlight != "" {
-							h, e := strconv.ParseInt(data.Config.Tui_color_highlight, 16, 32)
-							if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
-								log.Println("Author name color isn't valid (Tui_color_highlight)")
-							} else {
-								hightlightColor = data.Config.Tui_color_highlight
-							}
-						}
-						i.Content = strings.Replace(i.Content, h, "[:#"+hightlightColor+":]"+h+"[:-:]", -1)
-						f = true
-						break
-					}
-				}
+				i.Content, f = hightlightContent(i.Content, highlights, hightlightColor)
+			}
+		}
+
+		// Active search:
+		if len(TlTui.FilterSearch) > 0 {
+			highlights := make([]string, 1)
+			highlights[0] = TlTui.FilterSearch
+			i.Content, f = hightlightContent(i.Content, highlights, hightlightColor)
+
+			// If active search and not found in entry, ignore it:
+			if f == false {
+				continue
 			}
 		}
 
 		// Highlights only:
 		var c string
-		ignoreEntry := false
 		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
 			c = gemtextFormat(i.Content, false, TlTui.TlConfig.Tui_status_emoji, data.Config)
@@ -253,47 +260,50 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 				c = "[:-:b]" + c + "[:-:-]"
 			}
 		} else {
-			ignoreEntry = true
+			continue
 		}
 
 		// Entry not ignored:
-		if ignoreEntry != true {
-			// Author color, default is red (ff0000):
-			authorColor := "ff0000"
-			if data.Config.Tui_color_author_name != "" {
-				h, e := strconv.ParseInt(data.Config.Tui_color_author_name, 16, 32)
-				if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
-					log.Println("Author name color isn't valid (Tui_color_author_name)")
-				} else {
-					authorColor = data.Config.Tui_color_author_name
-				}
+		// Author color, default is red (ff0000):
+		authorColor := "ff0000"
+		if data.Config.Tui_color_author_name != "" {
+			h, e := strconv.ParseInt(data.Config.Tui_color_author_name, 16, 32)
+			if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+				log.Println("Author name color isn't valid (Tui_color_author_name)")
+			} else {
+				authorColor = data.Config.Tui_color_author_name
 			}
-			a := fmt.Sprintf("[#" + authorColor + "]" + i.Author + "[-::]")
-
-			// ElapsedColor, default is Skyblue (87CEEB):
-			elapsedColor := "87ceeb"
-			if data.Config.Tui_color_elapsed_time != "" {
-				h, e := strconv.ParseInt(data.Config.Tui_color_elapsed_time, 16, 32)
-				if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
-					log.Println("Elapsed time color isn't valid (Tui_color_elapsed_time)")
-				} else {
-					elapsedColor = data.Config.Tui_color_elapsed_time
-				}
-			}
-			d := "[#" + elapsedColor + "::]" + formatElapsedTime(t.Sub(i.Published)) + "[-::]"
-
-			// Separator:
-			if isTlEntryNew(i, TlTui.LastRefresh) != true && separator != true {
-				if nbEntries > 0 {
-					content = content + "            --------------------------- \n"
-				}
-				separator = true
-			}
-
-			content = content + fmt.Sprintf("\n[\"entry-"+strconv.Itoa(nbEntries)+"\"]%v - %v\n%v\n%v\n", d, i.Published.Format(data.Config.Date_format), a, c)
-			nbEntries++
 		}
+		a := fmt.Sprintf("[#" + authorColor + "]" + i.Author + "[-::]")
+
+		// ElapsedColor, default is Skyblue (87CEEB):
+		elapsedColor := "87ceeb"
+		if data.Config.Tui_color_elapsed_time != "" {
+			h, e := strconv.ParseInt(data.Config.Tui_color_elapsed_time, 16, 32)
+			if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+				log.Println("Elapsed time color isn't valid (Tui_color_elapsed_time)")
+			} else {
+				elapsedColor = data.Config.Tui_color_elapsed_time
+			}
+		}
+		d := "[#" + elapsedColor + "::]" + formatElapsedTime(t.Sub(i.Published)) + "[-::]"
+
+		// Separator:
+		if isTlEntryNew(i, TlTui.LastRefresh) != true && separator != true {
+			if nbEntries > 0 {
+				content = content + "            --------------------------- \n"
+			}
+			separator = true
+		}
+
+		content = content + fmt.Sprintf("\n[\"entry-"+strconv.Itoa(nbEntries)+"\"]%v - %v\n%v\n%v\n", d, i.Published.Format(data.Config.Date_format), a, c)
+		nbEntries++
 	}
+
+	// Clean search filter after displaying search results.
+	// This will avoid always having previous search still
+	// highlighting text:
+	TlTui.FilterSearch = ""
 
 	tv := cview.NewTextView()
 	tv.SetDynamicColors(true)
@@ -882,4 +892,17 @@ func getNewTableCell(title string, config *core.TlConfig) *cview.TableCell {
 	}
 
 	return c
+}
+
+func hightlightContent(content string, highlights []string, hightlightColor string) (string, bool) {
+	f := false
+	for _, h := range highlights {
+		h = strings.TrimSpace(h)
+		if strings.Contains(content, h) {
+			content = strings.Replace(content, h, "[:#"+hightlightColor+":]"+h+"[:-:]", -1)
+			f = true
+		}
+	}
+
+	return content, f
 }
