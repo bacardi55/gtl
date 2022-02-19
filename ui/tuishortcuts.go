@@ -116,6 +116,11 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 			TlTui.RefreshStream(false)
 			// Focus content box:
 			TlTui.FocusManager.Focus(TlTui.ContentBox)
+
+			// Clean search filter after displaying search results.
+			// This avoids having previous search still highlighted.
+			// It needs to be after title generation.
+			TlTui.FilterSearch = ""
 		})
 		// Retrieve the form to add the search input:
 		m := TlTui.FormModal

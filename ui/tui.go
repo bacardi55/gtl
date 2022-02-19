@@ -230,10 +230,12 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 			}
 		}
 
+		itemContent := i.Content
+
 		f := false
 		if len(data.Config.Highlights) > 0 {
 			if highlights := strings.Split(data.Config.Highlights, ","); len(highlights) > 0 {
-				i.Content, f = hightlightContent(i.Content, highlights, hightlightColor)
+				itemContent, f = hightlightContent(itemContent, highlights, hightlightColor)
 			}
 		}
 
@@ -241,7 +243,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		if len(TlTui.FilterSearch) > 0 {
 			highlights := make([]string, 1)
 			highlights[0] = TlTui.FilterSearch
-			i.Content, f = hightlightContent(i.Content, highlights, hightlightColor)
+			itemContent, f = hightlightContent(itemContent, highlights, hightlightColor)
 
 			// If active search and not found in entry, ignore it:
 			if f == false {
@@ -253,9 +255,9 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		var c string
 		if TlTui.FilterHighlights == true && f == true {
 			// No bold because all would be bold.
-			c = gemtextFormat(i.Content, false, TlTui.TlConfig.Tui_status_emoji, data.Config)
+			c = gemtextFormat(itemContent, false, TlTui.TlConfig.Tui_status_emoji, data.Config)
 		} else if TlTui.FilterHighlights == false {
-			c = gemtextFormat(i.Content, f, TlTui.TlConfig.Tui_status_emoji, data.Config)
+			c = gemtextFormat(itemContent, f, TlTui.TlConfig.Tui_status_emoji, data.Config)
 			if f == true {
 				c = "[:-:b]" + c + "[:-:-]"
 			}
@@ -299,11 +301,6 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		content = content + fmt.Sprintf("\n[\"entry-"+strconv.Itoa(nbEntries)+"\"]%v - %v\n%v\n%v\n", d, i.Published.Format(data.Config.Date_format), a, c)
 		nbEntries++
 	}
-
-	// Clean search filter after displaying search results.
-	// This will avoid always having previous search still
-	// highlighting text:
-	TlTui.FilterSearch = ""
 
 	tv := cview.NewTextView()
 	tv.SetDynamicColors(true)
@@ -494,13 +491,15 @@ func createTimelineTitle(t time.Time, highlights bool, filter string, config *co
 		}
 	}
 
-	start := ""
-
-	if highlights == true {
-		start = start + "[#" + defaultColor + "::bu]Highlights[::-]"
+	var title string
+	if TlTui.FilterSearch != "" {
+		title = "Searching \"" + TlTui.FilterSearch + "\""
+	} else if highlights == true {
+		title = "Highlights"
 	} else {
-		start = start + "[#" + defaultColor + "::bu]Timeline[::-]"
+		title = "Timeline"
 	}
+	start := "[#" + defaultColor + "::bu]" + title + "[::-]"
 
 	if filter != "" {
 		start = start + " from [#" + authorColor + "::]" + filter + "[#" + defaultColor + "::]"
