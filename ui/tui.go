@@ -345,7 +345,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 	if data.Config.Tui_color_text != "" {
 		h, e := strconv.ParseInt(data.Config.Tui_color_text, 16, 32)
 		if e != nil {
-			log.Println("Background color isn't valid (tui_color_text)")
+			log.Println("Text color isn't valid (tui_color_text)")
 		} else {
 			tv.SetTextColor(tcell.NewHexColor(int32(h)))
 		}
