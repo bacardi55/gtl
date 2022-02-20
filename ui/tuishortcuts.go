@@ -296,6 +296,27 @@ func shiftEnterHandler(ev *tcell.EventKey) *tcell.EventKey {
 		e := tcell.NewEventKey(0, 'R', tcell.ModNone)
 		openEditorHandler(e)
 	})
+
+	tlUrl := ""
+	for i := 0; i < len(TlTui.TlStream.Items); i++ {
+		if tlfi.Author == TlTui.TlStream.Items[i].Author {
+			// Because of time approximation:
+			tDiff := TlTui.TlStream.Items[i].Published.Sub(tlfi.Published)
+			if tDiff < 0 {
+				tDiff = -tDiff
+			}
+			if tDiff < time.Minute {
+				tlUrl = TlTui.TlStream.Items[i].Uri
+				break
+			}
+		}
+	}
+	if tlUrl != "" {
+		TlTui.FormModal.GetForm().AddButton("Open TinyLog", func() {
+			toggleFormModal()
+			openLinkInBrowser(tlUrl)
+		})
+	}
 	TlTui.FormModal.GetForm().AddButton("Cancel", func() {
 		toggleFormModal()
 	})

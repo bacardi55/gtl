@@ -69,12 +69,13 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 	log.Println("Retrieving content from ", feed.Link)
 
 	// Fallback title if not within tinylog response page.
-	var rf TlRawFeed
+	var n string
 	if strings.TrimSpace(feed.Title) != "" {
-		rf = TlRawFeed{Name: feed.Title}
+		n = feed.Title
 	} else {
-		rf = TlRawFeed{Name: "Unknown"}
+		n = "Unknown"
 	}
+	rf := TlRawFeed{Name: n, Url: feed.Link}
 
 	gemclient := &gemini.Client{}
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(2)*time.Second)
@@ -117,6 +118,7 @@ func loadTinyLogContent(feed TlFeed, chFeedContent chan TlRawFeed, chFeedError c
 // Parse gemini content of the tinylog file.
 func parseTinyLogContent(rawFeed TlRawFeed) (string, []*TlFeedItem, error) {
 	author := rawFeed.Name
+	tlUrl := rawFeed.Url
 	var fi []*TlFeedItem
 
 	currentPos := 0
@@ -149,7 +151,7 @@ func parseTinyLogContent(rawFeed TlRawFeed) (string, []*TlFeedItem, error) {
 		} else {
 			end = entriesIndex[i+1][0] - 1
 		}
-		f, err := parseTinyLogItem(content[start:end], author)
+		f, err := parseTinyLogItem(content[start:end], author, tlUrl)
 		if err != nil {
 			// Ignoring the entry but continuing in case other entries of this feed are in a known format.
 			log.Println(err)
@@ -186,7 +188,7 @@ func parseTinyLogHeaderForAuthor(header string) string {
 }
 
 // Parse tinylog Item.
-func parseTinyLogItem(content string, author string) (TlFeedItem, error) {
+func parseTinyLogItem(content string, author string, url string) (TlFeedItem, error) {
 	ft := TlFeedItem{Author: author}
 
 	lines := strings.Split(content, "\n")
@@ -203,6 +205,10 @@ func parseTinyLogItem(content string, author string) (TlFeedItem, error) {
 
 	ft.Content = strings.TrimSpace(entry)
 	ft.Published = pubDate
+	// This will have a better use when gemtext specification will
+	// allow Uri fragments:
+	// https://gitlab.com/gemini-specification/gemini-text/-/issues/3#note_771701460
+	ft.Uri = url
 
 	return ft, nil
 }

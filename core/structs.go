@@ -74,6 +74,7 @@ type TlFeedItem struct {
 	Author    string
 	Content   string
 	Published time.Time
+	Uri       string
 }
 
 type TlStream struct {

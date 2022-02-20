@@ -10,6 +10,7 @@ type TlRawFeed struct {
 	Name    string
 	Content string
 	Status  int
+	Url     string
 }
 
 // Refresh Stream.
