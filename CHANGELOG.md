@@ -6,6 +6,7 @@ CHANGELOG
 * Implements #44: Custom theme. See the documentation in [docs/mode-tui-theming.md]
 * Implements #47: Search. Shortcut `/` will open a modal asking for a search. It will basically filter entries that contains exactly your search (case insensitive). It isn’t fuzzy or advance searching (more filtering)
 * Implements #48: Add button to go to author tinylog on action modal (alt+enter)
+* Implements #40: Add tinylog url in the gemini mode output (used for generating gemini://tinylogs.gmi.bacardi55.io)
 
 ### Bug Fixes
 * Fix 42: Hide new line separator in response stub

@@ -27,7 +27,7 @@ func displayStreamGemini(data *core.TlData, limit int) error {
 	output += "author: @gtl\n"
 	output += "last refresh: " + time.Now().Format(data.Config.Date_format)
 	output += "\n=> https://codeberg.org/bacardi55/gemini-tinylog-rfc Tinylog RFC"
-	output += "\ncurrently agregating " + strconv.Itoa(len(data.Feeds)) + " tinylogs\n\n"
+	output += "\ncurrently agregating " + strconv.Itoa(len(data.Feeds)) + " tinylogs (Urls at the bottom of the page)\n\n"
 
 	for i := 0; i < max; i++ {
 		output += "## "
@@ -37,13 +37,13 @@ func displayStreamGemini(data *core.TlData, limit int) error {
 		output += "\n" + stream.Items[i].Content + "\n\n"
 	}
 
-	output += "=> https://github.com/bacardi55/gtl gtl\n\n"
-
 	var authors []string
 	for _, f := range data.Feeds {
-		authors = append(authors, f.DisplayName)
+		authors = append(authors, "=> "+f.Link+" "+f.DisplayName)
 	}
-	output += "Agregated tinylogs: " + strings.Join(authors, ", ")
+	output += "Agregated tinylogs: \n" + strings.Join(authors, "\n")
+
+	output += "\n\n=> https://github.com/bacardi55/gtl gtl"
 
 	fmt.Println(output)
 	return nil
