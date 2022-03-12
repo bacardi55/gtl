@@ -725,8 +725,8 @@ func gemtextFormat(s string, isHighlighted bool, emoji bool, config *core.TlConf
 			linkColor = config.Tui_color_links
 		}
 	}
-	re = regexp.MustCompile("(?im)^(=>)( [^\n]*[\n]*)")
-	s = re.ReplaceAllString(s, "[#"+linkColor+":-:b]→$2"+closeFormat)
+	re = regexp.MustCompile("(?im)^(=>) ?([^\n]*[\n]*)")
+	s = re.ReplaceAllString(s, "[#"+linkColor+":-:b]→ $2"+closeFormat)
 
 	// Format responses:
 	// Must be after link format.

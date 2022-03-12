@@ -12,6 +12,7 @@ CHANGELOG
 * Fix 42: Hide new line separator in response stub
 * Fix subscription name with space in their name
 * Fix #45: Crash when empty line in subscription file
+* Fix #49: Allow link without space between `=>` and the actual link.
 
 ## v0.6.0:
 
