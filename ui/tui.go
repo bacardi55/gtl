@@ -21,6 +21,7 @@ var shortcuts = []TlShortcut{
 	{"Refresh", "r", "Refresh timeline but keep active filters."},
 	{"Timeline", "t", "Display timeline, remove active filters."},
 	{"Highlights", "h", "Display only entries containing highlights, keep tinylog filters active."},
+	{"Bookmarks", "b", "Display saved entries (aka bookmark)"},
 	{"Focus", "TAB", "Switch focus between the timeline and the subsciption list."},
 	{"Sidebar toggle", "s", "Hide/Show TinyLogs sidebar."},
 	{"Fitler tinylog", "Enter/Left click", "Only display entries from this tinylog."},
@@ -30,6 +31,8 @@ var shortcuts = []TlShortcut{
 	{"Reply to tinylog entry", "R", "On a selected entry, open tinylog editor with optional stub in clipboard."},
 	{"Open link(s) in tinylog entry", "O", "On a selected entry, open link(s) in browser."},
 	{"Open thread", "T", "If the selected entry is a response to another tinylog entry, will open the original entry in a popup."},
+	{"Save bookmark", "B", "On a selected entry, save it to the bookmarks file."},
+	{"Delete bookmark", "D", "On a selected entry on the bookmark page, delete the selected entry from the bookmarks file."},
 	{"Open action modal", "Alt-Enter", "Open modal action for a selected entry"},
 	{"Search", "/", "Search entries containing a specific text. Search will keep the active filters ((un)muted tinylog(s), highlights) to only search on already filtered entries"},
 	{"Help", "?", "Toggle displaying this help."},
@@ -904,4 +907,165 @@ func hightlightContent(content string, highlights []string, hightlightColor stri
 	}
 
 	return content, f
+}
+
+func addEntryToBookmarks(tlfi *core.TlFeedItem) error {
+	// Add to current list of bookmarks:
+	TlTui.TlBookmarks.Bookmarks = append(TlTui.TlBookmarks.Bookmarks, *tlfi)
+	// Save to file:
+	return core.SaveBookmarksToFile(TlTui.TlConfig.Bookmarks_file_path, *TlTui.TlBookmarks)
+}
+
+func createBookmarksBox(data *core.TlData) *cview.Panels {
+	p := cview.NewPanels()
+	p.SetBorder(true)
+	p.SetTitle("  Bookmarks  ")
+	p.SetPadding(0, 0, 1, 0)
+
+	// Box border color, default to white:
+	p.SetBorderColor(tcell.ColorWhite.TrueColor())
+	// If in config:
+	if data.Config.Tui_color_box != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_box, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_box)")
+		} else {
+			p.SetBorderColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Focus color, default to green:
+	p.SetBorderColorFocused(tcell.ColorGreen.TrueColor())
+	// If in config:
+	if data.Config.Tui_color_focus_box != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_focus_box, 16, 32)
+		if e != nil {
+			log.Println("Focus color isn't valid (tui_color_focus_box)")
+		} else {
+			p.SetBorderColorFocused(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Background color:
+	if data.Config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			p.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	TlTui.BookmarksTV = getBookmarksTextView(data.Bookmarks.Bookmarks, *data.Config)
+	p.AddPanel("timeline", TlTui.BookmarksTV, true, true)
+
+	return p
+}
+
+func getBookmarksTextView(bookmarks []core.TlFeedItem, config core.TlConfig) *cview.TextView {
+	tv := cview.NewTextView()
+	tv.SetDynamicColors(true)
+	tv.SetRegions(true)
+	tv.SetToggleHighlights(false)
+
+	content := getBookmarksTextViewContent(bookmarks, config)
+	tv.SetText(content)
+
+	// Theming:
+	// Selected background color, default white:
+	if config.Tui_color_selected_background != "" {
+		h, e := strconv.ParseInt(config.Tui_color_selected_background, 16, 32)
+		if e != nil {
+			log.Println("Selected background color isn't valid (Tui_color_selected_background)")
+		} else {
+			tv.SetHighlightBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Selected foreground color, default white:
+	if config.Tui_color_selected_foreground != "" {
+		h, e := strconv.ParseInt(config.Tui_color_selected_foreground, 16, 32)
+		if e != nil {
+			log.Println("Selected foreground color isn't valid (Tui_color_selected_foreground)")
+		} else {
+			tv.SetHighlightForegroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Background color:
+	if config.Tui_color_background != "" {
+		h, e := strconv.ParseInt(config.Tui_color_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_background)")
+		} else {
+			tv.SetBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Default text color:
+	if config.Tui_color_text != "" {
+		h, e := strconv.ParseInt(config.Tui_color_text, 16, 32)
+		if e != nil {
+			log.Println("Text color isn't valid (tui_color_text)")
+		} else {
+			tv.SetTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	return tv
+}
+
+func getBookmarksTextViewContent(bookmarks []core.TlFeedItem, config core.TlConfig) string {
+	var content string
+	t := time.Now()
+	bm := bookmarks
+
+	if len(bookmarks) == 0 {
+		return "No links saved in bookmarks yet."
+	}
+
+	if config.Bookmarks_reverse_order {
+		for i := len(bm) - 1; i >= 0; i-- {
+			// inverse i for entry number:
+			// Watch out in other space (like deletion) when manipulating bookmarks.
+			content += getBookmarksTextViewContentEntry(config, bm[i], len(bm)-1-i, t)
+		}
+	} else {
+		for i, b := range bm {
+			content += getBookmarksTextViewContentEntry(config, b, i, t)
+		}
+	}
+
+	return content
+}
+
+func getBookmarksTextViewContentEntry(config core.TlConfig, b core.TlFeedItem, i int, t time.Time) string {
+	// Author color, default is red (ff0000):
+	authorColor := "ff0000"
+	if config.Tui_color_author_name != "" {
+		h, e := strconv.ParseInt(config.Tui_color_author_name, 16, 32)
+		if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+			log.Println("Author name color isn't valid (Tui_color_author_name)")
+		} else {
+			authorColor = config.Tui_color_author_name
+		}
+	}
+	a := fmt.Sprintf("[#" + authorColor + "]" + b.Author + "[-::]")
+
+	// ElapsedColor, default is Skyblue (87CEEB):
+	elapsedColor := "87ceeb"
+	if config.Tui_color_elapsed_time != "" {
+		h, e := strconv.ParseInt(config.Tui_color_elapsed_time, 16, 32)
+		if e != nil || cview.ColorHex(tcell.NewHexColor(int32(h))) == "" {
+			log.Println("Elapsed time color isn't valid (Tui_color_elapsed_time)")
+		} else {
+			elapsedColor = config.Tui_color_elapsed_time
+		}
+	}
+	d := "[#" + elapsedColor + "::]" + formatElapsedTime(t.Sub(b.Published)) + "[-::]"
+
+	// Content:
+	c := gemtextFormat(b.Content, false, TlTui.TlConfig.Tui_status_emoji, &config)
+
+	return fmt.Sprintf("[\"entry-"+strconv.Itoa(i)+"\"]%v - %v\n%v\n%v[\"\"]\n\n\n", d, b.Published.Format(config.Date_format), a, c)
 }

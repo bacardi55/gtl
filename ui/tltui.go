@@ -27,6 +27,8 @@ type TlTUI struct {
 	TimelineTV       *cview.TextView
 	HelpBox          *cview.Panels
 	RefreshBox       *cview.Panels
+	BookmarksBox     *cview.Panels
+	BookmarksTV      *cview.TextView
 	ListTl           *cview.List
 	FocusManager     *cview.FocusManager
 	FormModal        *cview.Modal
@@ -43,6 +45,7 @@ type TlTUI struct {
 	NbEntries        int
 	TlConfig         *core.TlConfig
 	TlStream         *core.TlStream
+	TlBookmarks      *core.TlBookmarks
 }
 
 func (TlTui *TlTUI) InitApp() {
@@ -66,6 +69,7 @@ func (TlTui *TlTUI) InitApp() {
 func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 	TlTui.TlConfig = data.Config
 	TlTui.TlStream = data.Stream
+	TlTui.TlBookmarks = data.Bookmarks
 
 	TlTui.Layout = cview.NewFlex()
 	TlTui.Layout.SetTitle("Gemini Tiny Logs")
@@ -90,6 +94,12 @@ func (TlTui *TlTUI) SetAppUI(data *core.TlData) {
 
 	TlTui.HelpBox = createHelpBox(TlTui.TlConfig)
 	TlTui.RefreshBox = createRefreshBox(data.Config)
+
+	if TlTui.TlConfig.Bookmarks_enabled {
+		TlTui.BookmarksBox = createBookmarksBox(data)
+	} else {
+		TlTui.BookmarksBox = cview.NewPanels()
+	}
 
 	TlTui.NbEntries = len(data.Stream.Items)
 

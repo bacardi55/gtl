@@ -61,6 +61,14 @@ tui_copy_stub_clipboard = false
 tui_show_stub = false
 # TUI Theming:
 # Please see the TUI and theming documentation page in docs/mode-tui.md and docs/theming.md
+
+# Bookmarks (only available via TUI for now):
+# Enable/disable bookmarks feature:
+bookmarks_enabled = false
+# Path to bookmarks file:
+bookmarks_file = "~/.config/gtl/bookmarks.json"
+# Reverse order (from newer to older) instead of default (older to newer):
+bookmarks_reverse_order = true
 ```
 
 By default, gtl will look for ~/.config/gtl/gtl.toml . It will create it if needed.

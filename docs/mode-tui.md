@@ -17,16 +17,19 @@ PS: TUI is the default mode since v0.4.8
 ?: Display help
 r: Refresh timeline (refresh all tinylogs)
 t: Display timeline (remove all filters like highlights of specific tinylog)
-h: Toggle Highligts only / all entries (keep tinylog filter).
-s: Toggle hide/show subscription sidebar (left).
-Tab: Switch between timeline and subscription list.
+h: Toggle Highligts only / all entries (keep tinylog filter)
+b: Display saved entries (aka bookmark) # since v1.0.0
+s: Toggle hide/show subscription sidebar (left)
+Tab: Switch between timeline and subscription list
 Arrow keys up/down or j/k: scroll timeline or feeds list
 J/K: Navigate tinylog entries (to select entries) # Available only since v0.6.0
 N: Open tinylog in $EDITOR and optionaly copy a new entry stub to clipboard. (See configuration below.) # since v0.6.0
 R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific entry. (See configuration below.) # since v0.6.0
 O: Open link(s) in selected entry. # since v0.6.0
-T: If the selected entry is a response to another tinylog entry, will open the original entry in a popup.
-/: Search entries containing a specific text. Search will keep the active filters ((un)muted tinylog(s), highlights) to only search on already filtered entries. Search is very basic, it will filters exact text only (case insensitive).
+T: If the selected entry is a response to another tinylog entry, will open the original entry in a popup
+B: On a selected entry, save it to the bookmarks file # since v1.0.0
+D: When viewing bookmarks (via shortcut b) and an entry is selected, D will remove the entry from the bookmarks.
+/: Search entries containing a specific text. Search will keep the active filters ((un)muted tinylog(s), highlights) to only search on already filtered entries. Search is very basic, it will filters exact text only (case insensitive)
 q or Ctrl-C: Quit
 ```
 You can navigate on the subscription list and:

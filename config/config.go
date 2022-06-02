@@ -82,6 +82,11 @@ tui_show_stub = false
 #tui_color_selected_foreground = "000000"
 #tui_color_highlight = "FF0000"
 #tui_color_quote = "808080"
+
+# Bookmarks (only available via TUI for now):
+bookmarks_enabled = false
+bookmarks_file_path = "~/.config/gtl/bookmarks.json"
+bookmarks_reverse_order = true
 `)
 
 func Init(configArg string, Data *core.TlData) {
@@ -94,11 +99,33 @@ func Init(configArg string, Data *core.TlData) {
 
 	Feeds := getFeeds(Config.Subscribed_data)
 	Data.Feeds = Feeds
+
+	if Data.Config.Bookmarks_enabled {
+		log.Println("Trying to enable bookmarks")
+		filepath, err := loadBookmarkFile(Data.Config.Bookmarks_file_path)
+		if err != nil {
+			log.Println("Couldn't load bookmarks", err)
+			log.Println("Disabling bookmarks")
+			Data.Config.Bookmarks_enabled = false
+		}
+
+		bookmarks, e := loadBookmarks(filepath)
+		if e != nil {
+			log.Println("Couldn't init bookmarks", e)
+			log.Println("Disabling bookmarks")
+			Data.Config.Bookmarks_enabled = false
+		}
+
+		// Update real path to file in config object for reuse:
+		Data.Config.Bookmarks_file_path = filepath
+		// Save bookmarks in Data.
+		Data.Bookmarks = &bookmarks
+	}
 }
 
 // Get TlConfig.
 func getTlConfig(configArg string) core.TlConfig {
-	configFile, err := getConfigFilePath(configArg)
+	configFile, err := getConfigFilePath(configArg, "gtl.toml")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -136,9 +163,8 @@ func loadConfig(configFile string, Config *core.TlConfig) error {
 // Init Config:
 // - Try to load the given file if any.
 // - Load default configuration file otherwise. Create it if it doesn't exist.
-func getConfigFilePath(configArg string) (string, error) {
+func getConfigFilePath(configArg string, defaultFilename string) (string, error) {
 	var configFile string
-
 	if configArg != "" {
 		log.Println("Trying to load provided configuration file (%v)", configArg)
 		if e := fileExist(configArg); e != nil {
@@ -160,16 +186,17 @@ func getConfigFilePath(configArg string) (string, error) {
 			os.Mkdir(configDir, 0744)
 		}
 
-		configFile = filepath.Join(configDir, "gtl.toml")
+		configFile = filepath.Join(configDir, defaultFilename)
 
 		// Load or create configFile.
+		log.Println("Trying to load default configuration file (%v)", configFile)
 		f, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0666)
 		defer f.Close()
 		if err == nil {
-			log.Println("Default configuration file does not exist yet, creating it…")
+			log.Println("Default configuration (" + defaultFilename + ") file does not exist yet, creating it…")
 			_, err := f.Write(defaultConf)
 			if err != nil {
-				return "", fmt.Errorf("Default configuration file couldn't be created in default place")
+				return "", fmt.Errorf("Default configuration file (" + defaultFilename + ") couldn't be created in default place")
 			}
 		}
 	}
@@ -202,4 +229,37 @@ func configureLogs(config core.TlConfig) error {
 	log.SetOutput(file)
 
 	return nil
+}
+
+// Configure Bookmarks.
+func loadBookmarks(filepath string) (core.TlBookmarks, error) {
+	bookmarks, err := core.LoadBookmarksFromFile(filepath)
+	return bookmarks, err
+}
+
+func loadBookmarkFile(bookmarkFile string) (string, error) {
+	bookmarks_path, err := homedir.Expand(bookmarkFile)
+	if err != nil {
+		return "", err
+	}
+
+	filepath, err := getConfigFilePath(bookmarks_path, "bookmarks.json")
+
+	// Given bookmark file that doesn't exist…
+	// Let's create it!
+	if len(bookmarkFile) > 0 && err != nil {
+		bfp, e := homedir.Expand(bookmarkFile)
+		if e != nil {
+			return "", e
+		}
+
+		f, err := os.Create(bfp)
+		defer f.Close()
+		if err == nil {
+			log.Println("Creating custom bookmarks file: " + bookmarkFile)
+			filepath = bfp
+		}
+	}
+
+	return filepath, nil
 }

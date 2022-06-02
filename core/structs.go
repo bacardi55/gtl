@@ -12,9 +12,10 @@ const (
 )
 
 type TlData struct {
-	Feeds  map[string]TlFeed
-	Config *TlConfig
-	Stream *TlStream
+	Feeds     map[string]TlFeed
+	Config    *TlConfig
+	Stream    *TlStream
+	Bookmarks *TlBookmarks
 }
 
 func (Data *TlData) RefreshFeeds() error {
@@ -61,6 +62,10 @@ type TlConfig struct {
 	Tui_color_button_text                string
 	Tui_color_button_selected_background string
 	Tui_color_button_background          string
+	// Bookmarks
+	Bookmarks_enabled       bool
+	Bookmarks_file_path     string
+	Bookmarks_reverse_order bool
 }
 
 type TlFeed struct {
@@ -82,6 +87,12 @@ type TlStream struct {
 	// Ex: All, Notification, …
 	Name  string
 	Items []*TlFeedItem
+}
+
+type TlBookmarks struct {
+	// Name could be used later to manage multiple saved lists
+	Name      string       `json:"Name"`
+	Bookmarks []TlFeedItem `json:"Bookmarks"`
 }
 
 // Implement sort.Interface Len.

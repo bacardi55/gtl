@@ -9,29 +9,38 @@ or configure the `gtl.toml` to set `mode = tui` (see config below).
 
 PS: TUI is the default mode since v0.4.8
 
+## Shortcuts
 
-## TUI global shortcuts
+### TUI global shortcuts
 ```
 ?: Display help
 r: Refresh timeline (refresh all tinylogs)
 t: Display timeline (remove all filters like highlights of specific tinylog)
 h: Toggle Highligts only / all entries (keep tinylog filter).
 s: Toggle hide/show subscription sidebar (left).
+b: Display bookmarks (saved entries)
 Tab: Switch between timeline and subscription list.
 Arrow keys up/down or j/k: scroll timeline or feeds list
 q or Ctrl-C: Quit
 ```
 
-## TUI entry shortcuts
+### TUI entry shortcuts
 ```
 J/K: Navigate tinylog entries (to select entries) # Available only since v0.6.0
 N: Open tinylog in $EDITOR and optionaly copy a new entry stub to clipboard. (See configuration below.) # since v0.6.0
 R: Open tinylog in $EDITOR and optionaly copy a response stub to the specific entry. (See configuration below.) # since v0.6.0
 O: Open link(s) in selected entry. # since v0.6.0
 T: If the selected entry is a response to another tinylog entry, will open the original entry in a popup.
+B: Save selected entry to bookmarks
 Alt+Enter: Open the selected entry in a modal. Also show buttons to open links (O), Open a thread (T) or start a reply (R)
 Left Click on an entry: Select the clicked entry
 ```
+
+### TUI Bookmark shortcuts
+```
+D: Will remove the saved entry from bookmarks.
+```
+
 
 ## TUI subscription shortcuts
 

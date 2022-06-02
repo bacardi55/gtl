@@ -46,6 +46,10 @@ func (TlTui *TlTUI) SetShortcuts() {
 	c.SetRune(tcell.ModNone, '?', helpToggleDisplay)
 	c.SetRune(tcell.ModNone, 'q', uiChangeHandler)
 
+	c.SetRune(tcell.ModNone, 'B', bookmarkHandler)
+	c.SetRune(tcell.ModNone, 'b', bookmarkDisplayHandler)
+	c.SetRune(tcell.ModNone, 'D', bookmarkDeleteHandler)
+
 	c.SetKey(tcell.ModNone, tcell.KeyESC, uiChangeHandler)
 
 	TlTui.App.SetInputCapture(c.Capture)
@@ -79,7 +83,7 @@ func refreshHandler(ev *tcell.EventKey) *tcell.EventKey {
 }
 
 func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
-	if TlTui.DisplayFormModal == true {
+	if TlTui.DisplayFormModal == true || TlTui.BookmarksBox.HasFocus() {
 		return ev
 	}
 
@@ -140,7 +144,7 @@ func mainDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
 // s: hide/Show sidebar.
 // q: quit.
 func uiChangeHandler(ev *tcell.EventKey) *tcell.EventKey {
-	if TlTui.DisplayFormModal == true {
+	if TlTui.DisplayFormModal == true && ev.Key() != tcell.KeyESC {
 		return ev
 	}
 
@@ -168,6 +172,8 @@ func uiChangeHandler(ev *tcell.EventKey) *tcell.EventKey {
 
 		} else if TlTui.ContentBox.HasFocus() == true {
 			TlTui.TimelineTV.Highlight("")
+		} else if TlTui.BookmarksBox.HasFocus() {
+			TlTui.BookmarksTV.Highlight("")
 		}
 	} else if ev.Rune() == 's' {
 		if TlTui.DisplayFormModal == true {
@@ -216,33 +222,60 @@ func sidebarToggleDisplay() {
 
 // Manage entry selection.
 func tlNavHandler(ev *tcell.EventKey) *tcell.EventKey {
-	// Only usable on ContentBox.
-	if TlTui.ContentBox.HasFocus() == false {
+	// Only usable on ContentBox or BookmarkBox.
+	if TlTui.DisplayFormModal == true || TlTui.HelpBox.HasFocus() {
+		return ev
+	}
+
+	// If not in modal neither help, and not focused on BookmarksBox or ContentBox,
+	// default to select contentbox:
+	if !TlTui.ContentBox.HasFocus() && !TlTui.BookmarksBox.HasFocus() {
 		TlTui.FocusManager.Focus(TlTui.ContentBox)
 	}
 
 	selectedEntry := getSelectedEntryNumber()
-	if ev.Rune() == 'J' {
-		max := TlTui.NbEntries
-		if TlTui.TlConfig.Tui_max_entries > 0 && TlTui.TlConfig.Tui_max_entries < TlTui.NbEntries {
-			max = TlTui.TlConfig.Tui_max_entries
-		}
+	if TlTui.ContentBox.HasFocus() {
+		if ev.Rune() == 'J' {
+			max := TlTui.NbEntries
+			if TlTui.TlConfig.Tui_max_entries > 0 && TlTui.TlConfig.Tui_max_entries < TlTui.NbEntries {
+				max = TlTui.TlConfig.Tui_max_entries
+			}
 
-		// Highlight next item.
-		if selectedEntry < max-1 {
-			selectedEntry += 1
-		} else {
-			selectedEntry = max - 1
+			// Highlight next item.
+			if selectedEntry < max-1 {
+				selectedEntry += 1
+			} else {
+				selectedEntry = max - 1
+			}
+		} else if ev.Rune() == 'K' {
+			if selectedEntry > 0 {
+				selectedEntry -= 1
+			} else {
+				selectedEntry = 0
+			}
 		}
-	} else if ev.Rune() == 'K' {
-		if selectedEntry > 0 {
-			selectedEntry -= 1
-		} else {
-			selectedEntry = 0
+		TlTui.TimelineTV.Highlight("entry-" + strconv.Itoa(selectedEntry))
+		TlTui.TimelineTV.ScrollToHighlight()
+
+	} else if TlTui.BookmarksBox.HasFocus() {
+		if ev.Rune() == 'J' {
+			max := len(TlTui.TlBookmarks.Bookmarks)
+			// Highlight next item.
+			if selectedEntry < max-1 {
+				selectedEntry += 1
+			} else {
+				selectedEntry = max - 1
+			}
+		} else if ev.Rune() == 'K' {
+			if selectedEntry > 0 {
+				selectedEntry -= 1
+			} else {
+				selectedEntry = 0
+			}
 		}
+		TlTui.BookmarksTV.Highlight("entry-" + strconv.Itoa(selectedEntry))
+		TlTui.BookmarksTV.ScrollToHighlight()
 	}
-	TlTui.TimelineTV.Highlight("entry-" + strconv.Itoa(selectedEntry))
-	TlTui.TimelineTV.ScrollToHighlight()
 
 	return nil
 }
@@ -295,6 +328,10 @@ func shiftEnterHandler(ev *tcell.EventKey) *tcell.EventKey {
 		toggleFormModal()
 		e := tcell.NewEventKey(0, 'R', tcell.ModNone)
 		openEditorHandler(e)
+	})
+	TlTui.FormModal.GetForm().AddButton("Bookmark", func() {
+		toggleFormModal()
+		bookmarkHandler(nil)
 	})
 
 	tlUrl := ""
@@ -410,6 +447,10 @@ func launchEditor() {
 }
 
 func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if !TlTui.ContentBox.HasFocus() || TlTui.DisplayFormModal {
+		return ev
+	}
+
 	if getSelectedEntryNumber() < 0 {
 		updateFormModalContent("No selected entry.", "Ok", "", func() {})
 		toggleFormModal()
@@ -478,6 +519,9 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 }
 
 func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if !TlTui.ContentBox.HasFocus() || TlTui.DisplayFormModal {
+		return ev
+	}
 	TlTui.FocusManager.Focus(TlTui.ContentBox)
 	if getSelectedEntryNumber() < 0 {
 		updateFormModalContent("No selected entry.", "Ok", "", func() {})
@@ -508,6 +552,96 @@ func threadHandler(ev *tcell.EventKey) *tcell.EventKey {
 	} else {
 		updateFormModalContent("Not a response format, no original to look for.", "Ok", "", func() {})
 		toggleFormModal()
+	}
+
+	return nil
+}
+
+func bookmarkHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if TlTui.DisplayFormModal == true || TlTui.HelpBox.HasFocus() || TlTui.BookmarksBox.HasFocus() {
+		return ev
+	}
+
+	if !TlTui.TlConfig.Bookmarks_enabled {
+		updateFormModalContent("Bookmarks are not enabled", "Ok", "", nil)
+		toggleFormModal()
+		return ev
+	}
+
+	if getSelectedEntryNumber() < 0 {
+		updateFormModalContent("Select an entry to save to bookmark first.", "Ok", "", func() {})
+		toggleFormModal()
+		return ev
+	}
+
+	tlfi, e := getSelectedEntryText()
+	if e != nil {
+		updateFormModalContent("Couldn't find a valid entry.", "Ok", "", func() {})
+		toggleFormModal()
+	}
+	e = addEntryToBookmarks(tlfi)
+	var message string
+	if e != nil {
+		message = "Error saving bookmark:\n" + e.Error()
+	} else {
+		message = "Bookmark has been saved."
+	}
+
+	updateFormModalContent(message, "Ok", "", nil)
+	toggleFormModal()
+
+	return nil
+}
+
+func bookmarkDisplayHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if TlTui.DisplayFormModal == true || TlTui.HelpBox.HasFocus() {
+		return ev
+	}
+
+	if !TlTui.TlConfig.Bookmarks_enabled {
+		updateFormModalContent("Bookmarks are not enabled", "Ok", "", nil)
+		toggleFormModal()
+		return ev
+	}
+
+	if TlTui.BookmarksBox.HasFocus() == false {
+		// Refresh content from bookmarks data:
+		TlTui.BookmarksTV.SetText(getBookmarksTextViewContent(TlTui.TlBookmarks.Bookmarks, *TlTui.TlConfig))
+		// Remove highlights from ContentBox
+		TlTui.TimelineTV.Highlight("")
+		TlTui.App.SetRoot(TlTui.BookmarksBox, true)
+	} else {
+		TlTui.App.SetRoot(TlTui.Layout, true)
+		// Focus back on ContentBox
+		TlTui.FocusManager.Focus(TlTui.ContentBox)
+		// Remove highlights
+		TlTui.BookmarksTV.Highlight("")
+	}
+
+	return nil
+}
+
+func bookmarkDeleteHandler(ev *tcell.EventKey) *tcell.EventKey {
+	if !TlTui.BookmarksBox.HasFocus() {
+		return ev
+	}
+
+	selectedBookmark := getSelectedEntryNumber()
+	if selectedBookmark >= 0 {
+		bookmarks := TlTui.TlBookmarks.Bookmarks
+		// Remove item from Bookmark slice, keeping order.
+		// If display order is in reverse, we need to calculate the right item to remove.
+		// eg: in a list of 5 items, removing item #2 in reverse order means removing item #4.
+		if TlTui.TlConfig.Bookmarks_reverse_order {
+			selectedBookmark = len(TlTui.TlBookmarks.Bookmarks) - (selectedBookmark + 1)
+		}
+		TlTui.TlBookmarks.Bookmarks = append(bookmarks[:selectedBookmark], bookmarks[selectedBookmark+1:]...)
+		core.SaveBookmarksToFile(TlTui.TlConfig.Bookmarks_file_path, *TlTui.TlBookmarks)
+
+		// Rewrite bookmark content:
+		TlTui.BookmarksTV.SetText(getBookmarksTextViewContent(TlTui.TlBookmarks.Bookmarks, *TlTui.TlConfig))
+		// Unselect entry:
+		TlTui.BookmarksTV.Highlight("")
 	}
 
 	return nil
@@ -579,7 +713,13 @@ func findOriginalEntry(entry string) *core.TlFeedItem {
 }
 
 func getSelectedEntryText() (*core.TlFeedItem, error) {
-	entry := TlTui.TimelineTV.GetRegionText("entry-" + strconv.Itoa(getSelectedEntryNumber()))
+	var entry string
+	if TlTui.BookmarksBox.HasFocus() {
+		entry = TlTui.BookmarksTV.GetRegionText("entry-" + strconv.Itoa(getSelectedEntryNumber()))
+	} else {
+		entry = TlTui.TimelineTV.GetRegionText("entry-" + strconv.Itoa(getSelectedEntryNumber()))
+	}
+
 	lines := strings.Split(entry, "\n")
 
 	if len(lines) < 3 {
@@ -607,7 +747,12 @@ func extractLinks(tlfi *core.TlFeedItem) []string {
 }
 
 func getSelectedEntryNumber() int {
-	h := TlTui.TimelineTV.GetHighlights()
+	var h []string
+	if TlTui.BookmarksBox.HasFocus() {
+		h = TlTui.BookmarksTV.GetHighlights()
+	} else {
+		h = TlTui.TimelineTV.GetHighlights()
+	}
 
 	if len(h) == 1 {
 		i, e := strconv.Atoi(strings.Replace(h[0], "entry-", "", -1))
