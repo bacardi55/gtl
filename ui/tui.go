@@ -234,6 +234,8 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		}
 
 		itemContent := i.Content
+		// Special for "[" and "]" to avoid special treatment from cview.TextView:
+		itemContent = strings.Replace(itemContent, "]", "[]", -1)
 
 		f := false
 		if len(data.Config.Highlights) > 0 {
