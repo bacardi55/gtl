@@ -26,6 +26,9 @@ log_file = "/dev/null"
 # Optional: Highlight when text is found in content.
 # Separate values by a coma, eg:
 # highlights = "@bacardi55, @bacardi, anything"
+# Ignore Highlights from author:
+# Must be the full author displayed name!
+# ignore_author_highlights = "🤔 @bacardi55"
 # Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
 # Will be ignored in tui mode.
 cli_limit = 10

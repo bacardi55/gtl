@@ -15,6 +15,9 @@ log_file = "/dev/null"
 # Optional: Highlight when text is found in content.
 # Separate values by a coma, eg:
 # highlights = "@bacardi55, @bacardi, anything"
+# Ignore Highlights from author:
+# Must be the full author displayed name!
+# ignore_author_highlights = "🤔 @bacardi55"
 # Maximum number of entries showed in cli mode. If --limit is used, it will overide this setting.
 # Will be ignored in tui mode.
 cli_limit = 10
@@ -61,6 +64,22 @@ tui_copy_stub_clipboard = false
 tui_show_stub = false
 # TUI Theming:
 # Please see the TUI and theming documentation page in docs/mode-tui.md and docs/theming.md
+# Dracula theme example:
+#tui_color_background = "282a36"
+#tui_color_text = "f8f8f2"
+#tui_color_author_name = "ffb86c"
+#tui_color_links = "8be9fd"
+#tui_color_box = "44475a"
+#tui_color_focus_box = "f8f8f2"
+#tui_color_elapsed_time = "f1fa8c"
+#tui_color_selected_background = "f8f8f2"
+#tui_color_selected_foreground = "282a36"
+#tui_color_highlight = "ff79c6"
+#tui_color_quote = "f1fa8c"
+#tui_color_button_color = "44475a"
+#tui_color_button_text = "f8f8f2"
+#tui_color_button_focus = "ffb86c"
+#tui_color_button_focus_text = "282a36"
 
 # Bookmarks (only available via TUI for now):
 # Enable/disable bookmarks feature:

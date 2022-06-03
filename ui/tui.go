@@ -238,7 +238,7 @@ func getContentTextView(data *core.TlData) *cview.TextView {
 		itemContent = strings.Replace(itemContent, "]", "[]", -1)
 
 		f := false
-		if len(data.Config.Highlights) > 0 {
+		if len(data.Config.Highlights) > 0 && i.Author != data.Config.Ignore_author_highlights {
 			if highlights := strings.Split(data.Config.Highlights, ","); len(highlights) > 0 {
 				itemContent, f = hightlightContent(itemContent, highlights, hightlightColor)
 			}

@@ -30,11 +30,12 @@ func (Data *TlData) RefreshFeeds() error {
 
 type TlConfig struct {
 	// Global config:
-	Subscribed_data string
-	Date_format     string
-	Log_file        string
-	Highlights      string
-	Mode            string
+	Subscribed_data          string
+	Date_format              string
+	Log_file                 string
+	Highlights               string
+	Ignore_author_highlights string
+	Mode                     string
 	// Tinylog file edition:
 	Allow_edit        bool
 	Tinylog_path      string
