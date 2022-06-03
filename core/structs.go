@@ -48,20 +48,21 @@ type TlConfig struct {
 	Tui_copy_stub_clipboard bool
 	Tui_show_stub           bool
 	// TUI theme:
-	Tui_color_background                 string
-	Tui_color_links                      string
-	Tui_color_text                       string
-	Tui_color_focus_box                  string
-	Tui_color_author_name                string
-	Tui_color_elapsed_time               string
-	Tui_color_box                        string
-	Tui_color_selected_background        string
-	Tui_color_selected_foreground        string
-	Tui_color_highlight                  string
-	Tui_color_quote                      string
-	Tui_color_button_text                string
-	Tui_color_button_selected_background string
-	Tui_color_button_background          string
+	Tui_color_background          string
+	Tui_color_links               string
+	Tui_color_text                string
+	Tui_color_focus_box           string
+	Tui_color_author_name         string
+	Tui_color_elapsed_time        string
+	Tui_color_box                 string
+	Tui_color_selected_background string
+	Tui_color_selected_foreground string
+	Tui_color_highlight           string
+	Tui_color_quote               string
+	Tui_color_button_text         string
+	Tui_color_button_color        string
+	Tui_color_button_focus        string
+	Tui_color_button_focus_text   string
 	// Bookmarks
 	Bookmarks_enabled       bool
 	Bookmarks_file_path     string

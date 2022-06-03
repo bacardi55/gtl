@@ -812,6 +812,46 @@ func createFormModal(config *core.TlConfig) *cview.Modal {
 		}
 	}
 
+	if config.Tui_color_button_color != "" {
+		h, e := strconv.ParseInt(config.Tui_color_button_color, 16, 32)
+		if e != nil {
+			log.Println("Button_color color isn't valid (tui_color_button_color)")
+		} else {
+			m.SetButtonBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	if config.Tui_color_button_text != "" {
+		h, e := strconv.ParseInt(config.Tui_color_button_text, 16, 32)
+		if e != nil {
+			log.Println("Button_text color isn't valid (tui_color_button_text)")
+		} else {
+			m.SetButtonTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	if config.Tui_color_button_focus != "" {
+		h, e := strconv.ParseInt(config.Tui_color_button_focus, 16, 32)
+		if e != nil {
+			log.Println("Button_text color isn't valid (tui_color_button_focus)")
+		} else {
+			//m.SetButtonTextColor(tcell.NewHexColor(int32(h)))
+			form := m.GetForm()
+			form.SetButtonBackgroundColorFocused(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	if config.Tui_color_button_focus_text != "" {
+		h, e := strconv.ParseInt(config.Tui_color_button_focus_text, 16, 32)
+		if e != nil {
+			log.Println("Button_text color isn't valid (tui_color_button_focus_text)")
+		} else {
+			//m.SetButtonTextColor(tcell.NewHexColor(int32(h)))
+			form := m.GetForm()
+			form.SetButtonTextColorFocused(tcell.NewHexColor(int32(h)))
+		}
+	}
+
 	// Border color, default is white:
 	frame := m.GetFrame()
 	frame.SetBorderColorFocused(tcell.ColorWhite.TrueColor())

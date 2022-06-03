@@ -21,6 +21,10 @@ tui_color_selected_background = "FFFFFF"
 tui_color_selected_foreground = "000000"
 tui_color_highlight = "FF0000"
 tui_color_quote = "808080"
+tui_color_button_color = "ffffff"
+tui_color_button_text = "000000"
+tui_color_button_focus = "008000"
+tui_color_button_focus_text = "ffffff"
 ```
 
 ![Gtl TUI screenshot](/docs/images/gtl_tui_screenshot.png)
@@ -44,6 +48,10 @@ tui_color_selected_background = "f8f8f2"
 tui_color_selected_foreground = "44475a"
 tui_color_highlight = "ff79c6"
 tui_color_quote = "f1fa8c"
+tui_color_button_color = "44475a"
+tui_color_button_text = "f8f8f2"
+tui_color_button_focus = "ffb86c"
+tui_color_button_focus_text = "282a36"
 ```
 
 ![Gtl TUI screenshot (dracula based theme example)](/docs/images/gtl_tui_screenshot_dracula.png)
@@ -64,6 +72,10 @@ tui_color_selected_background = "000000"
 tui_color_selected_foreground = "ffffff"
 tui_color_highlight = "00f0f0"
 tui_color_quote = "ff5555"
+tui_color_button_color = "000000"
+tui_color_button_text = "ffffff"
+tui_color_button_focus = "ff0000"
+tui_color_button_focus_text = "111111"
 ```
 
 ![Gtl TUI screenshot (light theme example)](/docs/images/gtl_tui_screenshot_light.png)

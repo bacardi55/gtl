@@ -485,7 +485,7 @@ func linksHandler(ev *tcell.EventKey) *tcell.EventKey {
 
 		message := "Multiple links detected, open them all?\n"
 		for i, l := range links {
-			item := strconv.Itoa(i+1)
+			item := strconv.Itoa(i + 1)
 			link := l
 			message += "  (" + item + ") " + strings.TrimSpace(link) + "\n"
 
