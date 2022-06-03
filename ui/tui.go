@@ -397,6 +397,26 @@ func createListTl(data *core.TlData) *cview.List {
 		}
 	}
 
+	// Selected background color:
+	if data.Config.Tui_color_selected_background != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_selected_background, 16, 32)
+		if e != nil {
+			log.Println("Background color isn't valid (tui_color_selected_background)")
+		} else {
+			list.SetSelectedBackgroundColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
+	// Selected foreground color:
+	if data.Config.Tui_color_selected_foreground != "" {
+		h, e := strconv.ParseInt(data.Config.Tui_color_selected_foreground, 16, 32)
+		if e != nil {
+			log.Println("Foreground color isn't valid (tui_color_selected_background)")
+		} else {
+			list.SetSelectedTextColor(tcell.NewHexColor(int32(h)))
+		}
+	}
+
 	orderedTl := getOrderedSubscriptions(tl)
 	sort.Sort(&orderedTl)
 
