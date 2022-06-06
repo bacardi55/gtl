@@ -1,6 +1,21 @@
 CHANGELOG
 
-## WIP - v0.7.0 - WIP:
+## v1.0.0:
+
+**Major Release**
+
+### New features:
+* Implements #34: Add bookmarks management
+* Implements #51: Ignore highlight list
+
+### Bug Fixes:
+* Fix #50: World between bracket are not displayed
+* Fix #52 part1: highlight bar in the subscription list does not change color
+* Fix #52 part2: color of the buttons in the pop-up window does not change color
+* Fix #52 part3: Wrong links in link modal when multiple links
+* Fix #42: Entries with ## within a preformated text are failing
+
+## v0.7.0:
 
 ### New features:
 * Implements #44: Custom theme. See the documentation in [docs/mode-tui-theming.md]

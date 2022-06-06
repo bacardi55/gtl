@@ -36,6 +36,13 @@ You can navigate on the subscription list and:
 * left click or press enter: Will filter only entries from this tinylog and hide all entries from other tinylogs. A Status `F` or `🔎` is indicated.
 * right click or press alt+enter: Will open a menu to mute / unmute a tinylog. A tinylog muted means no entry from this tinylog are displayed. A Status `M` or `🔕` is displayed.
 
+**TUI Bookmarks**
+
+Since version 1.0.0, GTL can manage bookmarks:
+* To see the list of entries saved as bookmarks, press `b` (lowercase).
+* To add an entry to the saved bookmarks, use `B` when an entry is selected (select with `J` and `K`)
+* To remove an entry from the saved bookmarks, use `D` on a selected saved bookmarks (select with `J` and `K`)
+
 **TUI Theming**
 
 Please read the [theming documentation](/docs/mode-tui-theming.md) to customize colors in TUI mode.
