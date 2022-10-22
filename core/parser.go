@@ -60,6 +60,7 @@ var supportedTimeFormat = []string{
 	"02 Jan 2006 03:04:05 PM -0700",
 	"Mon Jan 2 15:04 -0700",
 	"Mon Jan 02 2006 3:04 PM -0700",
+	"2006-01-02 15:04",
 }
 
 // Load tinylog page from Feed URL
